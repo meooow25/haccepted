@@ -1,3 +1,5 @@
+module Misc where
+
 import Data.Array
 import Data.List
 

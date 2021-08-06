@@ -1,0 +1,28 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.4.
+--
+-- see: https://github.com/sol/hpack
+
+name:           haskell-algo
+version:        0.1.0.0
+license:        MIT
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+
+library
+  exposed-modules:
+      BinSearch
+      MInt
+      Misc
+  other-modules:
+      Paths_haskell_algo
+  hs-source-dirs:
+      src
+  ghc-options: -Wall
+  build-depends:
+      array
+    , base >=4.7 && <5
+  default-language: Haskell2010
