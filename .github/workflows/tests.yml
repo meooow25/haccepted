@@ -17,6 +17,6 @@ jobs:
         enable-stack: true
         stack-version: 'latest'
     - name: Build
-      run: stack build
+      run: stack test --no-run-tests
     - name: Test
       run: stack test
