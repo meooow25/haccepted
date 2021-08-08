@@ -19,4 +19,4 @@ jobs:
     - name: Build
       run: stack test --no-run-tests
     - name: Test
-      run: stack test
+      run: stack test --color always
