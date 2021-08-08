@@ -16,6 +16,14 @@ jobs:
         ghc-version: '8.10.1' # Current Codeforces version
         enable-stack: true
         stack-version: 'latest'
+    - uses: actions/cache@v2
+      with:
+        path: |
+          ~/.stack
+          ./stack-work
+        key: ${{ runner.os }}-stack-${{ hashFiles('stack.yaml.lock', 'package.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-stack
     - name: Build
       run: stack test --no-run-tests
     - name: Test
