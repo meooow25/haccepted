@@ -1,0 +1,23 @@
+name: haskell-algo
+version: 0.1.0.0
+
+extra-source-files:
+- README.md
+
+dependencies:
+- base >= 4.7 && < 5
+- array
+
+ghc-options: -Wall
+
+library:
+  source-dirs: src
+
+tests:
+  all:
+    source-dirs: tests
+    main: Spec.hs
+    dependencies:
+    - haskell-algo
+    - hspec
+    - QuickCheck

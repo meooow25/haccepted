@@ -1,6 +1,11 @@
-module MInt where
+{-|
+Module : MInt
 
--- Integer type for modular arithmetic, using fixed modulo
+['MInt']
+Integer type for modular arithmetic, using fixed modulo
+-}
+
+module MInt where
 
 import Data.Int
 import Data.Ratio

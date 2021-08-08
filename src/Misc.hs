@@ -1,7 +1,16 @@
+{-|
+Module : Misc
+
+['pairs']
+Generates distinct pairs from a list
+
+['fArray']
+Generates an Array from bounds and a function
+-}
+module Misc where
+
 import Data.Array
 import Data.List
-
--- Miscellaneous stuff
 
 pairs :: [a] -> [(a, a)]
 pairs a = [(x, y) | (x:ys) <- tails a, y <- ys]

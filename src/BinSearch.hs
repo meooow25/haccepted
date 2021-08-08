@@ -1,11 +1,26 @@
+{-|
+Module : BinSearch
+
+Standard binary search
+
+['binSearch']
+Returns the first value in [@l@, @h@) which satisfies the predicate @f@, @h@ otherwise
+
+  * Returns @l@ if @l@ > @h@
+  * @l@ + @h@ should not overflow
+  * /Source/: <https://en.wikipedia.org/wiki/Binary_search_algorithm#Procedure_for_finding_the_leftmost_element>
+  * /Complexity/: /O(log (h - l))/ times the complexity of the predicate
+
+['binSearchA']
+binSearch on an Array
+
+['binSearchM']
+binSearch but the predicate returns a monad
+-}
+
 module BinSearch where
 
 import Data.Array
-
--- Standard binary search
--- Gets the first value in [l, h) which satisfies the predicate f, h otherwise
--- Source: https://en.wikipedia.org/wiki/Binary_search_algorithm#Procedure_for_finding_the_leftmost_element
--- Complexity: O (log (h - l))
 
 binSearch :: (Integral i) => (i -> Bool) -> i -> i -> i
 binSearch f l h
