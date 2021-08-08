@@ -42,4 +42,5 @@ validate l h i
     | otherwise = i
 
 sortedList :: Int -> Gen [Int]
-sortedList n = fmap sort $ replicateM n $ choose (-10 ^ (9 :: Int), 10 ^ (9 :: Int))
+sortedList n = fmap sort $ replicateM n $ choose (-lim, lim) where
+    lim = 10 ^ (9 :: Int)
