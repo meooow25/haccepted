@@ -15,6 +15,7 @@ extra-source-files:
 library
   exposed-modules:
       BinSearch
+      Fenwick
       MInt
       Misc
   other-modules:
@@ -32,6 +33,7 @@ test-suite all
   main-is: Spec.hs
   other-modules:
       BinSearchSpec
+      FenwickSpec
       Paths_haskell_algo
   hs-source-dirs:
       tests
