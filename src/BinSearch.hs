@@ -1,20 +1,19 @@
 {-|
-Module : BinSearch
-
 Standard binary search
 
-['binSearch']
-Returns the first value in [@l@, @h@) which satisfies the predicate @f@, @h@ otherwise
+binSearch
+Returns the first value in [l, h) which satisfies the predicate f, h otherwise. Complexity is
+O(log (h - l)) times that of f.
 
-  * Returns @l@ if @l@ > @h@
-  * @l@ + @h@ should not overflow
-  * /Source/: <https://en.wikipedia.org/wiki/Binary_search_algorithm#Procedure_for_finding_the_leftmost_element>
-  * /Complexity/: /O(log (h - l))/ times the complexity of the predicate
+* Returns l if l > h
+* l + h should not overflow
 
-['binSearchA']
+Source: https://en.wikipedia.org/wiki/Binary_search_algorithm#Procedure_for_finding_the_leftmost_element
+
+binSearchA
 binSearch on an Array
 
-['binSearchM']
+binSearchM
 binSearch but the predicate returns a monad
 -}
 

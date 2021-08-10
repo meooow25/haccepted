@@ -1,10 +1,10 @@
 {-|
-Module : Misc
+Miscellaneous stuff
 
-['pairs']
+pairs
 Generates distinct pairs from a list
 
-['fArray']
+fArray
 Generates an Array from bounds and a function
 -}
 module Misc where
