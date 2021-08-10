@@ -8,7 +8,7 @@ dependencies:
 - base >= 4.7 && < 5
 - array
 
-ghc-options: -Wall
+ghc-options: -Wall -fno-warn-name-shadowing
 
 library:
   source-dirs: src
@@ -17,6 +17,7 @@ tests:
   all:
     source-dirs: tests
     main: Spec.hs
+    ghc-options: -fno-warn-orphans
     dependencies:
     - haskell-algo
     - hspec

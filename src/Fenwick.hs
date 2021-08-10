@@ -22,6 +22,9 @@ Sources:
 buildF
 Builds a Fenwick tree with the given bounds. O(n).
 
+boundsF
+The bounds of the Fenwick tree. O(1).
+
 updateF
 Updates an index. The new value acts as right operand on accumulated values. O(log n).
 
@@ -30,31 +33,45 @@ Queries the prefix upto an index. O(log n).
 
 rangeQueryF
 Range query on [l, r] using an inverse operation. O(log n).
+
+rangeUpdateF
+Range update on [l, r] using an inverse operation. Can be used with point queries. O(log n).
 -}
 
 module Fenwick
     ( FTree
     , buildF
+    , boundsF
     , updateF
     , queryF
     , rangeQueryF
+    , rangeUpdateF
     ) where
 
 import Data.Bits
 
-data FTree a = FTree !Int !Int !(FNode a) deriving Show
+data FTree a = FTree !(Int, Int, Int) !(FNode a) deriving Show
 data FNode a = FTip | FBin !a !(FNode a) !(FNode a) deriving Show
 
 buildF :: Monoid a => (Int, Int) -> FTree a
-buildF (l, r) = FTree (1 `shiftL` ht) (l - 1) (go ht) where
+buildF (l, r) = FTree (l, r, 1 `shiftL` ht) (go ht) where
     n = r - l + 1
     ht = finiteBitSize n - countLeadingZeros n - 1
     go j | j < 0     = FTip
          | otherwise = FBin mempty (go $ j - 1) (go $ j - 1)
 
+boundsF :: FTree a -> (Int, Int)
+boundsF (FTree (l, r, _) _) = (l, r)
+
+{-# INLINE adjust #-}
+adjust :: Int -> Int -> Int -> Int
+adjust l r i
+    | i < l || r < i = error "outside range"
+    | otherwise = i - l + 1
+
 updateF :: Monoid a => Int -> a -> FTree a -> FTree a
-updateF i y (FTree p off rt) = FTree p off (go rt p) where
-    i' = i - off
+updateF i y (FTree lrp@(l, r, p) rt) = FTree lrp (go rt p) where
+    i' = adjust l r i
     q = 1 `shiftL` countTrailingZeros i'
     go ~(FBin x l r) p
         | i' .&. p == 0 = FBin (x <> y) (go l p') r
@@ -63,8 +80,8 @@ updateF i y (FTree p off rt) = FTree p off (go rt p) where
         where p' = p `shiftR` 1
 
 queryF :: Monoid a => Int -> FTree a -> a
-queryF i (FTree p off rt) = go rt p mempty where
-    i' = i - off
+queryF i (FTree (l, r, p) rt) = go rt p mempty where
+    i' = adjust l r i
     q = 1 `shiftL` countTrailingZeros i'
     go ~(FBin x l r) p acc
         | i' .&. p == 0 = go l p' acc
@@ -73,6 +90,11 @@ queryF i (FTree p off rt) = go rt p mempty where
         where p' = p `shiftR` 1
 
 rangeQueryF :: Monoid a => (a -> a) -> Int -> Int -> FTree a -> a
-rangeQueryF inv l r ft@(FTree _ off _) = rx <> inv lx where
+rangeQueryF inv l r ft@(FTree (l', _, _) _) = rx <> inv lx where
     rx = queryF r ft
-    lx = if l == off then mempty else queryF l ft
+    lx = if l == l' then mempty else queryF (l - 1) ft
+
+rangeUpdateF :: Monoid a => (a -> a) -> Int -> Int -> a -> FTree a -> FTree a
+rangeUpdateF inv l r y ft@(FTree (_, r', _) _) = ft'' where
+    ft' = updateF l y ft
+    ft'' = if r == r' then ft' else updateF (r + 1) (inv y) ft'

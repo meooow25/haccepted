@@ -14,47 +14,85 @@ import Fenwick
 spec :: Spec
 spec = do
     prop "large, single update, random queries" $
-        forAll (genFt High) $ \(l, h, ft) ->
+        forAll (sizedFt LargeS) $ \ft -> do
+            let (l, h) = boundsF ft
             forAll (indexVal (l, h)) $ \(i, v) -> do
                 let ft' = updateF i v ft
                 forAll (choose (l, h)) $ \j ->
-                    queryF j ft' `shouldBe` if j < i then mempty else v
-
-    prop "small, single update, all queries" $
-        forAll (genFt Low) $ \(l, h, ft) ->
-            forAll (indexVal (l, h)) $ \(i, v) -> do
-                let ft' = updateF i v ft
-                forM_ [l..h] $ \j ->
                     queryF j ft' `shouldBe` if j < i then mempty else v
 
     prop "small, random updates, all queries" $
-        forAll (genFt Low) $ \(l, h, ft) ->
+        forAll (sizedFt SmallS) $ \ft -> do
+            let (l, h) = boundsF ft
             forAll (listOf1 $ indexVal (l, h)) $ \ivs -> do
-                let ft' = foldl' (\f (i, v) -> updateF i v f) ft ivs
-                    ss = scanl1 (<>) $ elems $ accumArray (<>) mempty (l, h) ivs
-                forM_ (zip [l..h] ss) $ \(j, s) ->
-                    queryF j ft' `shouldBe` s
+                let ft' = applyUpdates ivs ft
+                    sa = prefixSum (l, h) ivs
+                forM_ [l..h] $ \j ->
+                    queryF j ft' `shouldBe` sa!j
 
     prop "small, random updates, random range queries" $
-        forAll (genFt Low) $ \(l, h, ft) ->
+        forAll (sizedFt SmallS) $ \ft -> do
+            let (l, h) = boundsF ft
             forAll (listOf1 $ indexVal (l, h)) $ \ivs -> do
-                let ft' = foldl' (\f (i, v) -> updateF i v f) ft ivs
-                    sa = listArray (l, h) $ scanl1 (<>) $ elems $ accumArray (<>) mempty (l, h) ivs
-                    getS i = if i < l then mempty else sa!i
+                let ft' = applyUpdates ivs ft
+                    sa = prefixSum (l, h) ivs
+                    get i = if i < l then mempty else sa!i
                 forAll (choose (l, h)) $ \j ->
                     forAll (choose (l, h)) $ \k -> do
                         let (j', k') = if j < k then (j, k) else (k, j)
-                        rangeQueryF negate j' k' ft' `shouldBe` (getS k' - getS j')
+                        rangeQueryF negate j' k' ft' `shouldBe` get k' - get (j' - 1)
 
     prop "very small, random updates, all range queries" $
-        forAll (genFt VeryLow) $ \(l, h, ft) ->
+        forAll (sizedFt VerySmallS) $ \ft -> do
+            let (l, h) = boundsF ft
             forAll (listOf1 $ indexVal (l, h)) $ \ivs -> do
-                let ft' = foldl' (\f (i, v) -> updateF i v f) ft ivs
-                    sa = listArray (l, h) $ scanl1 (<>) $ elems $ accumArray (<>) mempty (l, h) ivs
-                    getS i = if i < l then mempty else sa!i
+                let ft' = applyUpdates ivs ft
+                    sa = prefixSum (l, h) ivs
+                    get i = if i < l then mempty else sa!i
                 forM_ [l..h] $ \j ->
                     forM_ [j..h] $ \k ->
-                        rangeQueryF negate j k ft' `shouldBe` (getS k - getS j)
+                        rangeQueryF negate j k ft' `shouldBe` get k - get (j - 1)
+
+    prop "large, single range update, random queries" $
+        forAll (sizedFt LargeS) $ \ft -> do
+            let (l, h) = boundsF ft
+            forAll (rangeVal (l, h)) $ \(i, j, v) -> do
+                let ft' = rangeUpdateF negate i j v ft
+                forAll (choose (l, h)) $ \k ->
+                    queryF k ft' `shouldBe` if i <= k && k <= j then v else mempty
+
+    prop "small, random range updates, all queries" $
+        forAll (sizedFt SmallS) $ \ft -> do
+            let (l, h) = boundsF ft
+            forAll (listOf1 $ rangeVal (l, h)) $ \ijvs -> do
+                let ft' = applyRangeUpdates ijvs ft
+                    sa = prefixSum (l, h + 1) $ concat [[(i, v), (j + 1, -v)] | (i, j, v) <- ijvs]
+                forM_ [l..h] $ \i ->
+                    queryF i ft' `shouldBe` sa!i
+
+    where
+        prefixSum (l, h) ivs = listArray (l, h) $ scanl1 (<>) $ elems $ accumArray (<>) mempty (l, h + 1) ivs
+        applyUpdates ivs ft = foldl' (\ft (i, v) -> updateF i v ft) ft ivs
+        applyRangeUpdates ijvs ft = foldl' (\ft (i, j, v) -> rangeUpdateF negate i j v ft) ft ijvs
+
+data Size = VerySmallS | SmallS | LargeS
+
+instance Monoid a => Arbitrary (FTree a) where
+    arbitrary = do
+        n <- getSize `suchThat` (/= 0)
+        n' <- choose (1, n)
+        l <- scale (*100) arbitrary
+        let h = l + n' - 1
+            ft = buildF (l, h)
+        return ft
+
+sizedFt :: Monoid a => Size -> Gen (FTree a)
+sizedFt size = do
+    let n = case size of
+            VerySmallS -> 200
+            SmallS -> 2000
+            LargeS -> 10 ^ (6 :: Int)
+    resize n arbitrary
 
 indexVal :: (Int, Int) -> Gen (Int, Sum Int)
 indexVal (l, h) = do
@@ -62,17 +100,9 @@ indexVal (l, h) = do
     v <- arbitrary
     return (i, Sum v)
 
-data Size = VeryLow | Low | High
-
-genFt :: Monoid a => Size -> Gen (Int, Int, FTree a)
-genFt size = do
-    let bndsLim = 10 ^ (9 :: Int)
-        sizeLim = case size of
-            VeryLow -> 200
-            Low -> 2000
-            High -> 10 ^ (6 :: Int)
-    l <- choose (-bndsLim, bndsLim)
-    s <- choose (sizeLim `div` 2, sizeLim)
-    let h = l + s - 1
-        ft = buildF (l, h)
-    return (l, h, ft)
+rangeVal :: (Int, Int) -> Gen (Int, Int, Sum Int)
+rangeVal (l, h) = do
+    i <- choose (l, h)
+    j <- choose (l, h)
+    v <- arbitrary
+    return (min i j, max i j, Sum v)
