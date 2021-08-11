@@ -1,7 +1,6 @@
 {-|
-Module : MInt
 
-['MInt']
+MInt
 Integer type for modular arithmetic, using fixed modulo
 -}
 
