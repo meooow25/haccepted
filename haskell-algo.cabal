@@ -18,6 +18,7 @@ library
       Fenwick
       MInt
       Misc
+      SparseTable
   other-modules:
       Paths_haskell_algo
   hs-source-dirs:
@@ -34,6 +35,7 @@ test-suite all
   other-modules:
       BinSearchSpec
       FenwickSpec
+      SparseTableSpec
       Paths_haskell_algo
   hs-source-dirs:
       tests
