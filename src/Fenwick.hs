@@ -54,6 +54,7 @@ data FTree a = FTree !(Int, Int, Int) !(FNode a) deriving Show
 data FNode a = FTip | FBin !a !(FNode a) !(FNode a) deriving Show
 
 buildF :: Monoid a => (Int, Int) -> FTree a
+buildF (l, r) | l > r = error "empty range"
 buildF (l, r) = FTree (l, r, bit ht) (go ht) where
     n = r - l + 1
     ht = finiteBitSize n - countLeadingZeros n - 1
