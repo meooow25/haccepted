@@ -54,7 +54,7 @@ data FTree a = FTree !(Int, Int, Int) !(FNode a) deriving Show
 data FNode a = FTip | FBin !a !(FNode a) !(FNode a) deriving Show
 
 buildF :: Monoid a => (Int, Int) -> FTree a
-buildF (l, r) = FTree (l, r, 1 `shiftL` ht) (go ht) where
+buildF (l, r) = FTree (l, r, bit ht) (go ht) where
     n = r - l + 1
     ht = finiteBitSize n - countLeadingZeros n - 1
     go j | j < 0     = FTip
@@ -72,7 +72,7 @@ adjust l r i
 updateF :: Monoid a => Int -> a -> FTree a -> FTree a
 updateF i y (FTree lrp@(l, r, p) rt) = FTree lrp (go rt p) where
     i' = adjust l r i
-    q = 1 `shiftL` countTrailingZeros i'
+    q = bit $ countTrailingZeros i'
     go ~(FBin x l r) p
         | i' .&. p == 0 = FBin (x <> y) (go l p') r
         | p == q        = FBin (x <> y) l r
@@ -82,7 +82,7 @@ updateF i y (FTree lrp@(l, r, p) rt) = FTree lrp (go rt p) where
 queryF :: Monoid a => Int -> FTree a -> a
 queryF i (FTree (l, r, p) rt) = go rt p mempty where
     i' = adjust l r i
-    q = 1 `shiftL` countTrailingZeros i'
+    q = bit $ countTrailingZeros i'
     go ~(FBin x l r) p acc
         | i' .&. p == 0 = go l p' acc
         | p == q        = acc <> x
