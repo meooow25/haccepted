@@ -15,13 +15,14 @@ extra-source-files:
 library
   exposed-modules:
       BinSearch
+      Fenwick
       MInt
       Misc
   other-modules:
       Paths_haskell_algo
   hs-source-dirs:
       src
-  ghc-options: -Wall
+  ghc-options: -Wall -fno-warn-name-shadowing
   build-depends:
       array
     , base >=4.7 && <5
@@ -32,10 +33,11 @@ test-suite all
   main-is: Spec.hs
   other-modules:
       BinSearchSpec
+      FenwickSpec
       Paths_haskell_algo
   hs-source-dirs:
       tests
-  ghc-options: -Wall
+  ghc-options: -Wall -fno-warn-name-shadowing -fno-warn-orphans
   build-depends:
       QuickCheck
     , array
