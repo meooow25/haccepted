@@ -24,8 +24,8 @@ spec = do
             let (l, h) = boundsF ft
             forAll (pointUpds (l, h)) $ \ivs -> do
                 let ft' = applyUpdates ivs ft
-                    srt i j = (min i j, max i j)
-                forAll (srt <$> choose (l, h) <*> choose (l, h)) $ \(i, j) ->
+                    minMax i j = (min i j, max i j)
+                forAll (minMax <$> choose (l, h) <*> choose (l, h)) $ \(i, j) ->
                     rangeQueryF negate i j ft' `shouldBe` naive ivs i j
 
     prop "range updates, queries" $
