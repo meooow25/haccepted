@@ -14,25 +14,25 @@ import SparseTable
 spec :: Spec
 spec = do
     let testBuild gen = forAll (scale (*100) gen) $ \xa -> do
-            let st = buildST xa
+            let st = fromArraySP xa
             forAll (choose $ bounds st) $ \j ->
                 forAll (choose $ bounds $ st!j) $ \i ->
                     st!j!i `shouldBe` naive xa i (i + 1 `shiftL` j - 1)
 
         testQuery qf gen = forAll (scale (*100) gen) $ \xa -> do
             let bnds = bounds xa
-                st = buildST xa
+                st = fromArraySP xa
                 minMax i j = (min i j, max i j)
             forAll (minMax <$> choose bnds <*> choose bnds) $ \(i, j) ->
                 qf i j st `shouldBe` naive xa i j
 
-    prop "buildST sum" $ testBuild $ genXs Sum
-    prop "buildST max" $ testBuild $ genXs Max
+    prop "fromArraySP sum" $ testBuild $ genXs Sum
+    prop "fromArraySP max" $ testBuild $ genXs Max
 
-    prop "queryST sum" $ testQuery queryST $ genXs Sum 
-    prop "queryST max" $ testQuery queryST $ genXs Max
+    prop "querySP sum" $ testQuery querySP $ genXs Sum 
+    prop "querySP max" $ testQuery querySP $ genXs Max
 
-    prop "query1ST max" $ testQuery query1ST $ genXs Max 
+    prop "query1SP max" $ testQuery query1SP $ genXs Max 
 
     where
         naive xa l r = foldMap (xa!) [l..r]
