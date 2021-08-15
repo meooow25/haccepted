@@ -38,3 +38,10 @@ binSearchM f l h
         v <- f m
         if v then binSearchM f l m else binSearchM f (m + 1) h
     where m = (l + h) `div` 2
+
+--------------------------------------------------------------------------------
+-- For tests
+
+-- Allows specialization across modules
+{-# INLINABLE binSearch #-}
+{-# INLINABLE binSearchA #-}

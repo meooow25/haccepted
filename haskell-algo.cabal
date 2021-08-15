@@ -26,9 +26,28 @@ library
   build-depends:
       array
     , base >=4.7 && <5
+    , deepseq
   default-language: Haskell2010
 
-test-suite all
+executable gen-md
+  main-is: GenMd.hs
+  other-modules:
+      Paths_haskell_algo
+  hs-source-dirs:
+      bench-out
+  ghc-options: -Wall -fno-warn-name-shadowing
+  build-depends:
+      array
+    , base >=4.7 && <5
+    , bytestring
+    , cassava
+    , containers
+    , deepseq
+    , text
+    , vector
+  default-language: Haskell2010
+
+test-suite test-all
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
@@ -42,6 +61,27 @@ test-suite all
       QuickCheck
     , array
     , base >=4.7 && <5
+    , deepseq
     , haskell-algo
     , hspec
+  default-language: Haskell2010
+
+benchmark bench-all
+  type: exitcode-stdio-1.0
+  main-is: Bench.hs
+  other-modules:
+      BinSearchBench
+      FenwickBench
+      Util
+      Paths_haskell_algo
+  hs-source-dirs:
+      bench
+  ghc-options: -Wall -fno-warn-name-shadowing -O2
+  build-depends:
+      array
+    , base >=4.7 && <5
+    , criterion
+    , deepseq
+    , haskell-algo
+    , random
   default-language: Haskell2010
