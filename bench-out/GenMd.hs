@@ -62,6 +62,8 @@ formatItems items = result where
     result = T.intercalate "\n" [
             "# Benchmarks"
           , ""
+          , "This is a summary file. For details see the respective benchmark source files."
+          , ""
           , T.intercalate "\n" $ map formatItem items
         ]
     formatItem (title, sizes, subitems) = result where

@@ -1,5 +1,7 @@
 # Benchmarks
 
+This is a summary file. For details see the respective benchmark source files.
+
 ### BinSearch
 
 | Name | 100 | 10000 | 1000000 |
