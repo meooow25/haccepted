@@ -61,9 +61,11 @@ rowsToItems rows = items where
 formatItems :: [BItem] -> T.Text
 formatItems items = result where
     result = T.intercalate "\n" [
-            "Benchmarks"
-          , "──────────"
-          , "This is a summary file. For details see the respective benchmark source files."
+            "────────────"
+          , " Benchmarks"
+          , "────────────"
+          , "This is a generated summary file."
+          , "For details see the CSV file and the respective benchmark source files."
           , ""
           , T.intercalate "\n" $ map formatItem items
         ]
