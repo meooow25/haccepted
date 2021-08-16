@@ -43,6 +43,7 @@ executable gen-md
     , cassava
     , containers
     , deepseq
+    , table-layout
     , text
     , vector
   default-language: Haskell2010

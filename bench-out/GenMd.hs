@@ -4,6 +4,7 @@ import Data.Csv
 import Data.List
 import Data.Text.Read
 import System.Environment
+import Text.Layout.Table
 import Text.Printf
 import qualified Data.Map as M
 import qualified Data.ByteString.Lazy as BL
@@ -28,14 +29,14 @@ type BSubitem = (T.Text, [Maybe Double]) -- name, mean times
 
 main :: IO ()
 main = do
-    [inCsvFile, outMdFile] <- getArgs
-    putStrLn $ "Input CSV file:       " ++ inCsvFile
-    putStrLn $ "Output Markdown file: " ++ outMdFile
+    [inCsvFile, outFile] <- getArgs
+    putStrLn $ "Input CSV file       " ++ inCsvFile
+    putStrLn $ "Output summary file: " ++ outFile
     csvData <- BL.readFile inCsvFile
     let result = case decodeByName csvData of
             Left err -> error err
             Right (_, rows) -> formatItems $ rowsToItems rows
-    TIO.writeFile outMdFile result
+    TIO.writeFile outFile result
     putStrLn "Done!"
 
 rowsToItems :: V.Vector BenchRow -> [BItem]
@@ -60,25 +61,21 @@ rowsToItems rows = items where
 formatItems :: [BItem] -> T.Text
 formatItems items = result where
     result = T.intercalate "\n" [
-            "# Benchmarks"
-          , ""
+            "Benchmarks"
+          , "──────────"
           , "This is a summary file. For details see the respective benchmark source files."
           , ""
           , T.intercalate "\n" $ map formatItem items
         ]
     formatItem (title, sizes, subitems) = result where
-        headers = "Name" : map (T.pack . show) sizes
-        result = T.intercalate "\n" [
-                "### " <> title
-              , ""
-              , formatRow headers
-              , formatRow $ map (const "---") headers
-              , T.intercalate "\n" $ map formatSubitem subitems
-              , ""
-            ]
-    formatSubitem (name, maybeTimes) =
-        formatRow $ name : map (maybe "" (T.pack . formatTime)) maybeTimes
-    formatRow xs = "| " <> T.intercalate " | " xs <> " |"
+        headers = "Name" : map show sizes
+        rows = [T.unpack name : map (maybe "" formatTime) maybeTimes | (name, maybeTimes) <- subitems]
+        table =
+            tableString (replicate (length headers) def)
+            unicodeS
+            (titlesH headers)
+            (map rowG rows)
+        result = T.unlines [title, T.pack table]
 
 -- https://github.com/haskell/criterion/blob/3f6a32b01dbadb5c0954aaebaf4fef923e7ac7ec/criterion-measurement/src/Criterion/Measurement.hs#L372-L391
 formatTime :: Double -> String
@@ -92,7 +89,7 @@ formatTime k
     | k >= 1e-15 = (k*1e15) `with` "fs"
     | k >= 1e-18 = (k*1e18) `with` "as"
     | otherwise  = printf "%g s" k
-    where 
+    where
         with :: Double -> String -> String
         with t u
             | t >= 1e9  = printf "%.4g %s" t u

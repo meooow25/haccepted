@@ -42,5 +42,6 @@ executables:
     - bytestring
     - cassava
     - containers
+    - table-layout
     - text
     - vector
