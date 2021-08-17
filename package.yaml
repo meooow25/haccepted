@@ -40,8 +40,7 @@ executables:
     main: GenSummary.hs
     dependencies:
     - bytestring
-    - cassava
     - containers
+    - csv
     - table-layout
     - text
-    - vector

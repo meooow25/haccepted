@@ -40,12 +40,11 @@ executable gen-summary
       array
     , base >=4.7 && <5
     , bytestring
-    , cassava
     , containers
+    , csv
     , deepseq
     , table-layout
     , text
-    , vector
   default-language: Haskell2010
 
 test-suite test-all

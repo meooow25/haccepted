@@ -2,9 +2,12 @@
 
 set -e
 
-csvfile="bench-out/bench-out.csv"
-summaryfile="bench-out/bench-out.txt"
-rm -f "${csvfile}"
+tmpCsvFile="bench-out/bench-out.tmp.csv"
+csvFile="bench-out/bench-out.csv"
+summaryFile="bench-out/bench-out.txt"
+
+rm -f "${tmpCsvFile}"
 stack build
-stack bench --benchmark-arguments="--csv ${csvfile}"
-stack exec gen-summary "${csvfile}" "${summaryfile}"
+stack bench --benchmark-arguments="--csv ${tmpCsvFile}"
+stack exec gen-summary "${tmpCsvFile}" "${csvFile}" "${summaryFile}"
+rm "${tmpCsvFile}"

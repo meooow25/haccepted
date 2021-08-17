@@ -1,83 +1,114 @@
-{-# LANGUAGE OverloadedStrings #-}
-
-import Data.Csv
+import Control.DeepSeq
+import Control.Exception
+import Data.Char
 import Data.List
-import Data.Text.Read
 import System.Environment
+import Text.CSV
 import Text.Layout.Table
 import Text.Printf
 import qualified Data.Map as M
-import qualified Data.ByteString.Lazy as BL
-import qualified Data.Text as T
-import qualified Data.Text.IO as TIO
-import qualified Data.Vector as V
 
-data BenchRow = BenchRow !T.Text !T.Text !Int !Double -- title, name, size, mean time
+data BenchRow = BenchRow
+    { titleBR    :: !String
+    , nameBR     :: !String
+    , sizeBR     :: !Int
+    , meanTimeBR :: !Double
 
-instance FromNamedRecord BenchRow where
-    parseNamedRecord r = f <$> r .: "Name" <*> r .: "Mean" where
-        f fullName meanTime = BenchRow title name size meanTime where
-            (title, rest) = T.breakOn "/" fullName
-            (rest', sizeStr) = T.breakOnEnd "/" rest
-            name = T.tail $ T.init rest'
-            size = case decimal sizeStr of
-                Left err -> error err
-                Right (x, _) -> x
+    , lineBR     :: !String
+    , fullNameBR :: !String
+    } deriving Show
 
-type BItem = (T.Text, [Int], [BSubitem]) -- title, sizes, subitems
-type BSubitem = (T.Text, [Maybe Double]) -- name, mean times
+type BItem = (String, [Int], [BSubitem]) -- title, sizes, subitems
+type BSubitem = (String, [Maybe Double]) -- name, mean times
+
+header :: String
+header = "Name,Mean,MeanLB,MeanUB,Stddev,StddevLB,StddevUB"
 
 main :: IO ()
 main = do
-    [inCsvFile, outFile] <- getArgs
+    [inCsvFile, outCsvFile, outFile] <- getArgs
     putStrLn $ "Input CSV file       " ++ inCsvFile
+    putStrLn $ "Output CSV file      " ++ outCsvFile
     putStrLn $ "Output summary file: " ++ outFile
-    csvData <- BL.readFile inCsvFile
-    let result = case decodeByName csvData of
-            Left err -> error err
-            Right (_, rows) -> formatItems $ rowsToItems rows
-    TIO.writeFile outFile result
+
+    inCsvData <- readFile inCsvFile
+    existingCsvData <- evaluate . force =<< readFile outCsvFile
+    let newRows      = parse inCsvData
+        existingRows = parse existingCsvData
+        rows         = chooseRows newRows existingRows
+        outCsv       = unlines $ header : map lineBR rows
+        outSummary   = formatItems $ rowsToItems rows
+
+    writeFile outCsvFile outCsv
+    writeFile outFile outSummary
     putStrLn "Done!"
 
-rowsToItems :: V.Vector BenchRow -> [BItem]
+parse :: String -> [BenchRow]
+parse fileContents = rows where
+    contents = stripSpace fileContents
+    lines' = stripSpace <$> lines contents
+    csv = either (error . show) id $ parseCSV "" contents
+    rows | head lines' /= header       = error "unexpected headers"
+         | length lines' /= length csv = error "number of parsed lines differ"
+         | otherwise                   = zipWith makeRow (tail lines') (tail csv)
+
+    stripSpace = dropWhile isSpace . dropWhileEnd isSpace
+
+    makeRow line (fullName:meanTimeStr:_) = BenchRow title name size meanTime line fullName where
+        (title, rest) = break (== '/') fullName
+        (rsize, rrest) = break (== '/') $ reverse rest
+        name = tail $ init $ reverse rrest
+        size = read $ reverse rsize
+        meanTime = read meanTimeStr
+    makeRow _ _ = error "!"
+
+chooseRows :: [BenchRow] -> [BenchRow] -> [BenchRow]
+chooseRows newItems existingItems = map f newItems where
+    -- Keep the existing value if it exists and the new value doesn't differ too much
+    f item = case find ((fullNameBR item ==) . fullNameBR) existingItems of
+        Nothing    -> item
+        Just item' -> if keepOld (meanTimeBR item') (meanTimeBR item) then item' else item
+    keepOld old new = abs (new - old) / old < tolerance
+    tolerance = 10 / 100 -- 10%
+
+rowsToItems :: [BenchRow] -> [BItem]
 rowsToItems rows = items where
     -- Keep titles in insertion order, names in insertion order, records in size order
-    titleToItem :: M.Map T.Text ([T.Text], M.Map T.Text (M.Map Int Double))
-    titleToItem = V.foldl' ins M.empty rows where
-        ins titleToItem (BenchRow title name size meanTime) = M.alter f title titleToItem where
+    titleToItem :: M.Map String ([String], M.Map String (M.Map Int Double))
+    titleToItem = foldl' ins M.empty rows where
+        ins titleToItem (BenchRow title name size meanTime _ _) = M.alter f title titleToItem where
             f Nothing = Just ([name], M.singleton name $ M.singleton size meanTime)
             f (Just (names, nameToSubitem)) = Just (name:names, M.alter g name nameToSubitem) where
                 g Nothing = Just $ M.singleton size meanTime
                 g (Just sizeToTime) = Just $ M.insert size meanTime sizeToTime
-    items = map f $ nub $ [title | BenchRow title _ _ _ <- V.toList rows] where
+    items = map f $ nub $ map titleBR rows where
         f title = (title, sizes, subitems) where
             (names, nameToSubitem) = titleToItem M.! title
             sizes = sort $ nub $ concatMap M.keys $ M.elems nameToSubitem
-            subitems = map g $ nub $ reverse names
-            g name = (name, maybeTimes) where
-                sizeToTime = nameToSubitem M.! name
-                maybeTimes = map (sizeToTime M.!?) sizes
+            subitems = map g $ nub $ reverse names where
+                g name = (name, maybeTimes) where
+                    sizeToTime = nameToSubitem M.! name
+                    maybeTimes = map (sizeToTime M.!?) sizes
 
-formatItems :: [BItem] -> T.Text
+formatItems :: [BItem] -> String
 formatItems items = result where
-    result = T.intercalate "\n" [
+    result = intercalate "\n" [
             "────────────"
           , " Benchmarks"
           , "────────────"
           , "This is a generated summary file."
           , "For details see the CSV file and the respective benchmark source files."
           , ""
-          , T.intercalate "\n" $ map formatItem items
+          , intercalate "\n" $ map formatItem items
         ]
-    formatItem (title, sizes, subitems) = result where
+    formatItem (title, sizes, subitems) = unlines [title, table] where
         headers = "Name" : map show sizes
-        rows = [T.unpack name : map (maybe "" formatTime) maybeTimes | (name, maybeTimes) <- subitems]
+        rows = [name : map (maybe "" formatTime) maybeTimes | (name, maybeTimes) <- subitems]
         table =
             tableString (replicate (length headers) def)
             unicodeS
             (titlesH headers)
             (map rowG rows)
-        result = T.unlines [title, T.pack table]
 
 -- https://github.com/haskell/criterion/blob/3f6a32b01dbadb5c0954aaebaf4fef923e7ac7ec/criterion-measurement/src/Criterion/Measurement.hs#L372-L391
 formatTime :: Double -> String
