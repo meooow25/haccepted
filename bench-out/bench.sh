@@ -7,4 +7,4 @@ summaryfile="bench-out/bench-out.txt"
 rm -f "${csvfile}"
 stack build
 stack bench --benchmark-arguments="--csv ${csvfile}"
-stack exec gen-md "${csvfile}" "${summaryfile}"
+stack exec gen-summary "${csvfile}" "${summaryfile}"

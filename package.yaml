@@ -35,9 +35,9 @@ benchmarks:
     - random
 
 executables:
-  gen-md:
+  gen-summary:
     source-dirs: bench-out
-    main: GenMd.hs
+    main: GenSummary.hs
     dependencies:
     - bytestring
     - cassava
