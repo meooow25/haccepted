@@ -39,7 +39,6 @@ executables:
     source-dirs: bench-out
     main: GenSummary.hs
     dependencies:
-    - bytestring
     - containers
     - csv
     - table-layout

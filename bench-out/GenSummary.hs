@@ -1,6 +1,7 @@
 import Control.DeepSeq
 import Control.Exception
 import Data.Char
+import Data.Either
 import Data.List
 import System.Environment
 import Text.CSV
@@ -27,18 +28,22 @@ header = "Name,Mean,MeanLB,MeanUB,Stddev,StddevLB,StddevUB"
 main :: IO ()
 main = do
     [inCsvFile, outCsvFile, outFile] <- getArgs
-    putStrLn $ "Input CSV file       " ++ inCsvFile
-    putStrLn $ "Output CSV file      " ++ outCsvFile
+    putStrLn $ "Input CSV file:      " ++ inCsvFile
+    putStrLn $ "Output CSV file:     " ++ outCsvFile
     putStrLn $ "Output summary file: " ++ outFile
 
     inCsvData <- readFile inCsvFile
     existingCsvData <- evaluate . force =<< readFile outCsvFile
-    let newRows      = parse inCsvData
-        existingRows = parse existingCsvData
-        rows         = chooseRows newRows existingRows
-        outCsv       = unlines $ header : map lineBR rows
-        outSummary   = formatItems $ rowsToItems rows
+    let inRows          = parse inCsvData
+        existingRows    = parse existingCsvData
+        (rows, newRows) = chooseRows inRows existingRows
+        outCsv          = unlines $ header : map lineBR rows
+        outSummary      = formatItems $ rowsToItems rows
 
+    putStrLn $ if null newRows
+        then "No new/changed benchmarks"
+        else show (length newRows) ++ " new/changed benchmarks:"
+    putStr $ unlines $ map fullNameBR newRows
     writeFile outCsvFile outCsv
     writeFile outFile outSummary
     putStrLn "Done!"
@@ -62,12 +67,16 @@ parse fileContents = rows where
         meanTime = read meanTimeStr
     makeRow _ _ = error "!"
 
-chooseRows :: [BenchRow] -> [BenchRow] -> [BenchRow]
-chooseRows newItems existingItems = map f newItems where
+chooseRows :: [BenchRow] -> [BenchRow] -> ([BenchRow], [BenchRow])
+chooseRows newItems existingItems = (map (either id id) xs, rights xs) where
+    xs = map f newItems
     -- Keep the existing value if it exists and the new value doesn't differ too much
     f item = case find ((fullNameBR item ==) . fullNameBR) existingItems of
-        Nothing    -> item
-        Just item' -> if keepOld (meanTimeBR item') (meanTimeBR item) then item' else item
+        Nothing -> Right item
+        Just item' ->
+            if keepOld (meanTimeBR item') (meanTimeBR item)
+                then Left item'
+                else Right item
     keepOld old new = abs (new - old) / old < tolerance
     tolerance = 10 / 100 -- 10%
 
