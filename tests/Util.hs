@@ -15,6 +15,11 @@ genSortedIntPair :: (Int, Int) -> Gen (Int, Int)
 genSortedIntPair = fmap minmax . genIntPair where
     minmax (x, y) = (min x y, max x y)
 
+genPossiblyEmptyRange :: (Int, Int) -> Gen (Int, Int)
+genPossiblyEmptyRange (l, r) = do
+    (x, y) <- genSortedIntPair (l, r + 1)
+    pure (x, y - 1)
+
 genPruferSeq :: Gen ((Int, Int), [Int])
 genPruferSeq = sized $ \n -> do
     l <- arbitrary

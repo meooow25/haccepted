@@ -21,6 +21,8 @@ library
       Misc
       PQTree
       Prufer
+      SegTree
+      SegTreeLazy
       SparseTable
   other-modules:
       Paths_haskell_algo
@@ -62,6 +64,8 @@ test-suite test-all
       LCASpec
       PQTreeSpec
       PruferSpec
+      SegTreeLazySpec
+      SegTreeSpec
       SparseTableSpec
       Util
       Paths_haskell_algo
@@ -88,12 +92,14 @@ benchmark bench-all
       LCABench
       PQTreeBench
       PruferBench
+      SegTreeBench
+      SegTreeLazyBench
       SparseTableBench
       Util
       Paths_haskell_algo
   hs-source-dirs:
       bench
-  ghc-options: -Wall -fno-warn-name-shadowing -O2
+  ghc-options: -Wall -fno-warn-name-shadowing -O2 -fno-warn-orphans
   build-depends:
       MonadRandom
     , array

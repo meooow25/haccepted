@@ -30,7 +30,7 @@ benchmarks:
   bench-all:
     source-dirs: bench
     main: Bench.hs
-    ghc-options: -O2
+    ghc-options: -O2 -fno-warn-orphans
     dependencies:
     - haskell-algo
     - criterion
