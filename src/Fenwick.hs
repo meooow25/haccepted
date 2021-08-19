@@ -49,6 +49,7 @@ module Fenwick
     ) where
 
 import Data.Bits
+import Control.DeepSeq
 
 data FTree a = FTree !(Int, Int, Int) !(FNode a) deriving Show
 data FNode a = FTip | FBin !a !(FNode a) !(FNode a) deriving Show
@@ -99,3 +100,18 @@ rangeUpdateF :: Monoid a => (a -> a) -> Int -> Int -> a -> FTree a -> FTree a
 rangeUpdateF inv l r y ft@(FTree (_, r', _) _) = ft'' where
     ft' = updateF l y ft
     ft'' = if r == r' then ft' else updateF (r + 1) (inv y) ft'
+
+--------------------------------------------------------------------------------
+-- For tests
+
+-- Allows specialization across modules
+{-# INLINABLE buildF #-}
+{-# INLINABLE updateF #-}
+{-# INLINABLE queryF #-}
+
+instance NFData a => NFData (FTree a) where
+    rnf (FTree lrp rt) = rnf lrp `seq` rnf rt
+
+instance NFData a => NFData (FNode a) where
+    rnf FTip = ()
+    rnf (FBin x l r) = rnf x `seq` rnf l `seq` rnf r

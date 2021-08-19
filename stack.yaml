@@ -2,3 +2,7 @@ resolver: lts-18.5
 
 packages:
 - .
+
+extra-deps:
+- data-default-instances-base-0.1.0.1
+- table-layout-0.9.1.0
