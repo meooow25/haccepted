@@ -7,6 +7,7 @@ extra-source-files:
 dependencies:
 - base >= 4.7 && < 5
 - array
+- deepseq
 
 ghc-options: -Wall -fno-warn-name-shadowing
 
@@ -14,7 +15,7 @@ library:
   source-dirs: src
 
 tests:
-  all:
+  test-all:
     source-dirs: tests
     main: Spec.hs
     ghc-options: -fno-warn-orphans
@@ -22,3 +23,23 @@ tests:
     - haskell-algo
     - hspec
     - QuickCheck
+
+benchmarks:
+  bench-all:
+    source-dirs: bench
+    main: Bench.hs
+    ghc-options: -O2
+    dependencies:
+    - haskell-algo
+    - criterion
+    - random
+
+executables:
+  gen-summary:
+    source-dirs: bench-out
+    main: GenSummary.hs
+    dependencies:
+    - containers
+    - csv
+    - table-layout
+    - text
