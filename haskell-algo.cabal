@@ -73,6 +73,7 @@ benchmark bench-all
   other-modules:
       BinSearchBench
       FenwickBench
+      SparseTableBench
       Util
       Paths_haskell_algo
   hs-source-dirs:

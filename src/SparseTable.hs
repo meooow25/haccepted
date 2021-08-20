@@ -21,7 +21,8 @@ Query a range [l, r] when x <> x = x. O(1).
 -}
 
 module SparseTable
-    ( fromArraySP
+    ( SparseTable
+    , fromArraySP
     , fromListSP
     , querySP
     , query1SP
@@ -66,3 +67,12 @@ query1SP l r t = t!k!l <> t!k!l' where
     l' = r + 1 - 1 `shiftL` k
 
 -- TODO: querySP can be made tail recursive, if it's worth it
+
+--------------------------------------------------------------------------------
+-- For tests
+
+-- Allows specialization across modules
+{-# INLINABLE fromArraySP #-}
+{-# INLINABLE fromListSP #-}
+{-# INLINABLE querySP #-}
+{-# INLINABLE query1SP #-}
