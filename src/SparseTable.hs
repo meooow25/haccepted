@@ -20,7 +20,12 @@ query1SP
 Query a range [l, r] when x <> x = x. O(1).
 -}
 
-module SparseTable where
+module SparseTable
+    ( fromArraySP
+    , fromListSP
+    , querySP
+    , query1SP
+    ) where
 
 import Data.Array
 import Data.Bits
