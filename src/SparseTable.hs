@@ -14,7 +14,7 @@ fromListSP
 Construct a sparse table from a list. O(n log n).
 
 querySP
-Query a range [l, r]. O(log n).
+Query a range [l, r]. O(log n), or more accurately O(popcount (r - l + 1)).
 
 query1SP
 Query a range [l, r] when x <> x = x. O(1).
@@ -52,12 +52,14 @@ fromListSP = (fromArraySP .) . listArray
 
 querySP :: Semigroup a => Int -> Int -> SparseTable a -> a
 querySP l r _ | l > r = error "invalid range"
-querySP l r t = go l $ snd $ bounds t where
-    go l j
-        | l' == r   = t!j!l
-        | l' < r    = t!j!l <> go (l' + 1) (j - 1)
-        | otherwise = go l (j - 1)
-        where l' = l + 1 `shiftL` j - 1
+querySP l r t = go l where
+    r' = r + 1
+    go l
+        | l' == r'  = t!j!l
+        | otherwise = t!j!l <> go l'
+        where
+            j = countTrailingZeros $ r' - l
+            l' = l + 1 `shiftL` j
 
 query1SP :: Semigroup a => Int -> Int -> SparseTable a -> a
 query1SP l r _ | l > r = error "invalid range"
