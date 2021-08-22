@@ -54,12 +54,10 @@ querySP :: Semigroup a => Int -> Int -> SparseTable a -> a
 querySP l r _ | l > r = error "invalid range"
 querySP l r t = go l where
     r' = r + 1
-    go l
-        | l' == r'  = t!j!l
-        | otherwise = t!j!l <> go l'
-        where
-            j = countTrailingZeros $ r' - l
-            l' = l + 1 `shiftL` j
+    go l | l' == r'  = t!j!l
+         | otherwise = t!j!l <> go l'
+         where j = countTrailingZeros $ r' - l
+               l' = l + 1 `shiftL` j
 
 query1SP :: Semigroup a => Int -> Int -> SparseTable a -> a
 query1SP l r _ | l > r = error "invalid range"
