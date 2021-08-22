@@ -48,7 +48,7 @@ spec = do
         
         naive xa l r = foldMap (xa!) [l..r]
 
-genXa :: Semigroup a => (Int -> a) -> Gen (Array Int a)
+genXa :: (Int -> a) -> Gen (Array Int a)
 genXa f = do
     xs <- arbitrary `suchThat` (not . null)
     l <- arbitrary
@@ -56,7 +56,7 @@ genXa f = do
         xa = listArray (l, l + n - 1) $ map f xs
     return xa
 
-genXs :: Semigroup a => (Int -> a) -> Gen [a]
+genXs :: (Int -> a) -> Gen [a]
 genXs f = do
     xs <- arbitrary `suchThat` (not . null)
     return $ map f xs
