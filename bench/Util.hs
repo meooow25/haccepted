@@ -16,7 +16,7 @@ randInts n = take n $ randoms $ mkStdGen seed
 
 randSortedIntPairsR :: (Int, Int) -> Int -> [(Int, Int)]
 randSortedIntPairsR bnds n =
-    uncurry (zipWith (\x y -> (min x y, max x y))) $ splitAt n $ randIntsR bnds $ 2 * n
+    uncurry (zipWith $ \x y -> (min x y, max x y)) $ splitAt n $ randIntsR bnds $ 2 * n
 
 {-# INLINE sizedBench #-}
 sizedBench :: NFData env => Int -> env -> (env -> Benchmarkable) -> Benchmark
