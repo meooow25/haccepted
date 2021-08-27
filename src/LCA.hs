@@ -33,7 +33,7 @@ import Data.Graph
 import Data.Semigroup
 import Data.Tuple
 
-import SparseTable ( querySP, fromListSP, SparseTable )
+import SparseTable ( fromListSP, query1SP, SparseTable )
 
 data LCA = LCA !(SparseTable (Min Int)) !(Array Int Int) !(Array Int Int) deriving Show
 
@@ -53,7 +53,7 @@ queryLCA' :: a -> (Vertex -> a) -> Vertex -> Vertex -> LCA -> a
 queryLCA' def tf u v (LCA sp itime first) = y where
     (fu, fv) = (first!u, first!v)
     (fu', fv') = (min fu fv, max fu fv)
-    x = itime ! getMin (querySP fu' fv' sp)
+    x = itime ! getMin (query1SP fu' fv' sp)
     y = if x == fst (bounds first) then def else tf x
 
 queryLCA :: Vertex -> Vertex -> LCA -> Vertex
