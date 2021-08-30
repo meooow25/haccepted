@@ -18,6 +18,12 @@ Query a range [l, r]. O(log n), or more accurately O(popcount (r - l + 1)).
 
 query1SP
 Query a range [l, r] when x <> x = x. O(1).
+
+querymSP
+querySP but works on an empty range.
+
+querym1SP
+query1SP but works on an empty range.
 -}
 
 module SparseTable
@@ -25,7 +31,9 @@ module SparseTable
     , fromArraySP
     , fromListSP
     , querySP
+    , querymSP
     , query1SP
+    , querym1SP
     ) where
 
 import Data.Array
@@ -36,7 +44,7 @@ import Misc ( fArray )
 type SparseTable a = Array Int (Array Int a)
 
 fromArraySP :: Semigroup a => Array Int a -> SparseTable a
-fromArraySP a = if l > h then error "invalid range" else t where
+fromArraySP a = if l > h + 1 then error "invalid range" else t where
     (l, h) = bounds a
     n = h - l + 1
     k = finiteBitSize n - countLeadingZeros n - 1
@@ -65,6 +73,12 @@ query1SP l r t = t!k!l <> t!k!l' where
     n = r - l + 1
     k = finiteBitSize n - countLeadingZeros n - 1
     l' = r + 1 - 1 `shiftL` k
+
+querymSP :: Monoid a => Int -> Int -> SparseTable a -> a
+querymSP l r t = if l == r + 1 then mempty else querySP l r t
+
+querym1SP :: Monoid a => Int -> Int -> SparseTable a -> a
+querym1SP l r t = if l == r + 1 then mempty else query1SP l r t
 
 -- TODO: querySP can be made tail recursive, if it's worth it
 

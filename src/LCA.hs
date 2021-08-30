@@ -11,20 +11,25 @@ Sources:
 * https://github.com/cheran-senthil/PyRival/blob/master/pyrival/graphs/lca.py
 
 buildLCA
-Build a structure for LCA queries. O(n log n).
+Build a structure for LCA queries on a tree. O(n log n).
 
 queryLCA
-Query the LCA of two nodes. O(1).
+Query the LCA of two nodes in a tree. O(1).
+
+build1LCA
+Build a structure for LCA queries on a forest. O(n log n).
 
 query1LCA
-Query the LCA of two nodes that may or may not be connected. O(1).
+Query the LCA of two nodes in a forest. O(1).
 
 Implementation note:
-l - 1 is taken as a dummy root, converting the forest to a tree to make things simpler.
+l - 1 is taken as a dummy root for a forest, converting it to a tree to make things simpler.
 -}
 module LCA
-    ( buildLCA
+    ( LCA
+    , buildLCA
     , queryLCA
+    , build1LCA
     , query1LCA
     ) where
 
@@ -38,32 +43,31 @@ import SparseTable ( fromListSP, query1SP, SparseTable )
 
 data LCA = LCA !(SparseTable (Min Int)) !(UArray Int Int) !(UArray Int Int) deriving Show
 
-buildLCA :: Bounds -> [Tree Vertex] -> LCA
+buildLCA :: Bounds -> Tree Vertex -> LCA
 buildLCA (l, r) _ | l > r = error "empty range"
-buildLCA (l, r) ts = LCA sp time itime where
-    n = r - l + 2
-    rt = Node (l - 1) ts
-    itime = listArray (1, n) $ toList rt
-    time = array (l - 1, r) $ zip (toList rt) [1..]
-    euler = go rt [] where
-        go (Node u ts) acc = foldr (((time!u :) .) . go) acc ts
+buildLCA (l, r) t = LCA sp time itime where
+    n = r - l + 1
+    itime = listArray (1, n) $ toList t
+    time = array (l, r) $ zip (toList t) [1..]
+    euler = go t [] where
+        go (Node u ts) acc = foldr (\node acc -> time!u : go node acc) acc ts
     sp = fromListSP (1, n - 1) $ map Min euler
 
-queryLCA' :: a -> (Vertex -> a) -> Vertex -> Vertex -> LCA -> a
-queryLCA' def tf u v (LCA sp time itime) = y where
+queryLCA :: Vertex -> Vertex -> LCA -> Vertex
+queryLCA u v (LCA sp time itime) = x where
     (fu, fv) = (time!u, time!v)
-    (fu', fv') = (min fu fv, max fu fv - 1)
     (l, r) = bounds time
-    x | u /= v         = itime ! getMin (query1SP fu' fv' sp)
+    x | u /= v         = itime ! getMin (query1SP (min fu fv) (max fu fv - 1) sp)
       | u < l || r < u = error "invalid node"
       | otherwise      = u
-    y = if x == l then def else tf x
 
-queryLCA :: Vertex -> Vertex -> LCA -> Vertex
-queryLCA = queryLCA' (error "no LCA") id
+build1LCA :: Bounds -> [Tree Vertex] -> LCA
+build1LCA (l, r) ts = buildLCA (l - 1, r) $ Node (l - 1) ts
 
 query1LCA :: Vertex -> Vertex -> LCA -> Maybe Vertex
-query1LCA = queryLCA' Nothing Just
+query1LCA u v lca@(LCA _ time _) = if x == l then Nothing else Just x where
+    l = fst $ bounds time
+    x = queryLCA u v lca
 
 --------------------------------------------------------------------------------
 -- For tests

@@ -1,31 +1,28 @@
 module LCASpec where
 
 import Control.Applicative
-import Control.Exception
 import Data.Foldable
 import Data.Graph
+import Data.Maybe
 
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
-import LCA ( buildLCA, query1LCA, queryLCA )
-import Util ( genIntPair, genForest, nonEmpty )
+import LCA ( build1LCA, buildLCA, query1LCA, queryLCA )
+import Util ( genForest, genIntPair, genTree, nonEmpty )
 
 spec :: Spec
 spec = do
-    prop "queryLCA" $
-        forAll (scale (*10) $ nonEmpty genForest) $ \(bnds, ts) -> do
-            let lca = buildLCA bnds ts
+    prop "LCA on tree" $
+        forAll (scale (*10) $ nonEmpty genTree) $ \(bnds, t) -> do
+            let lca = buildLCA bnds t
             forAll (genIntPair bnds) $ \(u, v) -> do
-                let l = queryLCA u v lca
-                case naiveLCA u v ts of
-                    Nothing -> evaluate l `shouldThrow` anyException
-                    Just l' -> l `shouldBe` l'
+                queryLCA u v lca `shouldBe` fromJust (naiveLCA u v [t])
 
-    prop "query1LCA" $
+    prop "LCA on forest" $
         forAll (scale (*10) $ nonEmpty genForest) $ \(bnds, ts) -> do
-            let lca = buildLCA bnds ts
+            let lca = build1LCA bnds ts
             forAll (genIntPair bnds) $ \(u, v) ->
                 query1LCA u v lca `shouldBe` naiveLCA u v ts
 
