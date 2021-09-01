@@ -73,4 +73,4 @@ query1LCA u v lca@(LCA _ time _) = if x == l then Nothing else Just x where
 -- For tests
 
 instance NFData LCA where
-    rnf (LCA sp _ _) = rnf sp
+    rnf (LCA sp time itime) = time `seq` itime `seq` rnf sp
