@@ -3,6 +3,7 @@ module Util where
 import Data.Array
 import Data.Functor
 import Data.Graph
+
 import Test.QuickCheck
 
 import Prufer ( seqToGraph )
@@ -14,7 +15,7 @@ genPruferSeq :: Gen ((Int, Int), [Int])
 genPruferSeq = sized $ \n -> do
     l <- arbitrary
     let r = l + n - 1
-    us <- drop 2 <$> shuffle [l .. r]
+    us <- drop 2 <$> shuffle [l..r]
     return ((l, r), us)
 
 genTreeG :: Gen Graph

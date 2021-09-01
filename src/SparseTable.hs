@@ -31,8 +31,8 @@ module SparseTable
     , fromArraySP
     , fromListSP
     , querySP
-    , querymSP
     , query1SP
+    , querymSP
     , querym1SP
     ) where
 

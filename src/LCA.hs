@@ -1,5 +1,5 @@
 {-
-Lowest common ancestor queries on a forest
+Lowest common ancestor queries on a tree
 
 Uses an Euler tour and a sparse table for range minimum queries, with an range size optimization
 from 2n to n, adapted from PyRival.
@@ -62,7 +62,7 @@ queryLCA u v (LCA sp time itime) = x where
       | otherwise      = u
 
 build1LCA :: Bounds -> [Tree Vertex] -> LCA
-build1LCA (l, r) ts = buildLCA (l - 1, r) $ Node (l - 1) ts
+build1LCA (l, r) = buildLCA (l - 1, r) . Node (l - 1)
 
 query1LCA :: Vertex -> Vertex -> LCA -> Maybe Vertex
 query1LCA u v lca@(LCA _ time _) = if x == l then Nothing else Just x where

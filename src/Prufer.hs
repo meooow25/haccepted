@@ -50,8 +50,8 @@ withSizeCheck l r xs
     | otherwise = xs
 
 graphToSeq :: Graph -> [Vertex]
-graphToSeq g = treeToSeq (l, r) t where
-    (l, r) = bounds g
+graphToSeq g = treeToSeq b t where
+    b@(_, r) = bounds g
     [t] = dfs g [r]
 
 treeToSeq :: Bounds -> Tree Vertex -> [Vertex]
@@ -71,7 +71,7 @@ treeToSeq (l, r) t = withSizeCheck l r $ runST $ do
     setC t >> nxtLeaf c l >>= join go
 
 seqToGraph :: Bounds -> [Vertex] -> Graph
-seqToGraph (l, r) ps = buildG (l, r) $ seqToEdges (l, r) ps
+seqToGraph bnds = buildG bnds . seqToEdges bnds
 
 seqToEdges :: Bounds -> [Vertex] -> [Edge]
 seqToEdges (l, r) ps = withSizeCheck l r $ runST $ do

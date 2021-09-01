@@ -4,9 +4,9 @@ import Control.DeepSeq
 import Data.Graph
 import Data.Tree
 import System.Random
-import qualified System.Random.Shuffle as Shuffle
 
 import Criterion
+import qualified System.Random.Shuffle as Shuffle
 
 import Prufer ( seqToGraph )
 
@@ -40,6 +40,6 @@ randForest n = subForest $ randTree $ n + 1
 shuffle :: [a] -> [a]
 shuffle xs = Shuffle.shuffle' xs (length xs) gen
 
-{-# INLINE sizedBench #-}
 sizedBench :: NFData env => Int -> env -> (env -> Benchmarkable) -> Benchmark
 sizedBench n e b = env (return e) $ bench (show n) . b
+{-# INLINE sizedBench #-}
