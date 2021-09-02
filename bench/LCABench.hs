@@ -17,7 +17,7 @@ benchmark = bgroup "LCA"
     ]
 
 sizes :: [Int]
-sizes = [100, 10000, 200000]
+sizes = [100, 10000, 500000]
 
 benchBuildLCA :: Int -> Benchmark
 benchBuildLCA n = sizedBench n gen $ nf go where
