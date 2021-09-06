@@ -19,6 +19,7 @@ library
       LCA
       MInt
       Misc
+      PQTree
       Prufer
       SparseTable
   other-modules:
@@ -31,6 +32,7 @@ library
     , base >=4.7 && <5
     , containers
     , deepseq
+    , transformers
   default-language: Haskell2010
 
 executable gen-summary
@@ -48,6 +50,7 @@ executable gen-summary
     , deepseq
     , table-layout
     , text
+    , transformers
   default-language: Haskell2010
 
 test-suite test-all
@@ -56,8 +59,11 @@ test-suite test-all
   other-modules:
       BinSearchSpec
       FenwickSpec
+      LCASpec
+      PQTreeSpec
       PruferSpec
       SparseTableSpec
+      Util
       Paths_haskell_algo
   hs-source-dirs:
       tests
@@ -70,6 +76,7 @@ test-suite test-all
     , deepseq
     , haskell-algo
     , hspec
+    , transformers
   default-language: Haskell2010
 
 benchmark bench-all
@@ -78,6 +85,8 @@ benchmark bench-all
   other-modules:
       BinSearchBench
       FenwickBench
+      LCABench
+      PQTreeBench
       PruferBench
       SparseTableBench
       Util
@@ -94,4 +103,5 @@ benchmark bench-all
     , haskell-algo
     , random
     , random-shuffle
+    , transformers
   default-language: Haskell2010

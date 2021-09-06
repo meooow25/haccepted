@@ -9,6 +9,7 @@ dependencies:
 - array
 - containers
 - deepseq
+- transformers
 
 ghc-options: -Wall -fno-warn-name-shadowing
 
