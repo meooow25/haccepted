@@ -19,6 +19,13 @@ Sources:
   graphs, and graph planarity using PQ-tree algorithms", 1976
   https://www.sciencedirect.com/science/article/pii/S0022000076800451
 
+Implementation notes:
+* In reduce, the root of the pertinent subtree is found using pertinent node counts, then another
+  pass is made through the pertinent subtree performing the actual reduction.
+* The RNode type is a temporary node indicating empty, full, or partial status. In a reduction that
+  does not reduce the tree to Nothing, there are at most two RNodes that float up to the root
+  of the pertinent subtree.
+
 buildPQ
 Builds a PQ-tree from a set of Ints. O(n).
 
@@ -35,7 +42,7 @@ permsPQ
 The permutations represented by the PQ-tree. O(do not use).
 -}
 module PQTree
-    ( PQNode 
+    ( PQNode
     , buildPQ
     , reducePQ
     , reduceAllPQ
@@ -46,8 +53,7 @@ module PQTree
 import Control.Applicative
 import Control.DeepSeq
 import Control.Monad
-import Control.Monad.Trans.Class
-import Control.Monad.Trans.State
+import Control.Monad.State
 import Data.Either
 import Data.List
 import Data.Maybe
@@ -74,7 +80,7 @@ mkQNode ns     = QNode ns
 
 mkRNode :: [PQNode] -> [PQNode] -> RNode
 mkRNode [] _  = error "empty RNode es"
-mkRNode _ []  = error "empty RNode fs"
+mkRNode _  [] = error "empty RNode fs"
 mkRNode es fs = Pa es fs
 
 isFu, isEm, isPa :: RNode -> Bool
@@ -101,20 +107,20 @@ span1 f xs@(x:xs')
 
 splitForQ :: [RNode] -> Maybe ([PQNode], [RNode], [PQNode])
 splitForQ xs = go xs <|> go (reverse xs) where
-    go = evalStateT $ do
+    go = evalState $ do
         ~[es, ps, fs] <- mapM state [span isEm, span1 isPa, span isFu]
-        lift . ((map unRNode es, ps, map unRNode fs) <$) . guard =<< gets null
+        gets $ ((map unRNode es, ps, map unRNode fs) <$) . guard . null
 
 splitForQRoot :: [RNode] -> Maybe ([PQNode], [RNode], [PQNode], [RNode], [PQNode])
-splitForQRoot = evalStateT $ do
+splitForQRoot = evalState $ do
     ~[e1, p1, fs, p2, e2] <- mapM state [span isEm, span1 isPa, span isFu, span1 isPa, span isEm]
-    lift . ((map unRNode e1, p1, map unRNode fs, p2, map unRNode e2) <$) . guard =<< gets null
+    gets $ ((map unRNode e1, p1, map unRNode fs, p2, map unRNode e2) <$) . guard . null
 
 buildPQ :: [Int] -> PQNode
 buildPQ = mkPNode . map PQLeaf
 
 reducePQ :: [Int] -> PQNode -> Maybe PQNode
-reducePQ [] = Just
+reducePQ []  = Just
 reducePQ xs0 = fromRight (error "outside initial set") . visit where
     xs = IS.fromList xs0
 
@@ -147,7 +153,7 @@ reducePQ xs0 = fromRight (error "outside initial set") . visit where
                         pe1 ++ reverse pf1 ++ [mkPNode fs | not (null fs)] ++ pf2 ++ reverse pe2
             case ps of
                 []                       -> Just noPartial
-                [Pa pe1 pf1]             -> Just $ withPartial pe1 pf1 [] []
+                [Pa pe1 pf1]             -> Just $ withPartial pe1 pf1 []  []
                 [Pa pe1 pf1, Pa pe2 pf2] -> Just $ withPartial pe1 pf1 pe2 pf2
                 _                        -> Nothing
 
@@ -182,8 +188,8 @@ reducePQ xs0 = fromRight (error "outside initial set") . visit where
         go n@(QNode cs) = do
             (es, ps, fs) <- splitForQ =<< mapM go cs
             let noPartial
-                    | null es = Fu n
-                    | null fs = Em n
+                    | null es   = Fu n
+                    | null fs   = Em n
                     | otherwise = mkRNode es (reverse fs)
                 withPartial pe pf = mkRNode (es ++ pe) (reverse fs ++ pf)
             case ps of
