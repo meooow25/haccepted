@@ -1,9 +1,10 @@
 module Util where
 
 import Control.DeepSeq
+import Control.Monad.Random
 import Data.Graph
+import Data.List
 import Data.Tree
-import System.Random
 
 import Criterion
 import qualified System.Random.Shuffle as Shuffle
@@ -39,6 +40,18 @@ randForest n = subForest $ randTree $ n + 1
 
 shuffle :: [a] -> [a]
 shuffle xs = Shuffle.shuffle' xs (length xs) gen
+
+type RandStd = Rand StdGen
+
+-- TODO: Replace the functions not using Rand
+randInts1 :: Int -> RandStd [Int]
+randInts1 n = replicateM n getRandom
+
+shuffle1 :: [a] -> RandStd [a]
+shuffle1 xs = map fst . sortOn snd . zip xs <$> randInts1 (length xs)
+
+evalR :: RandStd a -> a
+evalR = flip evalRand gen
 
 sizedBench :: NFData env => Int -> env -> (env -> Benchmarkable) -> Benchmark
 sizedBench n e b = env (return e) $ bench (show n) . b

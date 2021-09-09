@@ -95,7 +95,8 @@ benchmark bench-all
       bench
   ghc-options: -Wall -fno-warn-name-shadowing -O2
   build-depends:
-      array
+      MonadRandom
+    , array
     , base >=4.7 && <5
     , containers
     , criterion
