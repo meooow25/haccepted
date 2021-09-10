@@ -78,10 +78,10 @@ mkQNode [n]    = n
 mkQNode [n, m] = PNode [n, m]
 mkQNode ns     = QNode ns
 
-mkRNode :: [PQNode] -> [PQNode] -> RNode
-mkRNode [] _  = error "empty RNode es"
-mkRNode _  [] = error "empty RNode fs"
-mkRNode es fs = Pa es fs
+mkPartial :: [PQNode] -> [PQNode] -> RNode
+mkPartial [] _  = error "empty RNode es"
+mkPartial _  [] = error "empty RNode fs"
+mkPartial es fs = Pa es fs
 
 isFu, isEm, isPa :: RNode -> Bool
 isFu (Fu _)   = True
@@ -93,11 +93,11 @@ isPa _        = False
 
 splitForP :: [RNode] -> ([PQNode], [RNode], [PQNode])
 splitForP us = go us [] [] [] where
-    go []     e p f = (e, p, f)
-    go (x:xs) e p f = case x of
-        Em n   -> go xs (n:e) p     f
-        Pa _ _ -> go xs e     (x:p) f
-        Fu n   -> go xs e     p     (n:f)
+    go []     es ps fs = (es, ps, fs)
+    go (x:xs) es ps fs = case x of
+        Em n   -> go xs (n:es) ps     fs
+        Pa _ _ -> go xs es     (x:ps) fs
+        Fu n   -> go xs es     ps     (n:fs)
 
 span1 :: (a -> Bool) -> [a] -> ([a], [a])
 span1 _ [] = ([], [])
@@ -123,18 +123,19 @@ reducePQ :: [Int] -> PQNode -> Maybe PQNode
 reducePQ []  = Just
 reducePQ xs0 = fromRight (error "outside initial set") . visit where
     xs = IS.fromList xs0
+    xsz = IS.size xs
 
     visit :: PQNode -> Either Int (Maybe PQNode)
     visit n@(PNode cs) = visitPQ n PNode cs
     visit n@(QNode cs) = visitPQ n QNode cs
     visit n@(PQLeaf x)
         | x `IS.notMember` xs = Left 0
-        | IS.size xs > 1      = Left 1
+        | xsz > 1             = Left 1
         | otherwise           = Right $ reduceRoot n
     visitPQ n f cs
-        | cnt == IS.size xs = Right $ reduceRoot n
-        | null rts          = Left cnt
-        | ~[r] <- rts       = Right $ f cs' <$ r
+        | cnt == xsz  = Right $ reduceRoot n
+        | null rts    = Left cnt
+        | ~[r] <- rts = Right $ f cs' <$ r
       where
         ys = map visit cs
         cnt = sum $ lefts ys
@@ -177,9 +178,9 @@ reducePQ xs0 = fromRight (error "outside initial set") . visit where
             let noPartial
                     | null es   = Fu n
                     | null fs   = Em n
-                    | otherwise = mkRNode [mkPNode es] [mkPNode fs]
-                withPartial pe pf =
-                    mkRNode ([mkPNode es | not (null es)] ++ pe) ([mkPNode fs | not (null fs)] ++ pf)
+                    | otherwise = mkPartial [mkPNode es] [mkPNode fs]
+                withPartial pe pf = mkPartial
+                    ([mkPNode es | not (null es)] ++ pe) ([mkPNode fs | not (null fs)] ++ pf)
             case ps of
                 []         -> Just noPartial
                 [Pa pe pf] -> Just $ withPartial pe pf
@@ -190,8 +191,8 @@ reducePQ xs0 = fromRight (error "outside initial set") . visit where
             let noPartial
                     | null es   = Fu n
                     | null fs   = Em n
-                    | otherwise = mkRNode es (reverse fs)
-                withPartial pe pf = mkRNode (es ++ pe) (reverse fs ++ pf)
+                    | otherwise = mkPartial es (reverse fs)
+                withPartial pe pf = mkPartial (es ++ pe) (reverse fs ++ pf)
             case ps of
                 []         -> Just noPartial
                 [Pa pe pf] -> Just $ withPartial pe pf

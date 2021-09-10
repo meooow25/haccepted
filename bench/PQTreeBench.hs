@@ -1,8 +1,9 @@
 module PQTreeBench where
 
 import Criterion
-import PQTree
-import Util
+
+import PQTree ( buildPQ, reduceAllPQ )
+import Util ( evalR, shuffle1, sizedBench )
 
 benchmark :: Benchmark
 benchmark = bgroup "PQTree"
@@ -26,4 +27,4 @@ benchReduceAllPQ n = sizedBench n gen $ \ ~(pqt, xss) -> nf (reduceAllPQ xss) pq
         us <- shuffle1 [1..n]
         frontier <- shuffle1 us
         xss <- shuffle1 $ zipWith (\x y -> [x, y]) frontier (tail frontier)
-        return (buildPQ us, xss)
+        pure (buildPQ us, xss)
