@@ -9,6 +9,7 @@ dependencies:
 - array
 - containers
 - deepseq
+- mtl
 
 ghc-options: -Wall -fno-warn-name-shadowing
 
@@ -33,6 +34,7 @@ benchmarks:
     dependencies:
     - haskell-algo
     - criterion
+    - MonadRandom
     - random
     - random-shuffle
 
