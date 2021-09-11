@@ -8,33 +8,35 @@ import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
 import Fenwick
+import Util
 
 spec :: Spec
 spec = do
     prop "updates, queries" $
-        forAll (scale (*1000) arbitrary) $ \ft -> do
+        forAll genFt $ \ft -> do
             let (l, h) = boundsF ft
             forAll (pointUpds (l, h)) $ \ivs -> do
                 let ft' = applyUpdates ivs ft
-                forAll (choose (l, h)) $ \j ->
+                forAll (pointQry (l, h)) $ \j ->
                     queryF j ft' `shouldBe` naive ivs l j
 
     prop "updates, range queries" $
-        forAll (scale (*1000) arbitrary) $ \ft -> do
+        forAll genFt $ \ft -> do
             let (l, h) = boundsF ft
             forAll (pointUpds (l, h)) $ \ivs -> do
                 let ft' = applyUpdates ivs ft
-                    minMax i j = (min i j, max i j)
-                forAll (minMax <$> choose (l, h) <*> choose (l, h)) $ \(i, j) ->
+                forAll (genSortedIntPair (l, h)) $ \(i, j) ->
                     rangeQueryF negate i j ft' `shouldBe` naive ivs i j
 
     prop "range updates, queries" $
-        forAll (scale (*1000) arbitrary) $ \ft -> do
+        forAll genFt $ \ft -> do
             let (l, h) = boundsF ft
             forAll (rangeUpds (l, h)) $ \ijvs -> do
                 let ft' = applyRangeUpdates ijvs ft
-                    ivs = concat [[(i, v), (j + 1, -v)] | (i, j, v) <- ijvs]
-                forAll (choose (l, h)) $ \i ->
+                    ivs = do
+                        (i, j, v) <- ijvs
+                        (i, v) : [(j + 1, -v) | j < h]
+                forAll (pointQry (l, h)) $ \i ->
                     queryF i ft' `shouldBe` naive ivs l i
 
     where
@@ -42,22 +44,27 @@ spec = do
         applyUpdates ivs ft = foldl' (\ft (i, v) -> updateF i v ft) ft ivs
         applyRangeUpdates ijvs ft = foldl' (\ft (i, j, v) -> rangeUpdateF negate i j v ft) ft ijvs
 
-instance Monoid a => Arbitrary (FTree a) where
-    arbitrary = do
-        n <- getSize `suchThat` (/= 0)
-        n' <- choose (1, n)
-        l <- arbitrary
-        return $ buildF (l, l + n' - 1)
+genFt :: Gen (FTree (Sum Int))
+genFt = sized $ \n -> do
+    n' <- choose (0, n)
+    l <- arbitrary
+    pure $ buildF (l, l + n' - 1)
 
 pointUpds :: (Int, Int) -> Gen [(Int, Sum Int)]
-pointUpds (l, h) = listOf1 $ do
-    i <- choose (l, h)
-    v <- arbitrary
-    return (i, Sum v)
+pointUpds (l, h)
+    | l == h + 1 = pure []
+    | otherwise = listOf1 $ do
+        i <- choose (l, h)
+        v <- arbitrary
+        pure (i, Sum v)
 
 rangeUpds :: (Int, Int) -> Gen [(Int, Int, Sum Int)]
-rangeUpds (l, h) = listOf1 $ do
-    i <- choose (l, h)
-    j <- choose (l, h)
-    v <- arbitrary
-    return (min i j, max i j, Sum v)
+rangeUpds (l, h)
+    | l == h + 1 = pure []
+    | otherwise = listOf1 $ do
+        (i, j) <- genSortedIntPair (l, h)
+        v <- arbitrary
+        pure (i, j, Sum v)
+
+pointQry :: (Int, Int) -> Gen Int
+pointQry (l, r) = chooseInt (l - 10, r + 10)

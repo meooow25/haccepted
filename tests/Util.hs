@@ -11,6 +11,10 @@ import Prufer ( seqToGraph )
 genIntPair :: (Int, Int) -> Gen (Int, Int)
 genIntPair bnds = (,) <$> choose bnds <*> choose bnds
 
+genSortedIntPair :: (Int, Int) -> Gen (Int, Int)
+genSortedIntPair = fmap minmax . genIntPair where
+    minmax (x, y) = (min x y, max x y)
+
 genPruferSeq :: Gen ((Int, Int), [Int])
 genPruferSeq = sized $ \n -> do
     l <- arbitrary

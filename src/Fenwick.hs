@@ -55,25 +55,20 @@ data FTree a = FTree !(Int, Int, Int) !(FNode a) deriving Show
 data FNode a = FTip | FBin !a !(FNode a) !(FNode a) deriving Show
 
 buildF :: Monoid a => (Int, Int) -> FTree a
-buildF (l, r) | l > r = error "empty range"
-buildF (l, r) = FTree (l, r, bit ht) (go ht) where
+buildF (l, r) | l > r + 1 = error "invalid range"
+buildF (l, r) = FTree (l, r, p) (go ht) where
     n = r - l + 1
     ht = finiteBitSize n - countLeadingZeros n - 1
+    p = if ht < 0 then 0 else bit ht
     go j | j < 0     = FTip
          | otherwise = FBin mempty lr lr where lr = go $ j - 1
 
 boundsF :: FTree a -> (Int, Int)
 boundsF (FTree (l, r, _) _) = (l, r)
 
-{-# INLINE adjust #-}
-adjust :: Int -> Int -> Int -> Int
-adjust l r i
-    | i < l || r < i = error "outside range"
-    | otherwise = i - l + 1
-
 updateF :: Monoid a => Int -> a -> FTree a -> FTree a
 updateF i y (FTree lrp@(l, r, p) rt) = FTree lrp (go rt p) where
-    i' = adjust l r i
+    i' = if i < l || r < i then error "outside range" else i - l + 1
     q = bit $ countTrailingZeros i'
     go ~(FBin x l r) p
         | i' .&. p == 0 = FBin (x <> y) (go l p') r
@@ -82,8 +77,8 @@ updateF i y (FTree lrp@(l, r, p) rt) = FTree lrp (go rt p) where
         where p' = p `shiftR` 1
 
 queryF :: Monoid a => Int -> FTree a -> a
-queryF i (FTree (l, r, p) rt) = go rt p mempty where
-    i' = adjust l r i
+queryF i (FTree (l, r, p) rt) = if i' == 0 then mempty else go rt p mempty where
+    i' = max 0 $ min r i - l + 1
     q = bit $ countTrailingZeros i'
     go ~(FBin x l r) p acc
         | i' .&. p == 0 = go l p' acc
@@ -92,9 +87,7 @@ queryF i (FTree (l, r, p) rt) = go rt p mempty where
         where p' = p `shiftR` 1
 
 rangeQueryF :: Monoid a => (a -> a) -> Int -> Int -> FTree a -> a
-rangeQueryF inv l r ft@(FTree (l', _, _) _) = rx <> inv lx where
-    rx = queryF r ft
-    lx = if l == l' then mempty else queryF (l - 1) ft
+rangeQueryF inv l r ft = queryF r ft <> inv (queryF (l - 1) ft)
 
 rangeUpdateF :: Monoid a => (a -> a) -> Int -> Int -> a -> FTree a -> FTree a
 rangeUpdateF inv l r y ft@(FTree (_, r', _) _) = ft'' where
