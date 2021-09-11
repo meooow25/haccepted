@@ -36,6 +36,9 @@ Range query on [l, r] using an inverse operation. O(log n).
 
 rangeUpdateF
 Range update on [l, r] using an inverse operation. Can be used with point queries. O(log n).
+
+toScanl1F
+Converts to a list of prefix accumulated values. O(n).
 -}
 
 module Fenwick
@@ -46,6 +49,7 @@ module Fenwick
     , queryF
     , rangeQueryF
     , rangeUpdateF
+    , toScanl1F
     ) where
 
 import Data.Bits
@@ -93,6 +97,11 @@ rangeUpdateF :: Monoid a => (a -> a) -> Int -> Int -> a -> FTree a -> FTree a
 rangeUpdateF inv l r y ft@(FTree (_, r', _) _) = ft'' where
     ft' = updateF l y ft
     ft'' = if r == r' then ft' else updateF (r + 1) (inv y) ft'
+
+toScanl1F :: Monoid a => FTree a -> [a]
+toScanl1F (FTree (l, r, _) rt) = take (r - l + 1) $ go rt mempty [] where
+    go FTip _ acc = acc
+    go (FBin x l r) y acc = go l y $ x' : go r x' acc where x' = y <> x
 
 --------------------------------------------------------------------------------
 -- For tests

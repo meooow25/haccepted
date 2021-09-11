@@ -39,6 +39,13 @@ spec = do
                 forAll (pointQry (l, h)) $ \i ->
                     queryF i ft' `shouldBe` naive ivs l i
 
+    prop "toScanl1F" $
+        \xs' -> do
+            let xs = map Sum xs' :: [Sum Int]
+                n = length xs
+                ft = fromListF (1, n) xs
+            toScanl1F ft `shouldBe` scanl1 (<>) xs
+
     where
         naive ivs i j = fold [v | (k, v) <- ivs, i <= k && k <= j]
         applyUpdates ivs ft = foldl' (\ft (i, v) -> updateF i v ft) ft ivs
