@@ -45,6 +45,9 @@ Converts to a list of prefix accumulated values. O(n).
 module Fenwick
     ( FTree
     , buildF
+    , fromListF
+    , fromListF2
+    , fromListF3
     , boundsF
     , updateF
     , queryF
@@ -54,7 +57,9 @@ module Fenwick
     ) where
 
 import Data.Bits
+import Data.List
 import Control.DeepSeq
+import Control.Monad.State
 
 data FTree a = FTree !(Int, Int, Int) !(FNode a) deriving Show
 data FNode a = FTip | FBin !a !(FNode a) !(FNode a) deriving Show
@@ -67,6 +72,45 @@ buildF (l, r) = FTree (l, r, p) (go ht) where
     p = if ht < 0 then 0 else bit ht
     go j | j < 0     = FTip
          | otherwise = FBin mempty lr lr where lr = go $ j - 1
+
+fromListF :: Monoid a => (Int, Int) -> [a] -> FTree a
+fromListF (l, r) _ | l > r + 1 = error "invalid range"
+fromListF (l, r) xs = go $ buildF (l, r) where
+    go ft = foldl' (\ft (i, x) -> updateF i x ft) ft $ zip [l..] xs
+
+fromListF2 :: Monoid a => (Int, Int) -> [a] -> FTree a
+fromListF2 (l, r) _ | l > r + 1 = error "invalid range"
+fromListF2 (l, r) xs = FTree (l, r, bit ht) rt where
+    n = r - l + 1
+    ht = finiteBitSize n - countLeadingZeros n - 1
+    go xs j
+        | j < 0 = (FTip, mempty, xs)
+        | otherwise = (FBin x'' l r, x'' <> rx, rxs)
+        where
+            (l, lx, lxs) = go xs $ j - 1
+            (x', xs') = case lxs of
+                [] -> (mempty, [])
+                (x:xs) -> (x, xs)
+            x'' = lx <> x'
+            (r, rx, rxs) = go xs' $ j - 1
+    (rt, _, _) = go xs ht
+
+fromListF3 :: Monoid a => (Int, Int) -> [a] -> FTree a
+fromListF3 (l, r) _ | l > r + 1 = error "invalid range"
+fromListF3 (l, r) xs = FTree (l, r, bit ht) rt where
+    pop = state go where
+        go []     = (mempty, [])
+        go (x:xs) = (x,      xs)
+    n = r - l + 1
+    ht = finiteBitSize n - countLeadingZeros n - 1
+    go j | j < 0 = pure (FTip, mempty)
+    go j = do
+        (l, lx) <- go $ j - 1
+        x <- pop
+        (r, rx) <- go $ j - 1
+        let x' = lx <> x
+        pure (FBin x' l r, x' <> rx)
+    rt = fst $ evalState (go ht) xs
 
 boundsF :: FTree a -> (Int, Int)
 boundsF (FTree (l, r, _) _) = (l, r)
@@ -111,6 +155,9 @@ toScanl1F (FTree (l, r, _) rt) = take (r - l + 1) $ go rt mempty [] where
 {-# INLINABLE buildF #-}
 {-# INLINABLE updateF #-}
 {-# INLINABLE queryF #-}
+{-# INLINABLE fromListF #-}
+{-# INLINABLE fromListF2 #-}
+{-# INLINABLE fromListF3 #-}
 
 instance NFData a => NFData (FTree a) where
     rnf (FTree lrp rt) = rnf lrp `seq` rnf rt

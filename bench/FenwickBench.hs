@@ -10,8 +10,13 @@ import Util
 
 benchmark :: Benchmark
 benchmark = bgroup "Fenwick" [
+        -- Build a Fenwick tree from a list of size n
+        bgroup "fromListF" $ map (benchFromListF fromListF) sizes
+      , bgroup "fromListF2" $ map (benchFromListF fromListF2) sizes
+      , bgroup "fromListF3" $ map (benchFromListF fromListF3) sizes
+
       -- n updates on a Fenwick tree of size n
-        bgroup "updateF" $ map benchUpdateF sizes
+      , bgroup "updateF" $ map benchUpdateF sizes
 
       -- n queries on a Fenwick tree of size n
       , bgroup "queryF" $ map benchQueryF sizes
@@ -19,6 +24,9 @@ benchmark = bgroup "Fenwick" [
 
 sizes :: [Int]
 sizes = [100, 10000, 1000000]
+
+benchFromListF f n = env (gen n) $ \ xs -> bench (show n) $ nf (f (1, n)) xs
+    where gen n = return $ Sum <$> randInts n
 
 benchUpdateF :: Int -> Benchmark
 benchUpdateF n = env (gen n) $ \ ~(ft, us) -> bench (show n) $ nf (go us) ft

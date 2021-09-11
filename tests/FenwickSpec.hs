@@ -39,6 +39,19 @@ spec = do
                 forAll (pointQry (l, h)) $ \i ->
                     queryF i ft' `shouldBe` naive ivs l i
 
+    let testFromList name f = prop name $
+            forAll genFt $ \ft -> do
+                let (l, h) = boundsF ft
+                    n = h - l + 1
+                    v = vector n :: Gen [Int]
+                forAll (map Sum <$> v) $ \xs -> do
+                    let ft' = f (l, h) xs
+                    toScanl1F ft' `shouldBe` scanl1 (<>) xs
+
+    testFromList "fromListF" fromListF
+    testFromList "fromListF2" fromListF2
+    testFromList "fromListF3" fromListF3
+
     prop "toScanl1F" $
         \xs' -> do
             let xs = map Sum xs' :: [Sum Int]
