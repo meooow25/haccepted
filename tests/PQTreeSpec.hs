@@ -12,7 +12,7 @@ import PQTree ( buildPQ, permsPQ, reduceAllPQ )
 spec :: Spec
 spec = do
     prop "reduceAll" $ do
-        forAll (arbitrary `suchThat` (\n -> 0 < n && n < 8)) $ \n -> do 
+        forAll (chooseInt (1, 8)) $ \n -> do
             let us = [1..n]
                 pqt = buildPQ us
             forAll (listOf $ sublistOf us) $ \xss -> do
