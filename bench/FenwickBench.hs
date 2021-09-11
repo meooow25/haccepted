@@ -10,11 +10,8 @@ import Util
 
 benchmark :: Benchmark
 benchmark = bgroup "Fenwick" [
-      -- Build a Fenwick tree of size n
-        bgroup "buildF" $ map benchBuildF sizes
-
       -- n updates on a Fenwick tree of size n
-      , bgroup "updateF" $ map benchUpdateF sizes
+        bgroup "updateF" $ map benchUpdateF sizes
 
       -- n queries on a Fenwick tree of size n
       , bgroup "queryF" $ map benchQueryF sizes
@@ -22,9 +19,6 @@ benchmark = bgroup "Fenwick" [
 
 sizes :: [Int]
 sizes = [100, 10000, 1000000]
-
-benchBuildF :: Int -> Benchmark
-benchBuildF n = bench (show n) $ nf genF n
 
 benchUpdateF :: Int -> Benchmark
 benchUpdateF n = env (gen n) $ \ ~(ft, us) -> bench (show n) $ nf (go us) ft

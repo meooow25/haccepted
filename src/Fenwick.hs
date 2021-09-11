@@ -20,7 +20,7 @@ Sources:
 * https://hackage.haskell.org/package/binary-indexed-tree
 
 buildF
-Builds a Fenwick tree with the given bounds. O(n).
+Builds an empty Fenwick tree with the given bounds. O(log n).
 
 boundsF
 The bounds of the Fenwick tree. O(1).
@@ -60,7 +60,7 @@ buildF (l, r) = FTree (l, r, bit ht) (go ht) where
     n = r - l + 1
     ht = finiteBitSize n - countLeadingZeros n - 1
     go j | j < 0     = FTip
-         | otherwise = FBin mempty (go $ j - 1) (go $ j - 1)
+         | otherwise = FBin mempty lr lr where lr = go $ j - 1
 
 boundsF :: FTree a -> (Int, Int)
 boundsF (FTree (l, r, _) _) = (l, r)
