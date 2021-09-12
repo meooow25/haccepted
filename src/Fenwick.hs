@@ -1,7 +1,8 @@
 {-|
 Fenwick tree or binary indexed tree
 
-Persistent version, which is a little different (and less efficient) than the standard
+Useful for point/range updates and queries.
+This is a persistent version, which is a little different (and less efficient) than the standard
 implementation with an array. The responsibilies of the indices are identical to the standard
 version.
 
