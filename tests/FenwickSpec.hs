@@ -8,7 +8,17 @@ import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
 import Fenwick
-import Util
+    ( FTree
+    , boundsF
+    , buildF
+    , fromListF
+    , queryF
+    , rangeQueryF
+    , rangeUpdateF
+    , toScanl1F
+    , updateF
+    )
+import Util ( genSortedIntPair )
 
 spec :: Spec
 spec = do

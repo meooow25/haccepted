@@ -5,8 +5,8 @@ import Data.Monoid
 
 import Criterion
 
-import Fenwick
-import Util
+import Fenwick ( buildF, queryF, updateF, fromListF, FTree )
+import Util ( randIntsR, randInts )
 
 benchmark :: Benchmark
 benchmark = bgroup "Fenwick" [
