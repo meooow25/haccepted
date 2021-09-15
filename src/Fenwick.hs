@@ -1,9 +1,9 @@
 {-|
 Fenwick tree or binary indexed tree
 
-Persistent version, which is a little different (and less efficient) than the standard
-implementation with an array. The responsibilies of the indices are identical to the standard
-version.
+Useful for point/range updates and queries.
+This is a persistent implementation, which is a little different (and less efficient) than the
+standard implementation with an array. The responsibilies of the indices are the same in both.
 
 The tree is represented as a complete BST where each node stores the sum of values in its left
 subtree and itself.
@@ -17,10 +17,16 @@ subtree and itself.
 
 Sources:
 * https://en.wikipedia.org/wiki/Fenwick_tree
+* Peter M. Fenwick, "A New Data Structure for Cumulative Frequency Tables", 1994
+  https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.14.8917
 * https://hackage.haskell.org/package/binary-indexed-tree
 
 buildF
-Builds a Fenwick tree with the given bounds. O(n).
+Builds an empty Fenwick tree with the given bounds. O(log n).
+
+fromListF
+Builds a Fenwick tree from a list. O(n log n).
+This is faster in practice than trying to build in O(n).
 
 boundsF
 The bounds of the Fenwick tree. O(1).
@@ -36,44 +42,50 @@ Range query on [l, r] using an inverse operation. O(log n).
 
 rangeUpdateF
 Range update on [l, r] using an inverse operation. Can be used with point queries. O(log n).
+
+toScanl1F
+Converts to a list of prefix accumulated values. O(n).
 -}
 
 module Fenwick
     ( FTree
     , buildF
+    , fromListF
     , boundsF
     , updateF
     , queryF
     , rangeQueryF
     , rangeUpdateF
+    , toScanl1F
     ) where
 
 import Data.Bits
+import Data.List
 import Control.DeepSeq
 
 data FTree a = FTree !(Int, Int, Int) !(FNode a) deriving Show
 data FNode a = FTip | FBin !a !(FNode a) !(FNode a) deriving Show
 
 buildF :: Monoid a => (Int, Int) -> FTree a
-buildF (l, r) | l > r = error "empty range"
-buildF (l, r) = FTree (l, r, bit ht) (go ht) where
+buildF (l, r) | l > r + 1 = error "invalid range"
+buildF (l, r) = FTree (l, r, p) (go ht) where
     n = r - l + 1
     ht = finiteBitSize n - countLeadingZeros n - 1
+    p = if ht < 0 then 0 else bit ht
     go j | j < 0     = FTip
-         | otherwise = FBin mempty (go $ j - 1) (go $ j - 1)
+         | otherwise = FBin mempty lr lr where lr = go $ j - 1
+
+fromListF :: Monoid a => (Int, Int) -> [a] -> FTree a
+fromListF (l, r) _ | l > r + 1 = error "invalid range"
+fromListF (l, r) xs = go $ buildF (l, r) where
+    go ft = foldl' (\ft (i, x) -> updateF i x ft) ft $ zip [l..] xs
 
 boundsF :: FTree a -> (Int, Int)
 boundsF (FTree (l, r, _) _) = (l, r)
 
-{-# INLINE adjust #-}
-adjust :: Int -> Int -> Int -> Int
-adjust l r i
-    | i < l || r < i = error "outside range"
-    | otherwise = i - l + 1
-
 updateF :: Monoid a => Int -> a -> FTree a -> FTree a
 updateF i y (FTree lrp@(l, r, p) rt) = FTree lrp (go rt p) where
-    i' = adjust l r i
+    i' = if i < l || r < i then error "outside range" else i - l + 1
     q = bit $ countTrailingZeros i'
     go ~(FBin x l r) p
         | i' .&. p == 0 = FBin (x <> y) (go l p') r
@@ -82,8 +94,8 @@ updateF i y (FTree lrp@(l, r, p) rt) = FTree lrp (go rt p) where
         where p' = p `shiftR` 1
 
 queryF :: Monoid a => Int -> FTree a -> a
-queryF i (FTree (l, r, p) rt) = go rt p mempty where
-    i' = adjust l r i
+queryF i (FTree (l, r, p) rt) = if i' == 0 then mempty else go rt p mempty where
+    i' = max 0 $ min r i - l + 1
     q = bit $ countTrailingZeros i'
     go ~(FBin x l r) p acc
         | i' .&. p == 0 = go l p' acc
@@ -92,20 +104,23 @@ queryF i (FTree (l, r, p) rt) = go rt p mempty where
         where p' = p `shiftR` 1
 
 rangeQueryF :: Monoid a => (a -> a) -> Int -> Int -> FTree a -> a
-rangeQueryF inv l r ft@(FTree (l', _, _) _) = rx <> inv lx where
-    rx = queryF r ft
-    lx = if l == l' then mempty else queryF (l - 1) ft
+rangeQueryF inv l r ft = queryF r ft <> inv (queryF (l - 1) ft)
 
 rangeUpdateF :: Monoid a => (a -> a) -> Int -> Int -> a -> FTree a -> FTree a
 rangeUpdateF inv l r y ft@(FTree (_, r', _) _) = ft'' where
     ft' = updateF l y ft
     ft'' = if r == r' then ft' else updateF (r + 1) (inv y) ft'
 
+toScanl1F :: Monoid a => FTree a -> [a]
+toScanl1F (FTree (l, r, _) rt) = take (r - l + 1) $ go rt mempty [] where
+    go FTip _ acc = acc
+    go (FBin x l r) y acc = go l y $ x' : go r x' acc where x' = y <> x
+
 --------------------------------------------------------------------------------
 -- For tests
 
 -- Allows specialization across modules
-{-# INLINABLE buildF #-}
+{-# INLINABLE fromListF #-}
 {-# INLINABLE updateF #-}
 {-# INLINABLE queryF #-}
 
