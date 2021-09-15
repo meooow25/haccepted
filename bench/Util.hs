@@ -7,48 +7,41 @@ import Data.List
 import Data.Tree
 
 import Criterion
-import qualified System.Random.Shuffle as Shuffle
 
 import Prufer ( seqToGraph )
+
+type RandStd = Rand StdGen
 
 gen :: StdGen
 gen = mkStdGen 42
 
-randIntsR :: (Int, Int) -> Int -> [Int]
-randIntsR bnds n = take n $ randomRs bnds gen
+randInts :: Int -> RandStd [Int]
+randInts n = replicateM n getRandom
 
-randInts :: Int -> [Int]
-randInts n = take n $ randoms gen
+randIntsR :: (Int, Int) -> Int -> RandStd [Int]
+randIntsR bnds n = replicateM n $ getRandomR bnds
 
-randIntPairsR :: (Int, Int) -> Int -> [(Int, Int)]
-randIntPairsR bnds n = uncurry zip $ splitAt n $ randIntsR bnds $ 2 * n
+randIntPairsR :: (Int, Int) -> Int -> RandStd [(Int, Int)]
+randIntPairsR bnds n = zip <$> randIntsR bnds n <*> randIntsR bnds n
 
-randSortedIntPairsR :: (Int, Int) -> Int -> [(Int, Int)]
-randSortedIntPairsR bnds n = minmax <$> randIntPairsR bnds n where
+randSortedIntPairsR :: (Int, Int) -> Int -> RandStd [(Int, Int)]
+randSortedIntPairsR bnds n = map minmax <$> randIntPairsR bnds n where
     minmax (x, y) = (min x y, max x y)
 
-randPruferSeq :: Int -> [Int]
-randPruferSeq n = drop 2 $ shuffle [1..n]
+shuffle :: [a] -> RandStd [a]
+shuffle xs = map fst . sortOn snd . zip xs <$> randInts (length xs)
 
-randTree :: Int -> Tree Vertex
-randTree n = t where
-    g = seqToGraph (1, n) $ randPruferSeq n
-    [t] = dfs g [n]
+randPruferSeq :: Int -> RandStd [Int]
+randPruferSeq n = drop 2 <$> shuffle [1..n]
 
-randForest :: Int -> [Tree Vertex]
-randForest n = subForest $ randTree $ n + 1
+randTree :: Int -> RandStd (Tree Vertex)
+randTree n = do
+    g <- seqToGraph (1, n) <$> randPruferSeq n
+    let [t] = dfs g [n]
+    pure t
 
-shuffle :: [a] -> [a]
-shuffle xs = Shuffle.shuffle' xs (length xs) gen
-
-type RandStd = Rand StdGen
-
--- TODO: Replace the functions not using Rand
-randInts1 :: Int -> RandStd [Int]
-randInts1 n = replicateM n getRandom
-
-shuffle1 :: [a] -> RandStd [a]
-shuffle1 xs = map fst . sortOn snd . zip xs <$> randInts1 (length xs)
+randForest :: Int -> RandStd [Tree Vertex]
+randForest n = subForest <$> randTree (n + 1)
 
 evalR :: RandStd a -> a
 evalR = flip evalRand gen

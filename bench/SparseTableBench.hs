@@ -6,8 +6,8 @@ import Data.List
 
 import Criterion
 
-import SparseTable
-import Util
+import SparseTable ( SparseTable, fromArraySP, fromListSP, query1SP, querySP )
+import Util ( evalR, randInts, randSortedIntPairsR, sizedBench )
 
 benchmark :: Benchmark
 benchmark = bgroup "SparseTable"
@@ -28,21 +28,18 @@ sizes :: [Int]
 sizes = [100, 10000, 500000]
 
 benchFromArraySP :: Int -> Benchmark
-benchFromArraySP n = sizedBench n gen $ nf go
-    where
-        gen = listArray (1, n) $ Sum <$> randInts n
-        go xa = fromArraySP xa
+benchFromArraySP n = sizedBench n gen $ nf go where
+    gen = evalR $ listArray (1, n) . map Sum <$> randInts n
+    go xa = fromArraySP xa
 
 benchFromListSP :: Int -> Benchmark
-benchFromListSP n = sizedBench n gen $ nf go
-    where
-        gen = Sum <$> randInts n
-        go xa = fromListSP (1, n) xa
+benchFromListSP n = sizedBench n gen $ nf go where
+    gen = evalR $ map Sum <$> randInts n
+    go xs = fromListSP (1, n) xs
 
 type QF = Int -> Int -> SparseTable (Sum Int) -> Sum Int
 
 benchQuery :: QF -> Int -> Benchmark
-benchQuery query n = sizedBench n gen $ \ ~(sp, qs) -> whnf (go sp) qs
-    where
-        gen = (fromListSP (1, n) $ Sum <$> randInts n, randSortedIntPairsR (1, n) n)
-        go sp qs = foldl' (\_ (l, r) -> query l r sp `seq` ()) () qs
+benchQuery query n = sizedBench n gen $ \ ~(sp, qs) -> whnf (go sp) qs where
+    gen = evalR $ (,) <$> (fromListSP (1, n) . map Sum <$> randInts n) <*> randSortedIntPairsR (1, n) n
+    go sp qs = foldl' (\_ (l, r) -> query l r sp `seq` ()) () qs

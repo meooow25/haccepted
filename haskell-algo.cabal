@@ -104,5 +104,4 @@ benchmark bench-all
     , haskell-algo
     , mtl
     , random
-    , random-shuffle
   default-language: Haskell2010

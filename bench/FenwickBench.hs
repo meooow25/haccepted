@@ -6,7 +6,7 @@ import Data.Monoid
 import Criterion
 
 import Fenwick ( FTree, buildF, fromListF, queryF, updateF )
-import Util ( randInts, randIntsR, sizedBench )
+import Util ( evalR, randInts, randIntsR, sizedBench )
 
 benchmark :: Benchmark
 benchmark = bgroup "Fenwick"
@@ -25,14 +25,14 @@ sizes = [100, 10000, 1000000]
 
 benchFromListF :: Int -> Benchmark
 benchFromListF n = sizedBench n gen $ nf (fromListF (1, n)) where
-    gen = Sum <$> randInts n
+    gen = evalR $ map Sum <$> randInts n
 
 benchUpdateF :: Int -> Benchmark
 benchUpdateF n = sizedBench n gen $ \ ~(ft, us) -> nf (go ft) us where
-    gen = (buildF (1, n), zip (randIntsR (1, n) n) (Sum <$> randInts n))
+    gen = (buildF (1, n), evalR $ zip <$> randIntsR (1, n) n <*> (map Sum <$> randInts n))
     go ft us = foldl' (\ft (i, x) -> updateF i x ft) ft us
 
 benchQueryF :: Int -> Benchmark
 benchQueryF n = sizedBench n gen $ \ ~(ft, qs) -> nf (go ft) qs where
-    gen = (buildF (1, n) :: FTree (Sum Int), randIntsR (1, n) n)
+    gen = (buildF (1, n) :: FTree (Sum Int), evalR $ randIntsR (1, n) n)
     go ft qs = foldl' (\_ i -> queryF i ft `seq` ()) () qs
