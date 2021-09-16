@@ -4,6 +4,7 @@ import qualified BFSBench
 import qualified BinSearchBench
 import qualified CentroidDecompBench
 import qualified ConvexHullBench
+import qualified DSUBench
 import qualified FenwickBench
 import qualified KMPBench
 import qualified LCABench
@@ -23,6 +24,7 @@ main = defaultMain
     , BinSearchBench.benchmark
     , CentroidDecompBench.benchmark
     , ConvexHullBench.benchmark
+    , DSUBench.benchmark
     , FenwickBench.benchmark
     , KMPBench.benchmark
     , LCABench.benchmark

@@ -1,6 +1,5 @@
 module MoBench where
 
-import Control.DeepSeq
 import Control.Monad
 import Control.Monad.ST
 import Data.Array.Unboxed
@@ -9,6 +8,7 @@ import Data.STRef
 
 import Criterion
 
+import ArrayNFData ()
 import Mo ( MoQuery(..), Tag, runMo, sqrtSize )
 import Util ( evalR, randIntsR, randSortedIntPairsR, sizedBench )
 
@@ -47,7 +47,3 @@ countDistinct xa qrys = runST $ do
     runMo (sqrtSize n) add rem ans qrys
   where
     (1, n) = bounds xa
-
--- A UArray is strict in its elements
-instance NFData (UArray i e) where
-    rnf = rwhnf
