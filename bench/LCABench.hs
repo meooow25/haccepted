@@ -20,9 +20,8 @@ sizes :: [Int]
 sizes = [100, 10000, 500000]
 
 benchBuildLCA :: Int -> Benchmark
-benchBuildLCA n = sizedBench n gen $ nf go where
+benchBuildLCA n = sizedBench n gen $ nf $ buildLCA (1, n) where
     gen = evalR $ randTree n
-    go ts = buildLCA (1, n) ts
 
 benchQueryLCA :: Int -> Benchmark
 benchQueryLCA n = sizedBench n gen $ \ ~(lca, uvs) -> whnf (go lca) uvs where

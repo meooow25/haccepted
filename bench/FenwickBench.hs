@@ -24,7 +24,7 @@ sizes :: [Int]
 sizes = [100, 10000, 1000000]
 
 benchFromListF :: Int -> Benchmark
-benchFromListF n = sizedBench n gen $ nf (fromListF (1, n)) where
+benchFromListF n = sizedBench n gen $ nf $ fromListF (1, n) where
     gen = evalR $ map Sum <$> randInts n
 
 benchUpdateF :: Int -> Benchmark
@@ -33,6 +33,6 @@ benchUpdateF n = sizedBench n gen $ \ ~(ft, us) -> nf (go ft) us where
     go ft us = foldl' (\ft (i, x) -> updateF i x ft) ft us
 
 benchQueryF :: Int -> Benchmark
-benchQueryF n = sizedBench n gen $ \ ~(ft, qs) -> nf (go ft) qs where
+benchQueryF n = sizedBench n gen $ \ ~(ft, qs) -> whnf (go ft) qs where
     gen = (buildF (1, n) :: FTree (Sum Int), evalR $ randIntsR (1, n) n)
     go ft qs = foldl' (\_ i -> queryF i ft `seq` ()) () qs

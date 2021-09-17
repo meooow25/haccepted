@@ -18,7 +18,7 @@ sizes :: [Int]
 sizes = [100, 2000]
 
 benchBuildPQ :: Int -> Benchmark
-benchBuildPQ n = sizedBench n gen $ \us -> nf buildPQ us where
+benchBuildPQ n = sizedBench n gen $ nf buildPQ where
     gen = evalR $ shuffle [1..n]
 
 benchReduceAllPQ :: Int -> Benchmark

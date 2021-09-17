@@ -28,14 +28,12 @@ sizes :: [Int]
 sizes = [100, 10000, 500000]
 
 benchFromArraySP :: Int -> Benchmark
-benchFromArraySP n = sizedBench n gen $ nf go where
+benchFromArraySP n = sizedBench n gen $ nf fromArraySP where
     gen = evalR $ listArray (1, n) . map Sum <$> randInts n
-    go xa = fromArraySP xa
 
 benchFromListSP :: Int -> Benchmark
-benchFromListSP n = sizedBench n gen $ nf go where
+benchFromListSP n = sizedBench n gen $ nf $ fromListSP (1, n) where
     gen = evalR $ map Sum <$> randInts n
-    go xs = fromListSP (1, n) xs
 
 type QF = Int -> Int -> SparseTable (Sum Int) -> Sum Int
 

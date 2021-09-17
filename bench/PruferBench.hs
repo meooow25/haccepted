@@ -18,9 +18,8 @@ sizes :: [Int]
 sizes = [100, 10000, 1000000]
 
 benchSeqToGraph :: Int -> Benchmark
-benchSeqToGraph n = sizedBench n gen $ nf go where
+benchSeqToGraph n = sizedBench n gen $ nf $ seqToGraph (1, n) where
     gen = evalR $ randPruferSeq n
-    go us = seqToGraph (1, n) us
 
 benchGraphToSeq :: Int -> Benchmark
 benchGraphToSeq n = sizedBench n gen $ nf graphToSeq where
