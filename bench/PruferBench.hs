@@ -3,7 +3,7 @@ module PruferBench where
 import Criterion
 
 import Prufer ( graphToSeq, seqToGraph )
-import Util ( randPruferSeq, sizedBench )
+import Util ( evalR, randPruferSeq, sizedBench )
 
 benchmark :: Benchmark
 benchmark = bgroup "Prufer"
@@ -18,10 +18,9 @@ sizes :: [Int]
 sizes = [100, 10000, 1000000]
 
 benchSeqToGraph :: Int -> Benchmark
-benchSeqToGraph n = sizedBench n gen $ nf go where
-    gen = randPruferSeq n
-    go us = seqToGraph (1, n) us
+benchSeqToGraph n = sizedBench n gen $ nf $ seqToGraph (1, n) where
+    gen = evalR $ randPruferSeq n
 
 benchGraphToSeq :: Int -> Benchmark
 benchGraphToSeq n = sizedBench n gen $ nf graphToSeq where
-    gen = seqToGraph (1, n) $ randPruferSeq n
+    gen = evalR $ seqToGraph (1, n) <$> randPruferSeq n

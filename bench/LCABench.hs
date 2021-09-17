@@ -5,7 +5,7 @@ import Data.List
 import Criterion
 
 import LCA ( buildLCA, queryLCA )
-import Util ( sizedBench, randIntPairsR, randTree )
+import Util ( evalR, randIntPairsR, randTree, sizedBench )
 
 benchmark :: Benchmark
 benchmark = bgroup "LCA"
@@ -20,11 +20,10 @@ sizes :: [Int]
 sizes = [100, 10000, 500000]
 
 benchBuildLCA :: Int -> Benchmark
-benchBuildLCA n = sizedBench n gen $ nf go where
-    gen = randTree n
-    go ts = buildLCA (1, n) ts
+benchBuildLCA n = sizedBench n gen $ nf $ buildLCA (1, n) where
+    gen = evalR $ randTree n
 
 benchQueryLCA :: Int -> Benchmark
 benchQueryLCA n = sizedBench n gen $ \ ~(lca, uvs) -> whnf (go lca) uvs where
-    gen = (buildLCA (1, n) $ randTree n, randIntPairsR (1, n) n)
+    gen = evalR $ (,) <$> (buildLCA (1, n) <$> randTree n) <*> randIntPairsR (1, n) n
     go lca uvs = foldl' (\_ (u, v) -> queryLCA u v lca `seq` ()) () uvs

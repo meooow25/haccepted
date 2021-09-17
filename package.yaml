@@ -36,7 +36,6 @@ benchmarks:
     - criterion
     - MonadRandom
     - random
-    - random-shuffle
 
 executables:
   gen-summary:
