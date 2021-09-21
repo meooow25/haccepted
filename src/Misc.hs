@@ -1,15 +1,22 @@
 {-|
-Miscellaneous stuff
+Miscellaneous functions/recipes
 
 pairs
-Generates distinct pairs from a list
+Generates distinct pairs from a list.
 
 fArray
-Generates an Array from bounds and a function
+Generates an Array from bounds and a function.
 
 chunksOf
 Split a list into chunks of fixed size.
+
+replicateL
+Replicates a list n times.
+
+unique
+Eliminates consecutive duplicate elements.
 -}
+
 module Misc where
 
 import Data.Array
@@ -25,3 +32,9 @@ chunksOf :: Int -> [a] -> [[a]]
 chunksOf n = go where
     go [] = []
     go xs = xs' : go xs'' where (xs', xs'') = splitAt n xs
+
+replicateL :: Int -> [a] -> [a]
+replicateL n = concat . replicate n
+
+unique :: Eq a => [a] -> [a]
+unique = map head . group
