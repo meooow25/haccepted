@@ -31,7 +31,7 @@ import Data.Graph
 data Var = Id !Int | Not !Int deriving Show
 
 solve2Sat :: (Int, Int) -> [(Var, Var)] -> Maybe [Bool]
-solve2Sat (l, r) xys = mapM assign [0 .. n - 1] where
+solve2Sat (l, r) xys = assign $ elems comp where
     n = r - l + 1
     bnds = (0, 2 * n - 1)
     idx (Id x)  = (x - l) * 2
@@ -40,12 +40,10 @@ solve2Sat (l, r) xys = mapM assign [0 .. n - 1] where
         (x, y) <- xys
         [(idx x `xor` 1, idx y), (idx y `xor` 1, idx x)]
     comp = array bnds $ concat $ zipWith zip (map toList $ scc g) (map repeat [1 :: Int ..])
-    assign i
+    assign [] = Just []
+    assign ~(cx:cnotx:rest)
         | cx == cnotx = Nothing
-        | otherwise   = Just $ cx < cnotx
-      where
-        cx    = comp!(2 * i)
-        cnotx = comp!(2 * i + 1)
+        | otherwise   = ((cx < cnotx):) <$> assign rest
 
 --------------------------------------------------------------------------------
 -- For tests
