@@ -6,6 +6,7 @@ import qualified LCABench
 import qualified PQTreeBench
 import qualified PruferBench
 import qualified SparseTableBench
+import qualified TwoSatBench
 
 main :: IO ()
 main = defaultMain
@@ -15,4 +16,5 @@ main = defaultMain
     , PQTreeBench.benchmark
     , PruferBench.benchmark
     , SparseTableBench.benchmark
+    , TwoSatBench.benchmark
     ]
