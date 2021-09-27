@@ -33,14 +33,12 @@ genxys = sized $ \n' -> do
 
 validate :: (Int, Int) -> [(Var, Var)] -> Maybe [Bool] -> Bool
 validate bnds xys sol = case sol of
-    Just sol' -> checkSol bnds xys sol'
-    Nothing   -> not $ any (checkSol bnds xys) allOptions
+    Just sol' -> checkSol sol'
+    Nothing   -> not $ any checkSol allOptions
   where
     allOptions = mapM (const [False, True]) $ range bnds
-
-checkSol :: (Int, Int) -> [(Var, Var)] -> [Bool] -> Bool
-checkSol bnds xys sol = all (uncurry ok) xys where
-    a = listArray bnds sol
-    get (Id x)  = a!x
-    get (Not x) = not $ a!x
-    ok x y = get x || get y
+    checkSol sol = all ok xys where
+        a = listArray bnds sol
+        get (Id x)  = a!x
+        get (Not x) = not $ a!x
+        ok (x, y) = get x || get y

@@ -12,7 +12,7 @@ Sources:
 * https://cp-algorithms.com/graph/2SAT.html
 
 solve2Sat
-Solves the 2-sat problem where each variable is represented an Int in the range (l, r). Returns a
+Solves the 2-sat problem where each variable is represented by an Int in the range (l, r). Returns a
 list of assignments for the variables l to r, in order. O(n + m) where n = r - l + 1 and
 m = length xys.
 -}
