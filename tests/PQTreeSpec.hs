@@ -11,7 +11,7 @@ import PQTree ( buildPQ, permsPQ, reduceAllPQ )
 
 spec :: Spec
 spec = do
-    prop "reduceAll" $ do
+    prop "reduceAll" $
         forAll (chooseInt (1, 8)) $ \n -> do
             let us = [1..n]
                 pqt = buildPQ us
