@@ -15,6 +15,7 @@ extra-source-files:
 library
   exposed-modules:
       BinSearch
+      CentroidDecomp
       Fenwick
       LCA
       MInt
@@ -59,6 +60,7 @@ test-suite test-all
   main-is: Spec.hs
   other-modules:
       BinSearchSpec
+      CentroidDecompSpec
       FenwickSpec
       LCASpec
       PQTreeSpec
@@ -86,6 +88,7 @@ benchmark bench-all
   main-is: Bench.hs
   other-modules:
       BinSearchBench
+      CentroidDecompBench
       FenwickBench
       LCABench
       PQTreeBench

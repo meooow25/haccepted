@@ -1,6 +1,7 @@
 import Criterion.Main
 
 import qualified BinSearchBench
+import qualified CentroidDecompBench
 import qualified FenwickBench
 import qualified LCABench
 import qualified PQTreeBench
@@ -11,6 +12,7 @@ import qualified TwoSatBench
 main :: IO ()
 main = defaultMain
     [ BinSearchBench.benchmark
+    , CentroidDecompBench.benchmark
     , FenwickBench.benchmark
     , LCABench.benchmark
     , PQTreeBench.benchmark
