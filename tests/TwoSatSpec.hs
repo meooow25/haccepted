@@ -19,7 +19,7 @@ spec = do
 
 genxys :: Gen ((Int, Int), [(Var, Var)])
 genxys = sized $ \n' -> do
-    n <- choose (0, n' `min` 15)
+    n <- choose (0, n' `min` 10)
     l <- arbitrary
     let r = l + n - 1
         genVar = do

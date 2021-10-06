@@ -12,11 +12,15 @@ import PQTree ( buildPQ, permsPQ, reduceAllPQ )
 spec :: Spec
 spec = do
     prop "reduceAll" $
-        forAll (chooseInt (1, 8)) $ \n -> do
-            let us = [1..n]
-                pqt = buildPQ us
+        forAll genUs $ \us -> do
+            let pqt = buildPQ us
             forAll (listOf $ sublistOf us) $ \xss -> do
                 maybe [] (sort . permsPQ) (reduceAllPQ xss pqt) `shouldBe` sort (naive us xss)
+
+genUs :: Gen [Int]
+genUs = sized $ \n' -> do
+    n <- choose (1, max 1 $ min 6 n')
+    pure [1..n]
 
 naive :: [Int] -> [[Int]] -> [[Int]]
 naive us xss = filter ((`all` xss) . ok) pss where
