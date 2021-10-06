@@ -6,6 +6,7 @@ import qualified CentroidDecompBench
 import qualified ConvexHullBench
 import qualified DinicBench
 import qualified DSUBench
+import qualified DijkstraBench
 import qualified FenwickBench
 import qualified FloydWarshallBench
 import qualified KMPBench
@@ -29,6 +30,7 @@ main = defaultMain
     , ConvexHullBench.benchmark
     , DinicBench.benchmark
     , DSUBench.benchmark
+    , DijkstraBench.benchmark
     , FenwickBench.benchmark
     , FloydWarshallBench.benchmark
     , KMPBench.benchmark
