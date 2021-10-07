@@ -5,8 +5,8 @@ Useful for point/range updates and queries.
 This is a persistent implementation, which is a little different (and less efficient) than the
 standard implementation with an array. The responsibilies of the indices are the same in both.
 
-The tree is represented as a complete BST where each node stores the sum of values in its left
-subtree and itself.
+The tree is represented as a complete binary tree where each node stores the sum of values in its
+left subtree and itself.
 
      4
     / \
@@ -21,27 +21,32 @@ Sources:
   https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.14.8917
 * https://hackage.haskell.org/package/binary-indexed-tree
 
+The tree stores accumulated values at each node, so for updates to work the monoid must be
+commutative in mappend.
+
 buildF
-Builds an empty Fenwick tree with the given bounds. O(log n).
+Builds a Fenwick tree on range (l, r) where each element is mempty. O(log n).
 
 fromListF
-Builds a Fenwick tree from a list. O(n log n).
-This is faster in practice than trying to build in O(n).
+Builds a Fenwick tree on (l, r) where the elements are taken from a list. If the list is shorter
+than the range, the remaining elements are mempty. O(n).
 
 boundsF
 The bounds of the Fenwick tree. O(1).
 
-updateF
-Updates an index. The new value acts as right operand on accumulated values. O(log n).
+mappendF
+mappends to the element at an index. O(log n).
 
-queryF
-Queries the prefix upto an index. O(log n).
+foldPrefixF
+The result of folding the prefix upto the given index. An index outside the tree range is allowed,
+it is assumed elements outside the range are mempty. O(log n).
 
-rangeQueryF
-Range query on [l, r] using an inverse operation. O(log n).
+foldRangeF
+Folds the elements in the range (l, r) using an inverse operation. O(log n).
 
-rangeUpdateF
-Range update on [l, r] using an inverse operation. Can be used with point queries. O(log n).
+mappendRangeF
+mappends to all elements in the range (l, r) using an inverse operation. Can be used with
+foldPrefixF for point queries. O(log n).
 
 toScanl1F
 Converts to a list of prefix accumulated values. O(n).
@@ -52,10 +57,10 @@ module Fenwick
     , buildF
     , fromListF
     , boundsF
-    , updateF
-    , queryF
-    , rangeQueryF
-    , rangeUpdateF
+    , mappendF
+    , foldPrefixF
+    , foldRangeF
+    , mappendRangeF
     , toScanl1F
     ) where
 
@@ -78,13 +83,13 @@ buildF (l, r) = FTree (l, r, p) (go ht) where
 fromListF :: Monoid a => (Int, Int) -> [a] -> FTree a
 fromListF (l, r) _ | l > r + 1 = error "invalid range"
 fromListF (l, r) xs = go $ buildF (l, r) where
-    go ft = foldl' (\ft (i, x) -> updateF i x ft) ft $ zip [l..] xs
+    go ft = foldl' (\ft (i, x) -> mappendF x i ft) ft $ zip [l..] xs
 
 boundsF :: FTree a -> (Int, Int)
 boundsF (FTree (l, r, _) _) = (l, r)
 
-updateF :: Monoid a => Int -> a -> FTree a -> FTree a
-updateF i y (FTree lrp@(l, r, p) rt) = FTree lrp (go rt p) where
+mappendF :: Monoid a => a -> Int -> FTree a -> FTree a
+mappendF y i (FTree lrp@(l, r, p) rt) = FTree lrp (go rt p) where
     i' = if i < l || r < i then error "outside range" else i - l + 1
     q = bit $ countTrailingZeros i'
     go ~(FBin x l r) p
@@ -93,8 +98,8 @@ updateF i y (FTree lrp@(l, r, p) rt) = FTree lrp (go rt p) where
         | otherwise     = FBin x l (go r p')
         where p' = p `shiftR` 1
 
-queryF :: Monoid a => Int -> FTree a -> a
-queryF i (FTree (l, r, p) rt) = if i' == 0 then mempty else go rt p mempty where
+foldPrefixF :: Monoid a => Int -> FTree a -> a
+foldPrefixF i (FTree (l, r, p) rt) = if i' == 0 then mempty else go rt p mempty where
     i' = max 0 $ min r i - l + 1
     q = bit $ countTrailingZeros i'
     go ~(FBin x l r) p acc
@@ -103,13 +108,13 @@ queryF i (FTree (l, r, p) rt) = if i' == 0 then mempty else go rt p mempty where
         | otherwise     = go r p' $! acc <> x
         where p' = p `shiftR` 1
 
-rangeQueryF :: Monoid a => (a -> a) -> Int -> Int -> FTree a -> a
-rangeQueryF inv l r ft = queryF r ft <> inv (queryF (l - 1) ft)
+foldRangeF :: Monoid a => (a -> a) -> Int -> Int -> FTree a -> a
+foldRangeF inv l r ft = foldPrefixF r ft <> inv (foldPrefixF (l - 1) ft)
 
-rangeUpdateF :: Monoid a => (a -> a) -> Int -> Int -> a -> FTree a -> FTree a
-rangeUpdateF inv l r y ft@(FTree (_, r', _) _) = ft'' where
-    ft' = updateF l y ft
-    ft'' = if r == r' then ft' else updateF (r + 1) (inv y) ft'
+mappendRangeF :: Monoid a => (a -> a) -> a -> Int -> Int -> FTree a -> FTree a
+mappendRangeF inv y l r ft@(FTree (_, r', _) _) = ft'' where
+    ft' = mappendF y l ft
+    ft'' = if r == r' then ft' else mappendF (inv y) (r + 1) ft'
 
 toScanl1F :: Monoid a => FTree a -> [a]
 toScanl1F (FTree (l, r, _) rt) = take (r - l + 1) $ go rt mempty [] where
@@ -121,8 +126,8 @@ toScanl1F (FTree (l, r, _) rt) = take (r - l + 1) $ go rt mempty [] where
 
 -- Allows specialization across modules
 {-# INLINABLE fromListF #-}
-{-# INLINABLE updateF #-}
-{-# INLINABLE queryF #-}
+{-# INLINABLE mappendF #-}
+{-# INLINABLE foldPrefixF #-}
 
 instance NFData a => NFData (FTree a) where
     rnf (FTree lrp rt) = rnf lrp `seq` rnf rt
