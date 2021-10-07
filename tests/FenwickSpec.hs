@@ -10,7 +10,7 @@ import Test.QuickCheck
 import Fenwick
     ( FTree
     , boundsF
-    , buildF
+    , emptyF
     , foldPrefixF
     , foldRangeF
     , fromListF
@@ -74,7 +74,7 @@ genFt :: Gen (FTree (Sum Int))
 genFt = sized $ \n -> do
     n' <- choose (0, n)
     l <- arbitrary
-    pure $ buildF (l, l + n' - 1)
+    pure $ emptyF (l, l + n' - 1)
 
 pointUpds :: (Int, Int) -> Gen [(Int, Sum Int)]
 pointUpds (l, h)

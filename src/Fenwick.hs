@@ -54,7 +54,7 @@ Converts to a list of prefix accumulated values. O(n).
 
 module Fenwick
     ( FTree
-    , buildF
+    , emptyF
     , fromListF
     , boundsF
     , mappendF
@@ -65,25 +65,40 @@ module Fenwick
     ) where
 
 import Data.Bits
-import Data.List
 import Control.DeepSeq
+import Control.Monad.State
 
 data FTree a = FTree !(Int, Int, Int) !(FNode a) deriving Show
 data FNode a = FTip | FBin !a !(FNode a) !(FNode a) deriving Show
 
-buildF :: Monoid a => (Int, Int) -> FTree a
-buildF (l, r) | l > r + 1 = error "invalid range"
-buildF (l, r) = FTree (l, r, p) (go ht) where
+buildF :: Monoid a => (Int, Int) -> (Int -> FNode a) -> FTree a
+buildF (l, r) f
+    | n < 0     = error "invalid range"
+    | n == 0    = FTree (l, r, 0) FTip
+    | otherwise = FTree (l, r, bit ht) $ f ht
+  where
     n = r - l + 1
     ht = finiteBitSize n - countLeadingZeros n - 1
-    p = if ht < 0 then 0 else bit ht
-    go j | j < 0     = FTip
-         | otherwise = FBin mempty lr lr where lr = go $ j - 1
+
+emptyF :: Monoid a => (Int, Int) -> FTree a
+emptyF bnds = buildF bnds go where
+    go j | j < 0 = FTip
+    go j = FBin mempty lr lr where lr = go $ j - 1
 
 fromListF :: Monoid a => (Int, Int) -> [a] -> FTree a
-fromListF (l, r) _ | l > r + 1 = error "invalid range"
-fromListF (l, r) xs = go $ buildF (l, r) where
-    go ft = foldl' (\ft (i, x) -> mappendF x i ft) ft $ zip [l..] xs
+fromListF bnds xs = buildF bnds (fst . flip evalState xs . go) where
+    pop = state go where
+        go []     = (mempty, [])
+        go (x:xs) = (x,      xs)
+    go j | j < 0 = pure (FTip, mempty)
+    go j = do
+        (lt, lx) <- go $ j - 1
+        x <- pop
+        (rt, rx) <- go $ j - 1
+        let x'  = lx <> x
+            x'' = x' <> rx
+            n   = FBin x' lt rt
+        x'' `seq` n `seq` pure (n, x'')
 
 boundsF :: FTree a -> (Int, Int)
 boundsF (FTree (l, r, _) _) = (l, r)
