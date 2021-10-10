@@ -5,7 +5,7 @@ pairs
 Generates distinct pairs of elements from a list. O(n^2).
 
 fArray
-Generates an Array from bounds and a function. O(n) assuming f runs in O(1).
+Generates an Array from bounds and a function. O(n) assuming f takes O(1).
 
 chunksOf
 Splits a list into chunks of fixed size. O(n).
@@ -21,7 +21,7 @@ Folds a list of values such that the ith element of the result contains the fold
 elements in the input list excluding the ith element. The fold is strict. The elements get folded
 in a not-very-simple order, so the following should hold:
 (b `f` a1) `f` a2 = (b `f` a2) `f` a1
-O(n log n).
+O(n log n) assuming f takes O(1).
 -}
 
 module Misc
