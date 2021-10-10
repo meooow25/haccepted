@@ -63,6 +63,7 @@ test-suite test-all
       CentroidDecompSpec
       FenwickSpec
       LCASpec
+      MiscSpec
       PQTreeSpec
       PruferSpec
       SparseTableSpec
