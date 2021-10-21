@@ -17,6 +17,7 @@ library
       BinSearch
       CentroidDecomp
       Fenwick
+      KMP
       LCA
       MInt
       Misc
@@ -24,6 +25,7 @@ library
       Prufer
       SparseTable
       TwoSat
+      ZFunc
   other-modules:
       Paths_haskell_algo
   hs-source-dirs:
@@ -32,6 +34,7 @@ library
   build-depends:
       array
     , base >=4.7 && <5
+    , bytestring
     , containers
     , deepseq
     , mtl
@@ -47,6 +50,7 @@ executable gen-summary
   build-depends:
       array
     , base >=4.7 && <5
+    , bytestring
     , containers
     , csv
     , deepseq
@@ -62,6 +66,7 @@ test-suite test-all
       BinSearchSpec
       CentroidDecompSpec
       FenwickSpec
+      KMPSpec
       LCASpec
       MiscSpec
       PQTreeSpec
@@ -69,6 +74,7 @@ test-suite test-all
       SparseTableSpec
       TwoSatSpec
       Util
+      ZFuncSpec
       Paths_haskell_algo
   hs-source-dirs:
       tests
@@ -77,6 +83,7 @@ test-suite test-all
       QuickCheck
     , array
     , base >=4.7 && <5
+    , bytestring
     , containers
     , deepseq
     , haskell-algo
@@ -105,6 +112,7 @@ benchmark bench-all
       MonadRandom
     , array
     , base >=4.7 && <5
+    , bytestring
     , containers
     , criterion
     , deepseq
