@@ -2,6 +2,7 @@ module Util where
 
 import Control.DeepSeq
 import Control.Monad.Random
+import Data.Char
 import Data.Graph
 import Data.List
 import Data.Tree
@@ -42,6 +43,9 @@ randTree n = do
 
 randForest :: Int -> RandStd [Tree Vertex]
 randForest n = subForest <$> randTree (n + 1)
+
+randASCIIString :: Int -> RandStd String
+randASCIIString n = replicateM n $ chr <$> getRandomR (0, 127)
 
 evalR :: RandStd a -> a
 evalR = flip evalRand gen

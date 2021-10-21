@@ -98,12 +98,14 @@ benchmark bench-all
       BinSearchBench
       CentroidDecompBench
       FenwickBench
+      KMPBench
       LCABench
       PQTreeBench
       PruferBench
       SparseTableBench
       TwoSatBench
       Util
+      ZBench
       Paths_haskell_algo
   hs-source-dirs:
       bench
