@@ -8,23 +8,23 @@ import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
-import KMP ( failFunc, failFuncBS )
+import KMP ( prefixFunc, prefixFuncBS )
 
 spec :: Spec
 spec = do
-    prop "failFunc binary" $
+    prop "prefixFunc binary" $
         forAll (arbitrary :: Gen [Bool]) $ \xs -> do
-            let p = failFunc (length xs) (xs!!)
+            let p = prefixFunc (length xs) (xs!!)
             bounds p `shouldBe` (0, length xs - 1)
-            elems p  `shouldBe` naiveFailFunc xs
-    prop "failFuncBS" $
+            elems p  `shouldBe` naivePrefixFunc xs
+    prop "prefixFuncBS" $
         \(ASCIIString s) -> do
-            let p = failFuncBS $ C.pack s
+            let p = prefixFuncBS $ C.pack s
             bounds p `shouldBe` (0, length s - 1)
-            elems p  `shouldBe` naiveFailFunc s
+            elems p  `shouldBe` naivePrefixFunc s
 
-naiveFailFunc :: Eq a => [a] -> [Int]
-naiveFailFunc xs = map getCnt $ tail xsInits where
+naivePrefixFunc :: Eq a => [a] -> [Int]
+naivePrefixFunc xs = map getCnt $ tail xsInits where
     xsInits = inits xs
     ok cur chk = chk /= cur && chk `isSuffixOf` cur
     getCnt cur = length $ last $ filter (ok cur) xsInits
