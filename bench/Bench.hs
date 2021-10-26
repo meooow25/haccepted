@@ -1,5 +1,6 @@
 import Criterion.Main
 
+import qualified BFSBench
 import qualified BinSearchBench
 import qualified CentroidDecompBench
 import qualified FenwickBench
@@ -13,7 +14,8 @@ import qualified ZBench
 
 main :: IO ()
 main = defaultMain
-    [ BinSearchBench.benchmark
+    [ BFSBench.benchmark
+    , BinSearchBench.benchmark
     , CentroidDecompBench.benchmark
     , FenwickBench.benchmark
     , KMPBench.benchmark
