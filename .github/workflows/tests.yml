@@ -27,4 +27,4 @@ jobs:
     - name: Build
       run: stack test --no-run-tests
     - name: Test
-      run: stack test --test-arguments "--color"
+      run: stack test --test-arguments "--color --qc-max-success=1000"

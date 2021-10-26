@@ -41,6 +41,7 @@ The frontier of the PQ-tree. O(n).
 permsPQ
 The permutations represented by the PQ-tree. O(do not use).
 -}
+
 module PQTree
     ( PQNode
     , buildPQ

@@ -9,6 +9,9 @@ Sources:
 * Xiaodong Wang, Lei Wang, Yingjie Wu, "An Optimal Algorithm for Prufer Codes", 2009
   https://www.scirp.org/pdf/JSEA20090200006_93737200.pdf
 
+Implementation note:
+The c array tracks the number of children of a node.
+
 graphToSeq
 Convert a bidirected Graph to a Prufer sequence. The graph must be a connected tree or empty. O(n).
 
@@ -21,10 +24,8 @@ Convert a Prufer sequence to a bidirected Graph. The sequence must be valid. O(n
 seqToEdges
 Convert a Prufer sequence to a list of edges, each edge present twice in its two orientations. The
 sequence must be valid. O(n).
-
-Implementation note:
-The c array tracks the number of children of a node.
 -}
+
 module Prufer
     ( graphToSeq
     , treeToSeq

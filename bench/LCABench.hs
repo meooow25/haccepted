@@ -13,7 +13,7 @@ benchmark = bgroup "LCA"
       bgroup "buildLCA" $ map benchBuildLCA sizes
 
       -- n LCA queries on a tree of size n
-    ,  bgroup "queryLCA" $ map benchQueryLCA sizes
+    , bgroup "queryLCA" $ map benchQueryLCA sizes
     ]
 
 sizes :: [Int]

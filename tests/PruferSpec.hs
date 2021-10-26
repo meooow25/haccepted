@@ -16,7 +16,7 @@ spec = do
     it "seqToGraph small" $ do
         seqToGraph (1, 6) [4, 4, 4, 5] `shouldBe` smallTree
     prop "graphToSeq . seqToGraph == id" $
-        forAll (scale (*10) genPruferSeq) $ \(bnds, us) -> do
+        forAll genPruferSeq $ \(bnds, us) -> do
             let g = seqToGraph bnds us
                 us' = graphToSeq g
             us' `shouldBe` us

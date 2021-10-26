@@ -1,6 +1,7 @@
 module BinSearchSpec where
 
 import Control.Monad.Identity
+
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
