@@ -2,13 +2,15 @@ module Util where
 
 import Control.DeepSeq
 import Control.Monad.Random
+import Data.Char
 import Data.Graph
 import Data.List
 import Data.Tree
+import qualified Data.Set as S
 
 import Criterion
 
-import Prufer ( seqToGraph )
+import Prufer ( seqToEdges, seqToGraph )
 
 type RandStd = Rand StdGen
 
@@ -42,6 +44,22 @@ randTree n = do
 
 randForest :: Int -> RandStd [Tree Vertex]
 randForest n = subForest <$> randTree (n + 1)
+
+randConnectedGraph :: Int -> Int -> RandStd Graph
+randConnectedGraph n m | m < n - 1 = error "too few edges"
+randConnectedGraph n m = do
+    treeEdges <- S.fromList . seqToEdges (1, n) <$> randPruferSeq n
+    let go edges | S.size edges == 2 * m = pure edges
+        go edges = do
+            u <- getRandomR (1, n)
+            v <- getRandomR (1, n)
+            if u == v || S.member (u, v) edges
+                then go edges
+                else go $ S.insert (u, v) $ S.insert (v, u) edges
+    buildG (1, n) . S.elems <$> go treeEdges
+
+randASCIIString :: Int -> RandStd String
+randASCIIString n = replicateM n $ chr <$> getRandomR (0, 127)
 
 evalR :: RandStd a -> a
 evalR = flip evalRand gen

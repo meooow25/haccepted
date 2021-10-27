@@ -58,17 +58,16 @@ spec = do
                 let ft' = fromListF (l, h) xs
                 toScanl1F ft' `shouldBe` scanl1 (<>) xs
 
-    prop "toScanl1F" $
-        \xs' -> do
+    prop "toScanl1F" $ \xs' -> do
             let xs = map Sum xs' :: [Sum Int]
                 n = length xs
                 ft = fromListF (1, n) xs
             toScanl1F ft `shouldBe` scanl1 (<>) xs
 
-    where
-        naive ivs i j = fold [v | (k, v) <- ivs, i <= k && k <= j]
-        applyUpdates ivs ft = foldl' (\ft (i, v) -> mappendF v i ft) ft ivs
-        applyRangeUpdates ijvs ft = foldl' (\ft (i, j, v) -> mappendRangeF negate v i j ft) ft ijvs
+  where
+    naive ivs i j = fold [v | (k, v) <- ivs, i <= k && k <= j]
+    applyUpdates ivs ft = foldl' (\ft (i, v) -> mappendF v i ft) ft ivs
+    applyRangeUpdates ijvs ft = foldl' (\ft (i, j, v) -> mappendRangeF negate v i j ft) ft ijvs
 
 genFt :: Gen (FTree (Sum Int))
 genFt = sized $ \n -> do

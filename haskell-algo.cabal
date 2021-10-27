@@ -14,8 +14,11 @@ extra-source-files:
 
 library
   exposed-modules:
+      BFS
       BinSearch
+      CentroidDecomp
       Fenwick
+      KMP
       LCA
       MInt
       Misc
@@ -24,6 +27,8 @@ library
       SegTree
       SegTreeLazy
       SparseTable
+      TwoSat
+      ZFunc
   other-modules:
       Paths_haskell_algo
   hs-source-dirs:
@@ -32,6 +37,7 @@ library
   build-depends:
       array
     , base >=4.7 && <5
+    , bytestring
     , containers
     , deepseq
     , mtl
@@ -47,6 +53,7 @@ executable gen-summary
   build-depends:
       array
     , base >=4.7 && <5
+    , bytestring
     , containers
     , csv
     , deepseq
@@ -59,15 +66,21 @@ test-suite test-all
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      BFSSpec
       BinSearchSpec
+      CentroidDecompSpec
       FenwickSpec
+      KMPSpec
       LCASpec
+      MiscSpec
       PQTreeSpec
       PruferSpec
       SegTreeLazySpec
       SegTreeSpec
       SparseTableSpec
+      TwoSatSpec
       Util
+      ZFuncSpec
       Paths_haskell_algo
   hs-source-dirs:
       tests
@@ -76,6 +89,7 @@ test-suite test-all
       QuickCheck
     , array
     , base >=4.7 && <5
+    , bytestring
     , containers
     , deepseq
     , haskell-algo
@@ -87,15 +101,20 @@ benchmark bench-all
   type: exitcode-stdio-1.0
   main-is: Bench.hs
   other-modules:
+      BFSBench
       BinSearchBench
+      CentroidDecompBench
       FenwickBench
+      KMPBench
       LCABench
       PQTreeBench
       PruferBench
       SegTreeBench
       SegTreeLazyBench
       SparseTableBench
+      TwoSatBench
       Util
+      ZBench
       Paths_haskell_algo
   hs-source-dirs:
       bench
@@ -104,6 +123,7 @@ benchmark bench-all
       MonadRandom
     , array
     , base >=4.7 && <5
+    , bytestring
     , containers
     , criterion
     , deepseq

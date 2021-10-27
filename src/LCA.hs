@@ -10,6 +10,9 @@ Sources:
   https://www.ics.uci.edu/~eppstein/261/BenFar-LCA-00.pdf
 * https://github.com/cheran-senthil/PyRival/blob/master/pyrival/graphs/lca.py
 
+Implementation note:
+l - 1 is taken as a dummy root for a forest, converting it to a tree to make things simpler.
+
 buildLCA
 Build a structure for LCA queries on a tree. O(n log n).
 
@@ -21,10 +24,8 @@ Build a structure for LCA queries on a forest. O(n log n).
 
 query1LCA
 Query the LCA of two nodes in a forest. O(1).
-
-Implementation note:
-l - 1 is taken as a dummy root for a forest, converting it to a tree to make things simpler.
 -}
+
 module LCA
     ( LCA
     , buildLCA

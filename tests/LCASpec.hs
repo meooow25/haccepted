@@ -15,13 +15,13 @@ import Util ( genForest, genIntPair, genTree, nonEmpty )
 spec :: Spec
 spec = do
     prop "LCA on tree" $
-        forAll (scale (*10) $ nonEmpty genTree) $ \(bnds, t) -> do
+        forAll (nonEmpty genTree) $ \(bnds, t) -> do
             let lca = buildLCA bnds t
             forAll (genIntPair bnds) $ \(u, v) -> do
                 queryLCA u v lca `shouldBe` fromJust (naiveLCA u v [t])
 
     prop "LCA on forest" $
-        forAll (scale (*10) $ nonEmpty genForest) $ \(bnds, ts) -> do
+        forAll (nonEmpty genForest) $ \(bnds, ts) -> do
             let lca = build1LCA bnds ts
             forAll (genIntPair bnds) $ \(u, v) ->
                 query1LCA u v lca `shouldBe` naiveLCA u v ts
