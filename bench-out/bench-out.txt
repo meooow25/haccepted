@@ -4,6 +4,13 @@
 This is a generated summary file.
 For details see the CSV file and the respective benchmark source files.
 
+BFS
+┌──────┬──────────┬──────────┬──────────┐
+│ Name │   100    │  10000   │ 1000000  │
+╞══════╪══════════╪══════════╪══════════╡
+│ bfs  │ 8.459 μs │ 1.610 ms │ 449.7 ms │
+└──────┴──────────┴──────────┴──────────┘
+
 BinSearch
 ┌────────────┬──────────┬──────────┬──────────┐
 │    Name    │   100    │  10000   │ 1000000  │

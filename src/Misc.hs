@@ -22,6 +22,9 @@ elements in the input list excluding the ith element. The fold is strict. The el
 in a not-very-simple order, so the following should hold:
 (b `f` a1) `f` a2 = (b `f` a2) `f` a1
 O(n log n) assuming f takes O(1).
+
+modifyArray
+Modifies an element in a mutable array. Convenience function, should really be in Data.Array.MArray.
 -}
 
 module Misc
@@ -31,9 +34,11 @@ module Misc
     , replicateL
     , unique
     , foldExclusive
+    , modifyArray
     ) where
 
 import Data.Array
+import Data.Array.MArray
 import Data.List
 
 pairs :: [a] -> [(a, a)]
@@ -62,3 +67,6 @@ foldExclusive f b as = go b (length as) as [] where
         (as1, as2) = splitAt n' as
         b1 = foldl' f b as1
         b2 = foldl' f b as2
+
+modifyArray :: (MArray a e m, Ix i) => a i e -> i -> (e -> e) -> m ()
+modifyArray a i f = writeArray a i . f =<< readArray a i
