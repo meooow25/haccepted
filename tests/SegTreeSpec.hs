@@ -17,7 +17,7 @@ spec = do
         forAll genSt $ \st -> do
             let bnds = boundsST st
             forAll (pointUpds bnds) $ \ivs -> do
-                let st' = applyUpdates st ivs
+                let st' = adjustMany st ivs
                 forAll (rangeQry bnds) $ \(i, j) ->
                     foldRangeST i j st' `shouldBe` naive ivs i j
 
@@ -25,7 +25,7 @@ spec = do
         forAll genSt $ \st -> do
             let bnds = boundsST st
             forAll (pointUpds bnds) $ \ivs -> do
-                let st' = applyUpdates st ivs
+                let st' = adjustMany st ivs
                     xs = elems $ accumArray (<>) mempty bnds ivs
                 toList st' `shouldBe` xs
 
@@ -33,15 +33,14 @@ spec = do
         forAll genSt $ \st -> do
             let (l, h) = boundsST st
                 n = h - l + 1
-                v = vector n :: Gen [Int]
-            forAll (map Sum <$> v) $ \xs -> do
+            forAll (vector n :: Gen [Sum Int]) $ \xs -> do
                 let st' = fromListST (l, h) xs
-                    st'' = applyUpdates st (zip [l..] xs)
+                    st'' = adjustMany st (zip [l..] xs)
                 toList st' `shouldBe` toList st''
 
   where
     naive ivs i j = fold [v | (k, v) <- ivs, i <= k && k <= j]
-    applyUpdates st ivs = foldl' (\st (i, v) -> adjustST (<> v) i st) st ivs
+    adjustMany st ivs = foldl' (\st (i, v) -> adjustST (v <>) i st) st ivs
 
 genSt :: Gen (SegTree (Sum Int))
 genSt = sized $ \n -> do

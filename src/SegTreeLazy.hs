@@ -4,8 +4,8 @@ Segment tree with lazy propagation
 
 A data structure supporting point updates, range queries, and certain range updates on a sequence of
 monoids. This differs from an ordinary segment tree in its ability to apply updates on a range, they
-are otherwise identical.
-This implementation, like SegTree, supports ranges that do not fit in memory.
+are otherwise identical. In fact, Segtree a can be defined as LazySegTree () a.
+This implementation, like SegTree, supports large ranges that may not fit in memory.
 
 Sources:
 * https://cp-algorithms.com/data_structures/segment_tree.html
@@ -85,7 +85,7 @@ emptyLST bnds = buildLST bnds go where
 
 makeLSN :: LazySegTreeUpd u a => LSegNode u a -> LSegNode u a -> LSegNode u a
 makeLSN lt rt = LSBin (getx lt <> getx rt) mempty lt rt where
-    getx (LSLeaf x) = x
+    getx (LSLeaf x)      = x
     getx (LSBin x _ _ _) = x
 
 fromListLST :: LazySegTreeUpd u a => (Int, Int) -> [a] -> LazySegTree u a
@@ -100,8 +100,8 @@ boundsLST :: LazySegTree u a -> (Int, Int)
 boundsLST (LazySegTree (l, r, _) _) = (l, r)
 
 applyLSN :: LazySegTreeUpd u a => LSegNode u a -> u -> LSegNode u a
-applyLSN (LSLeaf x)         u = LSLeaf $ applyUpd x u
-applyLSN (LSBin x u' lt rt) u = LSBin (applyUpd x u) (u' <> u) lt rt
+applyLSN (LSLeaf x)        u' = LSLeaf $ applyUpd x u'
+applyLSN (LSBin x u lt rt) u' = LSBin (applyUpd x u') (u <> u') lt rt
 
 adjustLST :: LazySegTreeUpd u a => (a -> a) -> Int -> LazySegTree u a -> LazySegTree u a
 adjustLST f i (LazySegTree lrp@(l, r, p) root)
@@ -115,16 +115,16 @@ adjustLST f i (LazySegTree lrp@(l, r, p) root)
         u' = u <> pu
 
 updateRangeLST :: LazySegTreeUpd u a => u -> Int -> Int -> LazySegTree u a -> LazySegTree u a
-updateRangeLST u ql qr (LazySegTree lrp@(l, r, p) root)
+updateRangeLST qu ql qr (LazySegTree lrp@(l, r, p) root)
     | ql < l || r < qr = error "outside range"
     | otherwise        = LazySegTree lrp $ go root l (l + p - 1) mempty
   where
     go n l r pu
         | r < ql || qr < l   = applyLSN n pu
-        | ql <= l && r <= qr = applyLSN n (pu <> u)
-    go ~(LSBin _ u' lt rt) l r pu = makeLSN (go lt l m u'') (go rt (m + 1) r u'') where
+        | ql <= l && r <= qr = applyLSN n (pu <> qu)
+    go ~(LSBin _ u lt rt) l r pu = makeLSN (go lt l m u') (go rt (m + 1) r u') where
         m = (l + r) `div` 2
-        u'' = u' <> pu
+        u' = u <> pu
 
 foldRangeLST :: LazySegTreeUpd u a => Int -> Int -> LazySegTree u a -> a
 foldRangeLST ql qr _ | ql > qr + 1 = error "invalid range"

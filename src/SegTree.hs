@@ -75,9 +75,9 @@ emptyST bnds = buildST bnds go where
     go j | j == 0 = SLeaf mempty
     go j = SBin mempty lr lr where lr = go $ j - 1
 
-makeSN :: Semigroup a => SegNode a -> SegNode a -> SegNode a
+makeSN :: Monoid a => SegNode a -> SegNode a -> SegNode a
 makeSN lt rt = SBin (getx lt <> getx rt) lt rt where
-    getx (SLeaf x) = x
+    getx (SLeaf x)    = x
     getx (SBin x _ _) = x
 
 fromListST :: Monoid a => (Int, Int) -> [a] -> SegTree a
@@ -91,7 +91,7 @@ fromListST bnds xs = buildST bnds (flip evalState xs . go) where
 boundsST :: SegTree a -> (Int, Int)
 boundsST (SegTree (l, r, _) _) = (l, r)
 
-adjustST :: Semigroup a => (a -> a) -> Int -> SegTree a -> SegTree a
+adjustST :: Monoid a => (a -> a) -> Int -> SegTree a -> SegTree a
 adjustST f i (SegTree lrp@(l, r, p) root)
     | i < l || r < i = error "outside range"
     | otherwise      = SegTree lrp $ go root l (l + p - 1)
