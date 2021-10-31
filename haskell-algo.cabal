@@ -24,6 +24,8 @@ library
       Misc
       PQTree
       Prufer
+      SegTree
+      SegTreeLazy
       SparseTable
       TwoSat
       ZFunc
@@ -73,6 +75,8 @@ test-suite test-all
       MiscSpec
       PQTreeSpec
       PruferSpec
+      SegTreeLazySpec
+      SegTreeSpec
       SparseTableSpec
       TwoSatSpec
       Util
@@ -105,6 +109,8 @@ benchmark bench-all
       LCABench
       PQTreeBench
       PruferBench
+      SegTreeBench
+      SegTreeLazyBench
       SparseTableBench
       TwoSatBench
       Util
@@ -112,7 +118,7 @@ benchmark bench-all
       Paths_haskell_algo
   hs-source-dirs:
       bench
-  ghc-options: -Wall -fno-warn-name-shadowing -O2
+  ghc-options: -Wall -fno-warn-name-shadowing -O2 -fno-warn-orphans
   build-depends:
       MonadRandom
     , array
