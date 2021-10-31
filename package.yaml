@@ -1,4 +1,4 @@
-name: haskell-algo
+name: haccepted
 version: 0.1.0.0
 
 extra-source-files:
@@ -23,7 +23,7 @@ tests:
     main: Spec.hs
     ghc-options: -fno-warn-orphans
     dependencies:
-    - haskell-algo
+    - haccepted
     - hspec
     - QuickCheck
 
@@ -33,7 +33,7 @@ benchmarks:
     main: Bench.hs
     ghc-options: -O2 -fno-warn-orphans
     dependencies:
-    - haskell-algo
+    - haccepted
     - criterion
     - MonadRandom
     - random
