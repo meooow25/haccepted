@@ -99,17 +99,30 @@ rowsToItems rows = items where
                     sizeToTime = nameToSubitem M.! name
                     maybeTimes = map (sizeToTime M.!?) sizes
 
+summaryHeader :: String
+summaryHeader = unlines
+    [ "────────────"
+    , " Benchmarks"
+    , "────────────"
+    , "This is a generated summary file."
+    , ""
+    , "STOP! Before you read some random numbers, you should know what they mean"
+    , "1. Absolute times mean very little. Do not assume this will the exact runtime on any online"
+    , "   judge. Times are only useful relative to each other and between changes to the same"
+    , "   algorithm, when measured on the same system under similar conditions."
+    , "2. Haskell's lazy evaluation makes benchmarks a little complex. All benchmarks measure the"
+    , "   time taken to evaluate a result fully, which can mean different things for different"
+    , "   benchmarks. For example, if the benchmarked function returns a lazy list and it is not"
+    , "   fully consumed, less time will be taken compared to the benchmark value. When a data"
+    , "   structure is benchmarked, the benchmark has to measure the cost of constructing it, and"
+    , "   the added cost of traversing it once to force its contents. This means that in practice"
+    , "   it will take a little less time than the benchmark value."
+    , "For details about any benchmark see its source file."
+    ]
+
 formatItems :: [BItem] -> String
 formatItems items = result where
-    result = intercalate "\n" [
-            "────────────"
-          , " Benchmarks"
-          , "────────────"
-          , "This is a generated summary file."
-          , "For details see the CSV file and the respective benchmark source files."
-          , ""
-          , intercalate "\n" $ map formatItem items
-        ]
+    result = intercalate "\n" $ summaryHeader : map formatItem items
     formatItem (title, sizes, subitems) = unlines [title, table] where
         headers = "Name" : map show sizes
         rows = [name : map (maybe "" formatTime) maybeTimes | (name, maybeTimes) <- subitems]
