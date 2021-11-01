@@ -1,4 +1,7 @@
 # haccepted
+![Tests badge](https://github.com/meooow25/haccepted/actions/workflows/tests.yml/badge.svg)
+![Benchmarks badge](https://img.shields.io/badge/Benchmarks-not%20bad-green)
+
 Data structures and algorithms for competitive programming in Haskell
 
 ### Restrictions
