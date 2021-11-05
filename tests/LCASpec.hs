@@ -10,18 +10,18 @@ import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
 import LCA ( build1LCA, buildLCA, query1LCA, queryLCA )
-import Util ( genForest, genIntPair, genTree, nonEmpty )
+import Util ( genIntPair, genNonEmptyForest, genTree )
 
 spec :: Spec
 spec = do
     prop "LCA on tree" $
-        forAll (nonEmpty genTree) $ \(bnds, t) -> do
+        forAll genTree $ \(bnds, t) -> do
             let lca = buildLCA bnds t
             forAll (genIntPair bnds) $ \(u, v) -> do
                 queryLCA u v lca `shouldBe` fromJust (naiveLCA u v [t])
 
     prop "LCA on forest" $
-        forAll (nonEmpty genForest) $ \(bnds, ts) -> do
+        forAll genNonEmptyForest $ \(bnds, ts) -> do
             let lca = build1LCA bnds ts
             forAll (genIntPair bnds) $ \(u, v) ->
                 query1LCA u v lca `shouldBe` naiveLCA u v ts

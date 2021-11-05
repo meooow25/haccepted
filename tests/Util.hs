@@ -6,6 +6,7 @@ import Data.Graph
 
 import Test.QuickCheck
 
+import LabelledGraph ( LGraph, LTree, buildLG, dfsLTree )
 import Prufer ( seqToGraph )
 
 genIntPair :: (Int, Int) -> Gen (Int, Int)
@@ -32,7 +33,7 @@ genTreeG = uncurry seqToGraph <$> genPruferSeq
 
 genTree :: Gen (Bounds, Tree Vertex)
 genTree = do
-    g <- genTreeG
+    g <- genTreeG `suchThat` ((>0) . rangeSize . bounds)
     let bnds = bounds g
     x <- choose bnds
     let [t] = dfs g [x]
@@ -40,9 +41,24 @@ genTree = do
 
 genForest :: Gen (Bounds, [Tree Vertex])
 genForest = do
-    ((l, r), t@(Node x _)) <- nonEmpty genTree
+    ((l, r), t@(Node x _)) <- genTree
     let (Node _ ts) = t <&> \y -> if y > x then y - 1 else y
     return ((l, r - 1), ts)
 
-nonEmpty :: Gen (Bounds, a) -> Gen (Bounds, a)
-nonEmpty = (`suchThat` ok) where ok ((l, r), _) = l <= r
+genLTreeG :: Gen (LGraph Int)
+genLTreeG = do
+    g <- genTreeG
+    let es = edges g
+    ls <- vector (length es) :: Gen [Int]
+    pure $ buildLG (bounds g) [(u, (l, v)) | ((u, v), l) <- zip es ls]
+
+genLTree :: Gen (Bounds, LTree Int Vertex)
+genLTree = do
+    g <- genLTreeG `suchThat` ((>0) . rangeSize . bounds)
+    let bnds = bounds g
+    x <- choose bnds
+    let t = dfsLTree g x
+    pure (bnds, t)
+
+genNonEmptyForest :: Gen (Bounds, [Tree Vertex])
+genNonEmptyForest = genForest `suchThat` ((>0) . rangeSize . fst)

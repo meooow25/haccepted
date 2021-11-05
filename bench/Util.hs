@@ -2,6 +2,7 @@ module Util where
 
 import Control.DeepSeq
 import Control.Monad.Random
+import Data.Array
 import Data.Char
 import Data.Graph
 import Data.List
@@ -10,6 +11,7 @@ import qualified Data.Set as S
 
 import Criterion
 
+import LabelledGraph ( LTree, buildLG, dfsLTree )
 import Prufer ( seqToEdges, seqToGraph )
 
 type RandStd = Rand StdGen
@@ -44,6 +46,15 @@ randTree n = do
 
 randForest :: Int -> RandStd [Tree Vertex]
 randForest n = subForest <$> randTree (n + 1)
+
+randLTree :: Int -> RandStd (LTree Int Vertex)
+randLTree n = do
+    g <- seqToGraph (1, n) <$> randPruferSeq n
+    let es = edges g
+    ls <- randInts (length es)
+    let g' = buildLG (bounds g) [(u, (l, v)) | ((u, v), l) <- zip es ls]
+        t = dfsLTree g' n
+    pure t
 
 randConnectedGraph :: Int -> Int -> RandStd Graph
 randConnectedGraph n m | m < n - 1 = error "too few edges"
