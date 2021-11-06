@@ -19,6 +19,7 @@ library
       CentroidDecomp
       Fenwick
       KMP
+      LabelledGraph
       LCA
       MInt
       Misc
