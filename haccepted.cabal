@@ -17,6 +17,7 @@ library
       BFS
       BinSearch
       CentroidDecomp
+      ConvexHull
       Fenwick
       KMP
       LabelledGraph
@@ -70,6 +71,7 @@ test-suite test-all
       BFSSpec
       BinSearchSpec
       CentroidDecompSpec
+      ConvexHullSpec
       FenwickSpec
       KMPSpec
       LCASpec
@@ -105,6 +107,7 @@ benchmark bench-all
       BFSBench
       BinSearchBench
       CentroidDecompBench
+      ConvexHullBench
       FenwickBench
       KMPBench
       LCABench
