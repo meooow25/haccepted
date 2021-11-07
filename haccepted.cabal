@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 
-name:           haskell-algo
+name:           haccepted
 version:        0.1.0.0
 license:        MIT
 license-file:   LICENSE
@@ -31,7 +31,7 @@ library
       TwoSat
       ZFunc
   other-modules:
-      Paths_haskell_algo
+      Paths_haccepted
   hs-source-dirs:
       src
   ghc-options: -Wall -fno-warn-name-shadowing
@@ -47,7 +47,7 @@ library
 executable gen-summary
   main-is: GenSummary.hs
   other-modules:
-      Paths_haskell_algo
+      Paths_haccepted
   hs-source-dirs:
       bench-out
   ghc-options: -Wall -fno-warn-name-shadowing
@@ -82,7 +82,7 @@ test-suite test-all
       TwoSatSpec
       Util
       ZFuncSpec
-      Paths_haskell_algo
+      Paths_haccepted
   hs-source-dirs:
       tests
   ghc-options: -Wall -fno-warn-name-shadowing -fno-warn-orphans
@@ -93,7 +93,7 @@ test-suite test-all
     , bytestring
     , containers
     , deepseq
-    , haskell-algo
+    , haccepted
     , hspec
     , mtl
   default-language: Haskell2010
@@ -116,7 +116,7 @@ benchmark bench-all
       TwoSatBench
       Util
       ZBench
-      Paths_haskell_algo
+      Paths_haccepted
   hs-source-dirs:
       bench
   ghc-options: -Wall -fno-warn-name-shadowing -O2 -fno-warn-orphans
@@ -128,7 +128,7 @@ benchmark bench-all
     , containers
     , criterion
     , deepseq
-    , haskell-algo
+    , haccepted
     , mtl
     , random
   default-language: Haskell2010
