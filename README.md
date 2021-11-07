@@ -46,9 +46,9 @@ implementation. Luckily, Haskell allows working with mutable state in the ST mon
 conflicted about the style that should be used in this library. Should the library as fast as
 possible but boring, using ST everywhere? Should it be as functional as possible, even at the cost
 of speed?  
-I feel the answer is somewhere in the middle, for now. So here are some loose rules to follow.
+I feel the answer is somewhere in the middle, for now. So here are some loose rules I follow.
 - Functional style is preferred.
-- If the functional style leads to worse complexity of an algorithm, ST is used.
+- If functional style worsens the time complexity of an algorithm, ST is used.
 - Data structures are usually functional, making them persistent.
 - If an algorithm is simpler or a lot faster in the constant factor to implement in ST, ST is used.
 
@@ -72,7 +72,7 @@ Benchmarks are in the [`bench`](/bench) directory. A benchmark summary file is a
 A non-exhaustive list of online judges that support Haskell submissions, with the available compiler
 versions at the time of writing.
 * CSES ([GHC 8.10.4](https://cses.fi/howto/))
-* Codeforces (GHC 8.10.1) <sub><sup>(No documentation except for the Submit page)</sup></sub>
+* Codeforces (GHC 8.10.1) <sub><sup>(Not documented, the version is seen on the Submit page)</sup></sub>
 * AtCoder ([GHC 8.8.3](https://atcoder.jp/contests/language-test-202001))
 * Kattis ([GHC 8.6.5](https://open.kattis.com/help/haskell))
 * Hackerrank ([GHC 8.6.5](https://support.hackerrank.com/hc/en-us/articles/1500002392722--Execution-Environment-and-Samples))
@@ -80,7 +80,7 @@ versions at the time of writing.
 * HackerEarth ([GHC 7.10.3](https://www.hackerearth.com/docs/wiki/developers/judge/))
 
 Most judges offer only the [Haskell Heirarchical Libraries](https://downloads.haskell.org/~ghc/latest/docs/html/libraries/),
-some have additional libraries installed.
+some have additional libraries installed. See the respective links for details.
 
 ## See also
 Other resources for competitive programming in Haskell
