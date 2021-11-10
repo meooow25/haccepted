@@ -7,6 +7,7 @@ import qualified ConvexHullBench
 import qualified FenwickBench
 import qualified KMPBench
 import qualified LCABench
+import qualified MoBench
 import qualified PQTreeBench
 import qualified PruferBench
 import qualified SegTreeBench
@@ -24,6 +25,7 @@ main = defaultMain
     , FenwickBench.benchmark
     , KMPBench.benchmark
     , LCABench.benchmark
+    , MoBench.benchmark
     , PQTreeBench.benchmark
     , PruferBench.benchmark
     , SegTreeBench.benchmark
