@@ -3,6 +3,7 @@ import Criterion.Main
 import qualified BFSBench
 import qualified BinSearchBench
 import qualified CentroidDecompBench
+import qualified ConvexHullBench
 import qualified FenwickBench
 import qualified KMPBench
 import qualified LCABench
@@ -19,6 +20,7 @@ main = defaultMain
     [ BFSBench.benchmark
     , BinSearchBench.benchmark
     , CentroidDecompBench.benchmark
+    , ConvexHullBench.benchmark
     , FenwickBench.benchmark
     , KMPBench.benchmark
     , LCABench.benchmark
