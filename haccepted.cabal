@@ -28,6 +28,7 @@ library
       Prufer
       SegTree
       SegTreeLazy
+      Sort
       SparseTable
       TwoSat
       ZFunc
@@ -80,6 +81,7 @@ test-suite test-all
       PruferSpec
       SegTreeLazySpec
       SegTreeSpec
+      SortSpec
       SparseTableSpec
       TwoSatSpec
       Util
@@ -115,6 +117,7 @@ benchmark bench-all
       PruferBench
       SegTreeBench
       SegTreeLazyBench
+      SortBench
       SparseTableBench
       TwoSatBench
       Util
