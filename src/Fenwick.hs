@@ -1,12 +1,11 @@
 {-|
 Fenwick tree or binary indexed tree
 
-Useful for point/range updates and queries.
-This is a persistent implementation, which is a little different (and less efficient) than the
-standard implementation with an array. The responsibilies of the indices are the same in both.
+A data structure supporting point updates and range queries, or the opposite.
 
-The tree is represented as a complete binary tree where each node stores the sum of values in its
-left subtree and itself.
+The implementation here is literally a tree, unlike the usual implementation with an array.
+The responsibilies of the indices remain the same. The tree is a complete binary tree where each
+node stores the accumulation of values in its left subtree and itself.
 
      4
     / \
@@ -20,9 +19,6 @@ Sources:
 * Peter M. Fenwick, "A New Data Structure for Cumulative Frequency Tables", 1994
   https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.14.8917
 * https://hackage.haskell.org/package/binary-indexed-tree
-
-The tree stores accumulated values at each node, so for updates to work the monoid must be
-commutative in mappend.
 
 buildF
 Builds a Fenwick tree on range (l, r) where each element is mempty. O(log n).
@@ -38,15 +34,15 @@ mappendF
 mappends to the element at an index. O(log n).
 
 foldPrefixF
-The result of folding the prefix upto the given index. An index outside the tree range is allowed,
-it is assumed elements outside the range are mempty. O(log n).
+The result of folding the prefix upto the given index. Indices outside the tree range are allowed,
+it is assumed elements there are mempty. O(log n).
 
 foldRangeF
-Folds the elements in the range (l, r) using an inverse operation. O(log n).
+Folds the elements in the range (l, r). O(log n).
 
 mappendRangeF
-mappends to all elements in the range (l, r) using an inverse operation. Can be used with
-foldPrefixF for point queries. O(log n).
+mappends to all elements in the range (l, r). Can be used with foldPrefixF for point queries.
+O(log n).
 
 toScanl1F
 Converts to a list of prefix accumulated values. O(n).
@@ -67,6 +63,8 @@ module Fenwick
 import Data.Bits
 import Control.DeepSeq
 import Control.Monad.State
+
+import Misc ( Commutative, Group(..) )
 
 data FTree a = FTree !(Int, Int, Int) !(FNode a) deriving Show
 data FNode a = FTip | FBin !a !(FNode a) !(FNode a) deriving Show
@@ -103,7 +101,7 @@ fromListF bnds xs = buildF bnds (fst . flip evalState xs . go) where
 boundsF :: FTree a -> (Int, Int)
 boundsF (FTree (l, r, _) _) = (l, r)
 
-mappendF :: Monoid a => a -> Int -> FTree a -> FTree a
+mappendF :: Commutative a => a -> Int -> FTree a -> FTree a
 mappendF y i (FTree lrp@(l, r, p) rt) = FTree lrp (go rt p) where
     i' = if i < l || r < i then error "outside range" else i - l + 1
     q = bit $ countTrailingZeros i'
@@ -123,13 +121,13 @@ foldPrefixF i (FTree (l, r, p) rt) = if i' == 0 then mempty else go rt p mempty 
         | otherwise     = go r p' $! acc <> x
         where p' = p `shiftR` 1
 
-foldRangeF :: Monoid a => (a -> a) -> Int -> Int -> FTree a -> a
-foldRangeF inv l r ft = foldPrefixF r ft <> inv (foldPrefixF (l - 1) ft)
+foldRangeF :: (Commutative a, Group a) => Int -> Int -> FTree a -> a
+foldRangeF l r ft = foldPrefixF r ft <> invert (foldPrefixF (l - 1) ft)
 
-mappendRangeF :: Monoid a => (a -> a) -> a -> Int -> Int -> FTree a -> FTree a
-mappendRangeF inv y l r ft@(FTree (_, r', _) _) = ft'' where
+mappendRangeF :: (Commutative a, Group a) => a -> Int -> Int -> FTree a -> FTree a
+mappendRangeF y l r ft@(FTree (_, r', _) _) = ft'' where
     ft' = mappendF y l ft
-    ft'' = if r == r' then ft' else mappendF (inv y) (r + 1) ft'
+    ft'' = if r == r' then ft' else mappendF (invert y) (r + 1) ft'
 
 toScanl1F :: Monoid a => FTree a -> [a]
 toScanl1F (FTree (l, r, _) rt) = take (r - l + 1) $ go rt mempty [] where

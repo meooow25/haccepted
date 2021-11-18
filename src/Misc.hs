@@ -39,6 +39,15 @@ Repeatedly applies a function to a value and returns the value which gives back 
 foldTree'
 Folds a tree. This does the same job as Data.Tree.foldTree but with different fold functions, which
 may be preferable in cases such as CPS folds.
+
+Commutative
+A semigroup where the operation (<>) is commutative.
+a <> b = b <> a
+
+Group
+A monoid where elements have inverses.
+a <> invert a = mempty
+invert a <> a = mempty
 -}
 
 module Misc
@@ -53,12 +62,15 @@ module Misc
     , foldMComp
     , farthest
     , foldTree'
+    , Commutative
+    , Group(..)
     ) where
 
 import Control.Monad
 import Data.Array.IArray
 import Data.Array.MArray
 import Data.List
+import Data.Monoid
 import Data.Tree
 
 pairs :: [a] -> [(a, a)]
@@ -110,3 +122,14 @@ farthest f = go where go x = maybe x go (f x)
 foldTree' :: (a -> b -> c) -> (c -> b -> b) -> b -> Tree a -> c
 foldTree' f g z = go where go (Node x ts) = f x (foldr (g . go) z ts)
 {-# INLINE foldTree' #-}
+
+class Semigroup a => Commutative a
+
+class Monoid a => Group a where
+    invert :: a -> a
+
+instance Num a => Commutative (Sum a)
+
+instance Num a => Group (Sum a) where
+    invert = negate
+    {-# INLINE invert #-}
