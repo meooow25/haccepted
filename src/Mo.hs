@@ -31,7 +31,6 @@ module Mo
     ) where
 
 import Control.DeepSeq
-import Control.Monad
 import Data.List
 
 type Tag = Int
@@ -39,17 +38,18 @@ data MoQuery = MoQuery { ql_ :: !Int, qr_ :: !Int, qtag_ :: !Tag } deriving Show
 
 runMo :: Monad m => Int -> (Int -> m ()) -> (Int -> m ()) -> m a -> [MoQuery] -> m [(Tag, a)]
 runMo _     _   _   _   []   = pure []
-runMo bsize add rem ans qrys = snd <$> foldM f ((start, start-1), []) qrys' where
+runMo bsize add rem ans qrys = go qrys' start (start-1) [] where
     cmp (MoQuery l1 r1 _) (MoQuery l2 r2 _) = compare b1 b2 <> rc where
         (b1, b2) = (l1 `div` bsize, l2 `div` bsize)
         rc = if even b1 then compare r1 r2 else compare r2 r1
     qrys' = sortBy cmp qrys
     MoQuery start _ _ = head qrys'
-    f ((l, r), acc) (MoQuery ql qr qtag) = do
+    go [] _ _ acc = pure acc
+    go ((MoQuery ql qr qtag):qrys) l r acc = do
         mapM_ add $ [l-1, l-2 .. ql] ++ [r+1 .. qr]
         mapM_ rem $ [l .. ql-1] ++ [r, r-1 .. qr+1]
         x <- ans
-        pure ((ql, qr), (qtag, x):acc)
+        go qrys ql qr ((qtag, x):acc)
 
 sqrtSize :: Int -> Int
 sqrtSize n = round $ sqrt (fromIntegral n :: Double)
