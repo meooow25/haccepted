@@ -24,7 +24,10 @@ in a not-very-simple order, so the following should hold:
 O(n log n) assuming f takes O(1).
 
 modifyArray
-Modifies an element in a mutable array. Convenience function, should really be in Data.Array.MArray.
+Modifies an element in a mutable array.
+
+modifyArray'
+Modifies an element in a mutable array. Strict version.
 -}
 
 module Misc
@@ -35,6 +38,7 @@ module Misc
     , unique
     , foldExclusive
     , modifyArray
+    , modifyArray'
     ) where
 
 import Data.Array
@@ -70,3 +74,11 @@ foldExclusive f b as = go b (length as) as [] where
 
 modifyArray :: (MArray a e m, Ix i) => a i e -> i -> (e -> e) -> m ()
 modifyArray a i f = writeArray a i . f =<< readArray a i
+{-# INLINE modifyArray #-}
+
+modifyArray' :: (MArray a e m, Ix i) => a i e -> i -> (e -> e) -> m ()
+modifyArray' a i f = do
+    x <- readArray a i
+    let x' = f x
+    x' `seq` writeArray a i x'
+{-# INLINE modifyArray' #-}
