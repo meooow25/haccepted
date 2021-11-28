@@ -1,12 +1,13 @@
 module FenwickBench where
 
+import Control.DeepSeq
 import Data.List
 import Data.Monoid
 
 import Criterion
 
-import Fenwick ( FTree, emptyF, foldPrefixF, fromListF, mappendF )
-import Util ( evalR, randInts, randIntsR, sizedBench )
+import Fenwick ( FTree, binSearchF, emptyF, foldPrefixF, fromListF, mappendF )
+import Util ( RandStd, evalR, randInts, randIntsR, sizedBench )
 
 benchmark :: Benchmark
 benchmark = bgroup "Fenwick"
@@ -18,6 +19,9 @@ benchmark = bgroup "Fenwick"
 
       -- n queries on a Fenwick tree of size n
     , bgroup "foldPrefixF" $ map benchFoldPrefixF sizes
+
+      -- n binary searches on a Fenwick tree of size n
+    , bgroup "binSearchF" $ map benchBinSearchF sizes
     ]
 
 sizes :: [Int]
@@ -36,3 +40,11 @@ benchFoldPrefixF :: Int -> Benchmark
 benchFoldPrefixF n = sizedBench n gen $ \(ft, qs) -> whnf (go ft) qs where
     gen = (emptyF (1, n) :: FTree (Sum Int), evalR $ randIntsR (1, n) n)
     go ft = foldl' (\_ i -> foldPrefixF i ft `seq` ()) ()
+
+benchBinSearchF :: Int -> Benchmark
+benchBinSearchF n = sizedBench n gen $ \(ft, qs) -> whnf (go ft) qs where
+    gen = evalR $ (,) <$> genFTree n <*> (map Sum <$> randIntsR (1, n * n) n)
+    go ft qs = foldl' (\_ x -> rnf $ binSearchF (>=x) ft) () qs
+
+genFTree :: Int -> RandStd (FTree (Sum Int))
+genFTree n = fromListF (1, n) . map Sum <$> randIntsR (1, n) n

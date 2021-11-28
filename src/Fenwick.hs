@@ -44,6 +44,10 @@ mappendRangeF
 mappends to all elements in the range (l, r). Can be used with foldPrefixF for point queries.
 O(log n).
 
+binSearchF
+Binary searches for the shortest prefix such that the fold of all values in it satisfies the given
+monotonic predicate. Returns the end index and the fold of the found prefix. O(log n).
+
 toScanl1F
 Converts to a list of prefix accumulated values. O(n).
 -}
@@ -54,12 +58,14 @@ module Fenwick
     , fromListF
     , boundsF
     , mappendF
+    , binSearchF
     , foldPrefixF
     , foldRangeF
     , mappendRangeF
     , toScanl1F
     ) where
 
+import Control.Applicative
 import Control.DeepSeq
 import Control.Monad.State
 import Data.Bits
@@ -130,6 +136,16 @@ mappendRangeF l r y ft@(FTree (_, r', _) _) = ft'' where
     ft' = mappendF l y ft
     ft'' = if r == r' then ft' else mappendF (r + 1) (invert y) ft'
 
+binSearchF :: Monoid a => (a -> Bool) -> FTree a -> Maybe (Int, a)
+binSearchF f (FTree (l, _, ht) rt) = go rt ht (l - 1) mempty where
+    go FTip _ _ _ = Nothing
+    go (FBin x l r) h i acc
+        | f acc'    = i' `seq` go l (h - 1) i acc <|> Just (i', acc')
+        | otherwise = i' `seq` go r (h - 1) i' acc'
+      where
+        acc' = acc <> x
+        i' = i + bit h
+
 toScanl1F :: Monoid a => FTree a -> [a]
 toScanl1F (FTree (l, r, _) rt) = take (r - l + 1) $ go rt mempty [] where
     go FTip         _   = id
@@ -142,6 +158,7 @@ toScanl1F (FTree (l, r, _) rt) = take (r - l + 1) $ go rt mempty [] where
 {-# INLINABLE fromListF #-}
 {-# INLINABLE mappendF #-}
 {-# INLINABLE foldPrefixF #-}
+{-# INLINABLE binSearchF #-}
 
 instance NFData a => NFData (FTree a) where
     rnf (FTree lrh rt) = rnf lrh `seq` rnf rt

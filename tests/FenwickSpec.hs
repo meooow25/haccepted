@@ -1,6 +1,8 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module FenwickSpec where
 
 import Data.Foldable
+import Data.Maybe
 import Data.Monoid
 
 import Test.Hspec
@@ -9,6 +11,7 @@ import Test.QuickCheck
 
 import Fenwick
     ( FTree
+    , binSearchF
     , boundsF
     , emptyF
     , foldPrefixF
@@ -58,9 +61,18 @@ spec = do
                 let ft' = fromListF (l, h) xs
                 toScanl1F ft' `shouldBe` scanl1 (<>) xs
 
-    prop "toScanl1F" $ \xs' -> do
-            let xs = map Sum xs' :: [Sum Int]
-                n = length xs
+    prop "binSearchF" $
+        \(xs :: [NonNegative (Sum Int)], l, x) -> do
+            let n = length xs
+                xs' = map getNonNegative xs
+                ft = fromListF (l, l + n - 1) xs'
+                expected = find ((>=x) . snd) $ zip [l..] (scanl1 (<>) xs')
+            classify (isJust expected) "in range" $
+                binSearchF (>=x) ft `shouldBe` expected
+
+    prop "toScanl1F" $
+        \(xs :: [Sum Int]) -> do
+            let n = length xs
                 ft = fromListF (1, n) xs
             toScanl1F ft `shouldBe` scanl1 (<>) xs
 
