@@ -23,8 +23,8 @@ Implementation notes:
 * In reduce, the root of the pertinent subtree is found using pertinent node counts, then another
   pass is made through the pertinent subtree performing the actual reduction.
 * The RNode type is a temporary node indicating empty, full, or partial status. In a reduction that
-  does not reduce the tree to Nothing, there are at most two RNodes that float up to the root
-  of the pertinent subtree.
+  does not reduce the tree to Nothing, there are at most two partial RNodes that float up to the
+  root of the pertinent subtree.
 
 buildPQ
 Builds a PQ-tree from a set of Ints. O(n).
@@ -61,13 +61,14 @@ import Data.Maybe
 import qualified Data.IntSet as IS
 
 data PQNode = PQLeaf !Int
-            | PNode [PQNode]
-            | QNode [PQNode]
+            | PNode  [PQNode]
+            | QNode  [PQNode]
             deriving Show
 
-data RNode = Empty { unRNode :: PQNode }
-           | Full  { unRNode :: PQNode }
-           | Part [PQNode] [PQNode] -- empty and full, end first
+type Parts = ([PQNode], [PQNode]) -- empty and full, end first
+data RNode = Empty PQNode
+           | Full  PQNode
+           | Part  Parts
            deriving Show
 
 mkPNode, mkQNode :: [PQNode] -> PQNode
@@ -82,41 +83,39 @@ mkQNode ns     = QNode ns
 mkPartial :: [PQNode] -> [PQNode] -> RNode
 mkPartial [] _  = error "empty RNode es"
 mkPartial _  [] = error "empty RNode fs"
-mkPartial es fs = Part es fs
+mkPartial es fs = Part (es, fs)
 
-isFull, isEmpty, isPart :: RNode -> Bool
-isFull (Full _)   = True
-isFull _          = False
-isEmpty (Empty _) = True
-isEmpty _         = False
-isPart (Part _ _) = True
-isPart _          = False
+emptyMany, fullMany :: State [RNode] [PQNode]
+emptyMany = state $ go [] where
+    go ys (Empty n : xs) = go (n:ys) xs
+    go ys xs             = (reverse ys, xs)
+fullMany = state $ go [] where
+    go ys (Full n : xs) = go (n:ys) xs
+    go ys xs            = (reverse ys, xs)
 
-splitForP :: [RNode] -> ([PQNode], [RNode], [PQNode])
+partialMaybe :: State [RNode] (Maybe Parts)
+partialMaybe = state go where
+    go (Part p : xs) = (Just p,  xs)
+    go xs            = (Nothing, xs)
+
+splitForP :: [RNode] -> ([PQNode], [Parts], [PQNode])
 splitForP us = go us [] [] [] where
     go []     es ps fs = (es, ps, fs)
     go (x:xs) es ps fs = case x of
         Empty n  -> go xs (n:es) ps     fs
-        Part _ _ -> go xs es     (x:ps) fs
+        Part p   -> go xs es     (p:ps) fs
         Full n   -> go xs es     ps     (n:fs)
 
-span1 :: (a -> Bool) -> [a] -> ([a], [a])
-span1 _ [] = ([], [])
-span1 f xs@(x:xs')
-    | f x       = ([x], xs')
-    | otherwise = ([],  xs)
-
-splitForQ :: [RNode] -> Maybe ([PQNode], [RNode], [PQNode])
+splitForQ :: [RNode] -> Maybe ([PQNode], Maybe Parts, [PQNode])
 splitForQ xs = go xs <|> go (reverse xs) where
-    go = evalState $ do
-        ~[es, ps, fs] <- mapM state [span isEmpty, span1 isPart, span isFull]
-        gets $ ((map unRNode es, ps, map unRNode fs) <$) . guard . null
+    go = evalState $ go' <$> emptyMany <*> partialMaybe <*> fullMany <*> gets null
+    go' es ps fs = ((es, ps, fs) <$) . guard
 
-splitForQRoot :: [RNode] -> Maybe ([PQNode], [RNode], [PQNode], [RNode], [PQNode])
-splitForQRoot = evalState $ do
-    ~[e1, p1, fs, p2, e2] <-
-        mapM state [span isEmpty, span1 isPart, span isFull, span1 isPart, span isEmpty]
-    gets $ ((map unRNode e1, p1, map unRNode fs, p2, map unRNode e2) <$) . guard . null
+splitForQRoot :: [RNode] -> Maybe ([PQNode], Maybe Parts, [PQNode], Maybe Parts, [PQNode])
+splitForQRoot = evalState $
+    go <$> emptyMany <*> partialMaybe <*> fullMany <*> partialMaybe <*> emptyMany <*> gets null
+  where
+    go es1 ps1 fs ps2 es2 = ((es1, ps1, fs, ps2, es2) <$) . guard
 
 buildPQ :: [Int] -> PQNode
 buildPQ = mkPNode . map PQLeaf
@@ -137,66 +136,59 @@ reducePQ xs0 = fromRight (error "outside initial set") . visit where
     visitPQ n f cs
         | cnt == xsz  = Right $ reduceRoot n
         | null rts    = Left cnt
-        | ~[r] <- rts = Right $ f cs' <$ r
+        | ~[r] <- rts = Right $ f . getcs' <$> r
       where
         ys = map visit cs
         cnt = sum $ lefts ys
         rts = rights ys
-        cs' = zipWith (\c e -> either (const c) fromJust e) cs ys
+        getcs' c' = zipWith (\c -> either (const c) (const c')) cs ys
 
     reduceRoot :: PQNode -> Maybe PQNode
     reduceRoot n@(PNode cs) = go . splitForP =<< mapM reduceInternal cs where
         go (es, ps, fs) = case ps of
-            []                           -> Just noPartial
-            [Part pe1 pf1]               -> Just $ withPartial pe1 pf1 []  []
-            [Part pe1 pf1, Part pe2 pf2] -> Just $ withPartial pe1 pf1 pe2 pf2
-            _                            -> Nothing
+            []       -> Just noPartial
+            [p1]     -> Just $ withPartial p1 ([], [])
+            [p1, p2] -> Just $ withPartial p1 p2
+            _        -> Nothing
           where
             noPartial
                 | null es || null fs = n
                 | otherwise          = mkPNode $ mkPNode fs : es
-            withPartial pe1 pf1 pe2 pf2 = mkPNode $ qn : es where
+            withPartial (pe1, pf1) (pe2, pf2) = mkPNode $ qn : es where
                 qn = mkQNode $
                     pe1 ++ reverse pf1 ++ [mkPNode fs | not (null fs)] ++ pf2 ++ reverse pe2
 
-    reduceRoot n@(QNode cs) = go =<< splitForQRoot =<< mapM reduceInternal cs where
-        go (e1, p1, fs, p2, e2) = case (p1, p2) of
-            ([],             [])             -> Just n
-            ([Part pe1 pf1], [])             -> Just $ withPartial pe1 pf1 []  []
-            ([],             [Part pe2 pf2]) -> Just $ withPartial []  []  pe2 pf2
-            ([Part pe1 pf1], [Part pe2 pf2]) -> Just $ withPartial pe1 pf1 pe2 pf2
-            _                                -> Nothing
+    reduceRoot n@(QNode cs) = fmap go . splitForQRoot =<< mapM reduceInternal cs where
+        go (es1, ps1, fs, ps2, es2) = case (ps1, ps2) of
+            (Nothing, Nothing) -> n
+            _                  -> withPartial (fromMaybe ([], []) ps1) (fromMaybe ([], []) ps2)
           where
-            withPartial pe1 pf1 pe2 pf2 =
-                mkQNode $ e1 ++ pe1 ++ reverse pf1 ++ fs ++ pf2 ++ reverse pe2 ++ e2
+            withPartial (pe1, pf1) (pe2, pf2) =
+                mkQNode $ es1 ++ pe1 ++ reverse pf1 ++ fs ++ pf2 ++ reverse pe2 ++ es2
 
     reduceRoot n@(PQLeaf _) = Just n
 
     reduceInternal :: PQNode -> Maybe RNode
     reduceInternal n@(PNode cs) = go . splitForP =<< mapM reduceInternal cs where
         go (es, ps, fs) = case ps of
-            []           -> Just noPartial
-            [Part pe pf] -> Just $ withPartial pe pf
-            _            -> Nothing
+            []   -> Just noPartial
+            [p1] -> Just $ withPartial p1
+            _    -> Nothing
           where
             noPartial
                 | null es   = Full n
                 | null fs   = Empty n
                 | otherwise = mkPartial [mkPNode es] [mkPNode fs]
-            withPartial pe pf = mkPartial
+            withPartial (pe, pf) = mkPartial
                 ([mkPNode es | not (null es)] ++ pe) ([mkPNode fs | not (null fs)] ++ pf)
 
-    reduceInternal n@(QNode cs) = go =<< splitForQ =<< mapM reduceInternal cs where
-        go (es, ps, fs) = case ps of
-            []           -> Just noPartial
-            [Part pe pf] -> Just $ withPartial pe pf
-            _            -> Nothing
-          where
+    reduceInternal n@(QNode cs) = fmap go . splitForQ =<< mapM reduceInternal cs where
+        go (es, ps, fs) = maybe noPartial withPartial ps where
             noPartial
                 | null es   = Full n
                 | null fs   = Empty n
                 | otherwise = mkPartial es (reverse fs)
-            withPartial pe pf = mkPartial (es ++ pe) (reverse fs ++ pf)
+            withPartial (pe, pf) = mkPartial (es ++ pe) (reverse fs ++ pf)
 
     reduceInternal n@(PQLeaf x) = Just $ if x `IS.member` xs then Full n else Empty n
 
