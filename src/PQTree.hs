@@ -102,20 +102,20 @@ splitForP :: [RNode] -> ([PQNode], [Parts], [PQNode])
 splitForP us = go us [] [] [] where
     go []     es ps fs = (es, ps, fs)
     go (x:xs) es ps fs = case x of
-        Empty n  -> go xs (n:es) ps     fs
-        Part p   -> go xs es     (p:ps) fs
-        Full n   -> go xs es     ps     (n:fs)
+        Empty n -> go xs (n:es) ps     fs
+        Part p  -> go xs es     (p:ps) fs
+        Full n  -> go xs es     ps     (n:fs)
 
 splitForQ :: [RNode] -> Maybe ([PQNode], Maybe Parts, [PQNode])
 splitForQ xs = go xs <|> go (reverse xs) where
     go = evalState $ go' <$> emptyMany <*> partialMaybe <*> fullMany <*> gets null
-    go' es ps fs = ((es, ps, fs) <$) . guard
+    go' es ps fs end = (es, ps, fs) <$ guard end
 
 splitForQRoot :: [RNode] -> Maybe ([PQNode], Maybe Parts, [PQNode], Maybe Parts, [PQNode])
 splitForQRoot = evalState $
     go <$> emptyMany <*> partialMaybe <*> fullMany <*> partialMaybe <*> emptyMany <*> gets null
   where
-    go es1 ps1 fs ps2 es2 = ((es1, ps1, fs, ps2, es2) <$) . guard
+    go es1 ps1 fs ps2 es2 end = (es1, ps1, fs, ps2, es2) <$ guard end
 
 buildPQ :: [Int] -> PQNode
 buildPQ = mkPNode . map PQLeaf
