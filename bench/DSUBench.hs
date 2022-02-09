@@ -19,7 +19,7 @@ benchmark = bgroup "DSU"
     ]
 
 sizes :: [Int]
-sizes = [100, 10000, 500000]
+sizes = [100, 10000, 1000000]
 
 benchfindDUnionD :: Int -> Benchmark
 benchfindDUnionD n = sizedBenchIO n gen $ \ ~(dsu, ops) -> whnfIO (go dsu ops) where

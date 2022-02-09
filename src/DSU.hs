@@ -3,7 +3,7 @@
 Disjoint set union
 
 Data structure to maintain disjoint sets of Ints, supporting find and union.
-Uses union by size and path compression.
+Uses union by size and path halving.
 
 Sources:
 * https://en.wikipedia.org/wiki/Disjoint-set_data_structure
@@ -16,7 +16,7 @@ Implementation notes:
 * There is no way to make this structure functional without making the complexity worse :(
 
 Use unboxed arrays (IOUArray/STUArray) for best performance!
-Let n = r - l + 1 in all instances below.
+n = r - l + 1 in all instances below.
 α(n) is the inverse Ackermann function.
 
 newD
@@ -30,7 +30,11 @@ Unites the sets containing the two elements. If they are already in the same set
 otherwise performs the union and returns True. Amortized O(α(n)).
 -}
 
-module DSU where
+module DSU
+    ( newD
+    , findD
+    , unionD
+    ) where
 
 import Control.Monad
 import Data.Array.MArray
@@ -41,11 +45,9 @@ newD bnds = newArray bnds (-1)
 
 findD :: MArray a Int m => a Int Int -> Int -> m Int
 findD d = go where
-    go i = do
-        p <- readArray d i
-        if p < 0 then pure i else do
-            r <- go p
-            r <$ writeArray d i r
+    go i = readArray d i >>= \j ->
+        if j < 0 then pure i else readArray d j >>= \k ->
+            if k < 0 then pure j else writeArray d i k >> go k
 
 unionD :: MArray a Int m => a Int Int -> Int -> Int -> m Bool
 unionD d i j = join (go <$> findD d i <*> findD d j) where
@@ -55,3 +57,10 @@ unionD d i j = join (go <$> findD d i <*> findD d j) where
     upd i j si sj
         | si > sj   = upd j i sj si
         | otherwise = writeArray d i (si + sj) >> writeArray d j i
+
+--------------------------------------------------------------------------------
+-- For tests
+
+-- Allows specialization across modules
+{-# INLINABLE findD #-}
+{-# INLINABLE unionD #-}
