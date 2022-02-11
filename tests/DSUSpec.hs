@@ -9,7 +9,7 @@ import Test.Hspec.QuickCheck
 import Test.QuickCheck
 import Test.QuickCheck.Monadic
 
-import DSU ( findD, newD, unionD )
+import DSU ( newD, sameSetD, unionD )
 import Util ( genIntPair )
 
 spec :: Spec
@@ -35,7 +35,7 @@ runDSU :: DSUData -> IO ([Bool], Bool)
 runDSU (bnds, ijs, (i, j)) = do
     dsu <- newD bnds :: IO (IOUArray Int Int)
     bs <- mapM (uncurry (unionD dsu)) ijs
-    b <- (==) <$> findD dsu i <*> findD dsu j
+    b <- sameSetD dsu i j
     pure (bs, b)
 
 type SimpleDSU = [[Int]]

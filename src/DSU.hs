@@ -9,6 +9,8 @@ Sources:
 * https://en.wikipedia.org/wiki/Disjoint-set_data_structure
 * https://cp-algorithms.com/data_structures/disjoint_set_union.html
 * https://github.com/kth-competitive-programming/kactl/blob/main/content/data-structures/UnionFind.h
+* Robert E. Tarjan and Jan van Leeuwen, "Worst-Case Analysis of Set Union Algorithms", 1984
+  https://dl.acm.org/doi/10.1145/62.2160
 
 Implementation notes:
 * KACTL's optimization is used where a single array is used for both size and parent, the size
@@ -17,13 +19,13 @@ Implementation notes:
 
 Use unboxed arrays (IOUArray/STUArray) for best performance!
 n = r - l + 1 in all instances below.
-α(n) is the inverse Ackermann function.
+α is the inverse Ackermann function.
 
 newD
 Creates a new DSU structure with elements in the range (l, r), each in its own set. O(n).
 
-findD
-Finds the representative of the set containing some element. Amortized O(α(n)).
+sameSetD
+Returns whether the two elements are in the same set. Amortized O(α(n)).
 
 unionD
 Unites the sets containing the two elements. If they are already in the same set, returns False,
@@ -32,7 +34,7 @@ otherwise performs the union and returns True. Amortized O(α(n)).
 
 module DSU
     ( newD
-    , findD
+    , sameSetD
     , unionD
     ) where
 
@@ -49,6 +51,9 @@ findD d = go where
         if j < 0 then pure i else readArray d j >>= \k ->
             if k < 0 then pure j else writeArray d i k >> go k
 
+sameSetD :: MArray a Int m => a Int Int -> Int -> Int -> m Bool
+sameSetD d i j = (==) <$> findD d i <*> findD d j
+
 unionD :: MArray a Int m => a Int Int -> Int -> Int -> m Bool
 unionD d i j = join (go <$> findD d i <*> findD d j) where
     go i j
@@ -63,4 +68,5 @@ unionD d i j = join (go <$> findD d i <*> findD d j) where
 
 -- Allows specialization across modules
 {-# INLINABLE findD #-}
+{-# INLINABLE sameSetD #-}
 {-# INLINABLE unionD #-}

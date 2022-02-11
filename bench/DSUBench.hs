@@ -9,36 +9,34 @@ import Data.Array.IO
 import Criterion
 
 import ArrayNFData ()
-import DSU ( findD, newD, unionD )
+import DSU ( newD, sameSetD, unionD )
 import Util ( RandStd, evalR, sizedBenchIO )
 
 benchmark :: Benchmark
 benchmark = bgroup "DSU"
-    [ -- Run union and find n times on a DSU of size n
-      bgroup "findD and unionD" $ map benchfindDUnionD sizes
+    [ -- Run sameSet and union n times on a DSU of size n
+      bgroup "sameSetD and unionD" $ map benchSameSetDUnionD sizes
     ]
 
 sizes :: [Int]
 sizes = [100, 10000, 1000000]
 
-benchfindDUnionD :: Int -> Benchmark
-benchfindDUnionD n = sizedBenchIO n gen $ \ ~(dsu, ops) -> whnfIO (go dsu ops) where
+benchSameSetDUnionD :: Int -> Benchmark
+benchSameSetDUnionD n = sizedBenchIO n gen $ \ ~(dsu, ops) -> whnfIO (go dsu ops) where
     gen = do
         dsu <- newD (1, n) :: IO (IOUArray Int Int)
         let ops = evalR $ replicateM n (randOp n)
         pure (dsu, ops)
     go dsu ops = mapM_ f ops where
-        f (Find  i)   = void $ findD dsu i
-        f (Union i j) = void $ unionD dsu i j
+        f (SameSet i j) = void $ sameSetD dsu i j
+        f (Union   i j) = void $ unionD   dsu i j
 
-data Op = Find !Int | Union !Int !Int
+data Op = SameSet !Int !Int | Union !Int !Int
 
 instance NFData Op where
     rnf = rwhnf
 
 randOp :: Int -> RandStd Op
 randOp n = do
-    isFind <- getRandom
-    if isFind
-        then Find  <$> getRandomR (1, n)
-        else Union <$> getRandomR (1, n) <*> getRandomR (1, n)
+    isSameSet <- getRandom
+    (if isSameSet then SameSet else Union) <$> getRandomR (1, n) <*> getRandomR (1, n)
