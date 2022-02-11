@@ -76,5 +76,9 @@ evalR :: RandStd a -> a
 evalR = flip evalRand gen
 
 sizedBench :: NFData env => Int -> env -> (env -> Benchmarkable) -> Benchmark
-sizedBench n e b = env (return e) $ bench (show n) . b
+sizedBench n e = sizedBenchIO n (pure e)
 {-# INLINE sizedBench #-}
+
+sizedBenchIO :: NFData env => Int -> IO env -> (env -> Benchmarkable) -> Benchmark
+sizedBenchIO n e b = env e $ bench (show n) . b
+{-# INLINE sizedBenchIO #-}
