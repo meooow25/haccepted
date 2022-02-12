@@ -64,6 +64,7 @@ with four parts.
 
 When using as a black box, it suffices to only read 1 and 4.
 
+Example submissions are on the [Examples](https://github.com/meooow25/haccepted/wiki/Examples) page.  
 Tests are found in the [`tests`](/tests) directory.  
 Benchmarks are in the [`bench`](/bench) directory. A benchmark summary file is at
 [`bench-out/bench-out.txt`](/bench-out/bench-out.txt).
