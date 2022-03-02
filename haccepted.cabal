@@ -21,6 +21,7 @@ library
       DSU
       Fenwick
       KMP
+      Kruskal
       LabelledGraph
       LCA
       MInt
@@ -78,6 +79,7 @@ test-suite test-all
       DSUSpec
       FenwickSpec
       KMPSpec
+      KruskalSpec
       LCASpec
       MiscSpec
       MoSpec
@@ -118,6 +120,7 @@ benchmark bench-all
       DSUBench
       FenwickBench
       KMPBench
+      KruskalBench
       LCABench
       MoBench
       PQTreeBench
