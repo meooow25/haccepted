@@ -21,7 +21,6 @@ import Control.Monad.ST
 import Data.Array.ST
 import Data.Array.Unboxed
 import Data.Graph
-import qualified Data.Sequence as Seq
 
 import Misc ( modifyArray )
 
@@ -31,14 +30,14 @@ bfs g vs = map toTree vs where
     g' = runSTArray $ do
         vis :: STUArray s Vertex Bool <- newArray bnds False
         ch :: STArray s Vertex [Vertex] <- newArray bnds []
-        let go Seq.Empty = pure ()
-            go (u Seq.:<| q) = foldM f q (g!u) >>= go where
-                f q v = readArray vis v >>= \m -> if m then pure q else add q v
+        let go q = unless (null q) $ foldM f [] q >>= go
+            f q u = foldM f' q (g!u) where
+                f' q v = readArray vis v >>= \m -> if m then pure q else add q v
                 add q v = do
                     writeArray vis v True
                     modifyArray ch u (v:)
-                    pure $ q Seq.|> v :: ST s (Seq.Seq Vertex)
+                    pure (v:q) :: ST s [Vertex]
         forM_ vs $ \v -> writeArray vis v True
-        go $ Seq.fromList vs
+        go vs
         pure ch
     toTree u = Node u $ map toTree (g'!u)
