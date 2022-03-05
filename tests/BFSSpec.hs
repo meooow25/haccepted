@@ -14,6 +14,8 @@ spec = do
         bfs smallCompleteGraph [1] `shouldBe` [Node 1 [Node 2 [], Node 3 []]]
     it "bfs smallCompleteGraph multi-source" $
         bfs smallCompleteGraph [2, 3] `shouldBe` [Node 2 [Node 1 []], Node 3 []]
+    it "bfs duplicateEdgesGraph" $
+        bfs duplicateEdgesGraph [1] `shouldBe` [Node 1 [Node 2 []]]
 
 emptyGraph :: Graph
 emptyGraph = buildG (0, -1) []
@@ -24,3 +26,6 @@ smallCompleteGraph = buildG (1, 3)
     , (1, 3), (3, 1)
     , (2, 3), (3, 2)
     ]
+
+duplicateEdgesGraph :: Graph
+duplicateEdgesGraph = buildG (1, 2) (replicate 3 (1, 2))
