@@ -20,6 +20,7 @@ library
       ConvexHull
       DSU
       Fenwick
+      FloydWarshall
       KMP
       Kruskal
       LabelledGraph
@@ -78,6 +79,7 @@ test-suite test-all
       ConvexHullSpec
       DSUSpec
       FenwickSpec
+      FloydWarshallSpec
       KMPSpec
       KruskalSpec
       LCASpec
@@ -119,6 +121,7 @@ benchmark bench-all
       ConvexHullBench
       DSUBench
       FenwickBench
+      FloydWarshallBench
       KMPBench
       KruskalBench
       LCABench

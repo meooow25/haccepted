@@ -6,6 +6,7 @@ import qualified CentroidDecompBench
 import qualified ConvexHullBench
 import qualified DSUBench
 import qualified FenwickBench
+import qualified FloydWarshallBench
 import qualified KMPBench
 import qualified KruskalBench
 import qualified LCABench
@@ -27,6 +28,7 @@ main = defaultMain
     , ConvexHullBench.benchmark
     , DSUBench.benchmark
     , FenwickBench.benchmark
+    , FloydWarshallBench.benchmark
     , KMPBench.benchmark
     , KruskalBench.benchmark
     , LCABench.benchmark
