@@ -51,12 +51,7 @@ data FlowEdge = FlowEdge { from_ :: !Vertex, to_ :: !Vertex, cap_ :: !Flow } der
 type EdgeIndex = Int
 data ToEdge = ToEdge { to__ :: !Vertex, edgeIndex_ :: !EdgeIndex }
 
-data FlowResult
-    = FlowResult
-    { getFlow :: !Flow
-    , getEdgeFlows :: [Flow]
-    , getMinCut :: [Bool]
-    }
+data FlowResult = FlowResult { getFlow :: !Flow , getFlows :: [Flow] , getMinCut :: [Bool] }
 
 dinic :: Bounds -> [FlowEdge] -> Vertex -> Vertex -> FlowResult
 dinic _ _ src sink | src == sink = error "src == sink"
@@ -85,14 +80,14 @@ dinic bnds es src sink = FlowResult maxFlow flows minCut where
             visit d q = go [] q [] >>= visit (d + 1) where
                 go [] []     acc = pure acc
                 go [] (u:us) acc = go (g!u) us acc
-                go (ToEdge v i:es) us acc = do
+                go (ToEdge v i:ts) us acc = do
                     l <- readArray lvl v
                     s <- sat i
                     if l /= -1 || s
-                        then go es us acc
+                        then go ts us acc
                         else do
                             writeArray lvl v d
-                            if v == src then pure [] else go es us (v:acc)
+                            if v == src then pure [] else go ts us (v:acc)
         writeArray lvl sink 0
         visit 1 [sink]
         unsafeFreeze lvl
@@ -105,15 +100,15 @@ dinic bnds es src sink = FlowResult maxFlow flows minCut where
             go u fup | u == sink = pure fup
             go u fup = readArray g' u >>= go' where
                 go' [] = pure 0 :: ST s Flow
-                go' (ToEdge v _:rest) | not (nxtLvl u v) = writeArray g' u rest >> go u fup
-                go' (ToEdge v i:rest) = do
+                go' (ToEdge v _:ts) | not (nxtLvl u v) = writeArray g' u ts >> go u fup
+                go' (ToEdge v i:ts) = do
                     f <- readArray flow (xor i 1)
                     fdn <- go v (min fup f)
                     modifyArray flow i (+fdn) 
                     modifyArray flow (xor i 1) (+(-fdn))
                     if fdn == fup
                         then pure fdn
-                        else writeArray g' u rest >> (fdn+) <$> go u (fup - fdn)
+                        else writeArray g' u ts >> (fdn+) <$> go u (fup - fdn)
         go src maxBound
     {-# INLINE dinicAugment #-}
 
