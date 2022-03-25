@@ -27,7 +27,7 @@ benchDinic n = sizedBench n gen $ \es -> whnf (dinic (1, n) es 1) n where
         FlowEdge <$> getRandomR (1, n) <*> getRandomR (1, n) <*> getRandomR (1, 10 ^ (9 :: Int))
 
 bipartiteSizes :: [Int]
-bipartiteSizes = [100, 10000, 100000]
+bipartiteSizes = [100, 20000, 100000]
 
 benchDinicBipartite :: Int -> Benchmark
 benchDinicBipartite n = sizedBench n gen $ \es -> whnf (dinic (1, n + 2) es (n + 1)) (n + 2) where
