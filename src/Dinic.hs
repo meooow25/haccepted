@@ -36,7 +36,6 @@ module Dinic
     ) where
 
 import Control.DeepSeq
-import Control.Monad
 import Control.Monad.ST
 import Data.Array.ST
 import Data.Array.Unboxed
@@ -83,14 +82,17 @@ dinic bnds es src sink = FlowResult maxFlow flows minCut where
     dinicLevels sat = do
         lvl :: STUArray s Vertex Int <- newArray (bounds g) (-1)
         let visit _ [] = pure ()
-            visit d q = visit (d + 1) =<< foldM gou [] q where
-                gou acc u = foldM goe acc (g!u)
-                goe acc (ToEdge v i) = do
+            visit d q = go [] q [] >>= visit (d + 1) where
+                go [] []     acc = pure acc
+                go [] (u:us) acc = go (g!u) us acc
+                go (ToEdge v i:es) us acc = do
                     l <- readArray lvl v
                     s <- sat i
                     if l /= -1 || s
-                        then pure acc :: ST s [Vertex]
-                        else (v:acc) <$ writeArray lvl v d
+                        then go es us acc
+                        else do
+                            writeArray lvl v d
+                            if v == src then pure [] else go es us (v:acc)
         writeArray lvl sink 0
         visit 1 [sink]
         unsafeFreeze lvl
