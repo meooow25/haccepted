@@ -2,7 +2,7 @@
 {-
 Dinic's algorithm or Dinitz's algorithm
 
-An algorithm to find the maximum flow in a graph.
+An algorithm to find the maximum flow in a flow network.
 
 Sources:
 * Y. Dinitz, "Dinitz' Algorithm: The Original Version and Even's Version", 2006
@@ -17,7 +17,7 @@ Implementation notes:
   even and odd positions.
 
 dinic
-Run Dinic's algorithm on the graph made up of the given FlowEdges. Returns a FlowResult, describing
+Runs Dinic's algorithm on the graph made up of the given FlowEdges. Returns a FlowResult, describing
 a max flow configuration with
 1. the max flow value
 2. flow values of the edges in the order in which they were given
