@@ -23,7 +23,7 @@ spec = do
             flow `shouldBe` fordFulkerson bnds es src sink
             zip es flows `shouldSatisfy` all (\(FlowEdge _ _ c, f) -> f <= c)
             zip3 es flows minCut `shouldSatisfy` all (\(FlowEdge _ _ c, f, b) -> not b || f == c)
-            sum [if b then f else 0 | (f, b) <- zip flows minCut] `shouldSatisfy` (==flow)
+            sum [if b then f else 0 | (f, b) <- zip flows minCut] `shouldBe` flow
             let gAfterCut = buildG bnds [(u, v) | (FlowEdge u v _, b) <- zip es minCut, not b]
             path gAfterCut src sink `shouldSatisfy` not
 
@@ -52,13 +52,12 @@ fordFulkerson bnds es src sink = runST $ do
                     done <- readArray vis u
                     if done
                         then pure 0
-                        else writeArray vis u True >> go (g!u)
+                        else writeArray vis u True >> foldr tryEdge (pure 0) (g!u)
                   where
-                    go [] = pure 0
-                    go (ToEdge v i:rest) = do
+                    tryEdge (ToEdge v i) other = do
                         f <- readArray flow (xor i 1)
                         fdn <- dfs v (min fup f)
-                        if fdn == 0 then go rest else do
+                        if fdn == 0 then other else do
                             modifyArray flow i (+fdn) 
                             modifyArray flow (xor i 1) (+(-fdn))
                             pure fdn
