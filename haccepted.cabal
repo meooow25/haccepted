@@ -18,6 +18,7 @@ library
       BinSearch
       CentroidDecomp
       ConvexHull
+      Dijkstra
       Dinic
       DSU
       Fenwick
@@ -78,6 +79,7 @@ test-suite test-all
       BinSearchSpec
       CentroidDecompSpec
       ConvexHullSpec
+      DijkstraSpec
       DinicSpec
       DSUSpec
       FenwickSpec
@@ -121,6 +123,7 @@ benchmark bench-all
       BinSearchBench
       CentroidDecompBench
       ConvexHullBench
+      DijkstraBench
       DinicBench
       DSUBench
       FenwickBench
