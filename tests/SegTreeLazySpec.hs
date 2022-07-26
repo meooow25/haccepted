@@ -11,7 +11,7 @@ import Test.QuickCheck
 
 import SegTreeLazy
     ( LazySegTree
-    , LazySegTreeUpd(..)
+    , Action(..)
     , adjustLST
     , boundsLST
     , foldRangeLST
@@ -70,8 +70,8 @@ spec = do
 type RangeAddSegTree = LazySegTree (Sum Int) SumLen
 type SumLen = (Sum Int, Sum Int)
 
-instance LazySegTreeUpd (Sum Int) SumLen where
-    applyUpd (s, l) u = (s + u * l, l)
+instance Action (Sum Int) SumLen where
+    act (s, l) u = (s + u * l, l)
 
 genSt :: Gen RangeAddSegTree
 genSt = sized $ \n -> do

@@ -9,7 +9,7 @@ import Criterion
 
 import SegTreeLazy
     ( LazySegTree
-    , LazySegTreeUpd(..)
+    , Action(..)
     , adjustLST
     , emptyLST
     , foldRangeLST
@@ -50,8 +50,8 @@ instance Monoid SumLen where
 -- Can add a value to all elements in a range
 type RangeAddSegTree = LazySegTree (Sum Int) SumLen
 
-instance LazySegTreeUpd (Sum Int) SumLen where
-    applyUpd (SumLen s l) (Sum u) = SumLen (s + u * l) l
+instance Action (Sum Int) SumLen where
+    act (SumLen s l) (Sum u) = SumLen (s + u * l) l
 
 benchfromListLST :: Int -> Benchmark
 benchfromListLST n = sizedBench n gen $ nf $ go (1, n) where
