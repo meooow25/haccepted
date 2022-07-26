@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 module SegTreeLazyBench where
 
 import Control.DeepSeq
@@ -56,7 +56,8 @@ instance Action (Sum Int) SumLen where
 benchfromListLST :: Int -> Benchmark
 benchfromListLST n = sizedBench n gen $ nf $ go (1, n) where
     gen = evalR $ map (\x -> SumLen x 1) <$> randInts n
-    go bnds xs = fromListLST bnds xs :: RangeAddSegTree
+    go :: (Int, Int) -> [SumLen] -> RangeAddSegTree
+    go = fromListLST
 
 benchAdjustLST :: Int -> Benchmark
 benchAdjustLST n = sizedBench n gen $ \ ~(st, us) -> nf (go st) us where
@@ -65,7 +66,8 @@ benchAdjustLST n = sizedBench n gen $ \ ~(st, us) -> nf (go st) us where
         , evalR $ zip <$> randIntsR (1, n) n <*> randInts n
         )
     addToSingle x (SumLen s _) = SumLen (s + x) 1
-    go st us = foldl' (\st (i, x) -> adjustLST (addToSingle x) i st) st us
+    go :: RangeAddSegTree -> [(Int, Int)] -> RangeAddSegTree
+    go = foldl' (\st (i, x) -> adjustLST (addToSingle x) i st)
 
 benchUpdateRangeLST :: Int -> Benchmark
 benchUpdateRangeLST n = sizedBench n gen $ \ ~(st, qs) -> nf (go st) qs where
@@ -73,7 +75,7 @@ benchUpdateRangeLST n = sizedBench n gen $ \ ~(st, qs) -> nf (go st) qs where
         ( emptyLST (1, n) :: RangeAddSegTree
         , evalR $ zip <$> randSortedIntPairsR (1, n) n <*> (map Sum <$> randInts n)
         )
-    go st qs = foldl' (\st ((i, j), u) -> updateRangeLST u i j st) st qs
+    go = foldl' (\st ((i, j), u) -> updateRangeLST u i j st)
 
 benchFoldRangeLST :: Int -> Benchmark
 benchFoldRangeLST n = sizedBench n gen $ \ ~(st, qs) -> whnf (go st) qs where
@@ -81,4 +83,4 @@ benchFoldRangeLST n = sizedBench n gen $ \ ~(st, qs) -> whnf (go st) qs where
         ( emptyLST (1, n) :: RangeAddSegTree
         , evalR $ randSortedIntPairsR (1, n) n
         )
-    go st qs = foldl' (\_ (i, j) -> foldRangeLST i j st `seq` ()) () qs
+    go st = foldl' (\_ (i, j) -> foldRangeLST i j st `seq` ()) ()

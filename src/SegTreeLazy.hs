@@ -74,16 +74,16 @@ class (Monoid u, Monoid a) => Action u a where
 buildLST :: Action u a => (Int, Int) -> (Int -> LSegNode u a) -> LazySegTree u a
 buildLST (l, r) f
     | n < -1    = error "invalid range"
-    | n == -1   = LazySegTree (l, r, 0) $ LSLeaf mempty
-    | otherwise = LazySegTree (l, r, bit ht) $ f ht
+    | n == -1   = LazySegTree (l, r, 0) (LSLeaf mempty)
+    | otherwise = LazySegTree (l, r, bit ht) (f ht)
   where
     n = r - l
     ht = finiteBitSize n - countLeadingZeros n
 
 emptyLST :: Action u a => (Int, Int) -> LazySegTree u a
 emptyLST bnds = buildLST bnds go where
-    go j | j == 0 = LSLeaf mempty
-    go j = LSBin mempty mempty lr lr where lr = go $ j - 1
+    go 0 = LSLeaf mempty
+    go j = LSBin mempty mempty lr lr where lr = go (j - 1)
 
 makeLSN :: Action u a => LSegNode u a -> LSegNode u a -> LSegNode u a
 makeLSN lt rt = LSBin (getx lt <> getx rt) mempty lt rt where
@@ -95,23 +95,23 @@ fromListLST bnds xs = buildLST bnds (flip evalState xs . go) where
     pop = state go where
         go []     = (mempty, [])
         go (x:xs) = (x,      xs)
-    go j | j == 0 = LSLeaf <$> pop
+    go 0 = LSLeaf <$> pop
     go j = makeLSN <$> go (j - 1) <*> go (j - 1)
 
 boundsLST :: LazySegTree u a -> (Int, Int)
 boundsLST (LazySegTree (l, r, _) _) = (l, r)
 
 applyLSN :: Action u a => LSegNode u a -> u -> LSegNode u a
-applyLSN (LSLeaf x)        u' = LSLeaf $ act x u'
+applyLSN (LSLeaf x)        u' = LSLeaf (act x u')
 applyLSN (LSBin x u lt rt) u' = LSBin (act x u') (u <> u') lt rt
 
 adjustLST :: Action u a => (a -> a) -> Int -> LazySegTree u a -> LazySegTree u a
 adjustLST f i (LazySegTree lrp@(l, r, p) root)
     | i < l || r < i = error "outside range"
-    | otherwise      = LazySegTree lrp $ go root l (l + p - 1) mempty
+    | otherwise      = LazySegTree lrp (go root l (l + p - 1) mempty)
   where
     go n l r pu | i < l || r < i = applyLSN n pu
-    go (LSLeaf x)        _ _ pu = LSLeaf $ f $ act x pu
+    go (LSLeaf x)        _ _ pu = LSLeaf (f (act x pu))
     go (LSBin _ u lt rt) l r pu = makeLSN (go lt l m u') (go rt (m + 1) r u') where
         m = (l + r) `div` 2
         u' = u <> pu
@@ -119,7 +119,7 @@ adjustLST f i (LazySegTree lrp@(l, r, p) root)
 updateRangeLST :: Action u a => u -> Int -> Int -> LazySegTree u a -> LazySegTree u a
 updateRangeLST qu ql qr (LazySegTree lrp@(l, r, p) root)
     | ql < l || r < qr = error "outside range"
-    | otherwise        = LazySegTree lrp $ go root l (l + p - 1) mempty
+    | otherwise        = LazySegTree lrp (go root l (l + p - 1) mempty)
   where
     go n l r pu
         | r < ql || qr < l   = applyLSN n pu
@@ -142,9 +142,9 @@ foldRangeLST ql qr (LazySegTree (l, _, p) root) = go root l (l + p - 1) mempty m
 
 toListLST :: Action u a => LazySegTree u a -> [a]
 toListLST (LazySegTree (l, r', p) root) = go root l (l + p - 1) mempty [] where
-    go _ l _ _ acc | l > r' = acc
-    go (LSLeaf x)        _ _ pu acc = act x pu : acc
-    go (LSBin _ u lt rt) l r pu acc = go lt l m u' $ go rt (m + 1) r u' acc where
+    go _ l _ _ | l > r' = id
+    go (LSLeaf x)        _ _ pu = (act x pu :)
+    go (LSBin _ u lt rt) l r pu = go lt l m u' . go rt (m + 1) r u' where
         m = (l + r) `div` 2
         u' = u <> pu
 

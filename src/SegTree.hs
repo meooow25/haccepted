@@ -64,16 +64,16 @@ data SegNode a = SLeaf !a | SBin !a !(SegNode a) !(SegNode a) deriving Show
 buildST :: Monoid a => (Int, Int) -> (Int -> SegNode a) -> SegTree a
 buildST (l, r) f
     | n < -1    = error "invalid range"
-    | n == -1   = SegTree (l, r, 0) $ SLeaf mempty
-    | otherwise = SegTree (l, r, bit ht) $ f ht
+    | n == -1   = SegTree (l, r, 0) (SLeaf mempty)
+    | otherwise = SegTree (l, r, bit ht) (f ht)
   where
     n = r - l
     ht = finiteBitSize n - countLeadingZeros n
 
 emptyST :: Monoid a => (Int, Int) -> SegTree a
 emptyST bnds = buildST bnds go where
-    go j | j == 0 = SLeaf mempty
-    go j = SBin mempty lr lr where lr = go $ j - 1
+    go 0 = SLeaf mempty
+    go j = SBin mempty lr lr where lr = go (j - 1)
 
 makeSN :: Monoid a => SegNode a -> SegNode a -> SegNode a
 makeSN lt rt = SBin (getx lt <> getx rt) lt rt where
@@ -85,7 +85,7 @@ fromListST bnds xs = buildST bnds (flip evalState xs . go) where
     pop = state go where
         go []     = (mempty, [])
         go (x:xs) = (x,      xs)
-    go j | j == 0 = SLeaf <$> pop
+    go 0 = SLeaf <$> pop
     go j = makeSN <$> go (j - 1) <*> go (j - 1)
 
 boundsST :: SegTree a -> (Int, Int)
@@ -94,10 +94,10 @@ boundsST (SegTree (l, r, _) _) = (l, r)
 adjustST :: Monoid a => (a -> a) -> Int -> SegTree a -> SegTree a
 adjustST f i (SegTree lrp@(l, r, p) root)
     | i < l || r < i = error "outside range"
-    | otherwise      = SegTree lrp $ go root l (l + p - 1)
+    | otherwise      = SegTree lrp (go root l (l + p - 1))
   where
     go n l r | i < l || r < i = n
-    go (SLeaf x)      _ _ = SLeaf $ f x
+    go (SLeaf x)      _ _ = SLeaf (f x)
     go (SBin _ lt rt) l r = makeSN (go lt l m) (go rt (m + 1) r) where m = (l + r) `div` 2
 
 foldRangeST :: Monoid a => Int -> Int -> SegTree a -> a

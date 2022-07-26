@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, FlexibleInstances, MultiParamTypeClasses, TupleSections #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, TupleSections #-}
 module SegTreeLazySpec where
 
 import Data.Array
@@ -56,14 +56,14 @@ spec = do
             let (l, r) = boundsLST st
                 n = r - l + 1
             forAll (vector n :: Gen [Sum Int]) $ \xs -> do
-                let st' = fromListLST (l, r) $ map (,1) xs :: LazySegTree (Sum Int) SumLen
+                let st' = fromListLST (l, r) $ map (,1) xs :: RangeAddSegTree
                     st'' = adjustMany st (zip [l..] xs)
                 toListLST st' `shouldBe` toListLST st''
 
   where
     naive ivs i j = fold [v | (k, v) <- ivs, i <= k && k <= j]
-    adjustMany st ivs = foldl' (\st (i, v) -> adjustLST (\(x, _) -> (x <> v, 1)) i st) st ivs
-    applyRangeUpdates st ijvs = foldl' (\st (i, j, v) -> updateRangeLST v i j st) st ijvs
+    adjustMany = foldl' (\st (i, v) -> adjustLST (\(x, _) -> (x <> v, 1)) i st)
+    applyRangeUpdates = foldl' (\st (i, j, v) -> updateRangeLST v i j st)
 
 
 -- Can add a value to all elements in a range
