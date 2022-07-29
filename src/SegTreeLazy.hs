@@ -45,8 +45,9 @@ foldRangeST
 Folds the elements in the range (ql, qr). Elements outside (l, r) are considered to be mempty.
 O(log n).
 
-toListLST
-Gets the elements of the segment tree as a list. O(n).
+foldrLST
+Right fold over the elements of the segment tree. O(n).
+LazySegTree u cannot be Foldable because of the Action constraint :(
 -}
 
 module SegTreeLazy
@@ -58,7 +59,7 @@ module SegTreeLazy
     , adjustLST
     , updateRangeLST
     , foldRangeLST
-    , toListLST
+    , foldrLST
     ) where
 
 import Control.DeepSeq
@@ -140,10 +141,10 @@ foldRangeLST ql qr (LazySegTree (l, _, p) root) = go root l (l + p - 1) mempty m
         m = (l + r) `div` 2
         u' = u <> pu
 
-toListLST :: Action u a => LazySegTree u a -> [a]
-toListLST (LazySegTree (l, r', p) root) = go root l (l + p - 1) mempty [] where
+foldrLST :: Action u a => (a -> b -> b) -> b -> LazySegTree u a -> b
+foldrLST f z (LazySegTree (l, r', p) root) = go root l (l + p - 1) mempty z where
     go _ l _ _ | l > r' = id
-    go (LSLeaf x)        _ _ pu = (act x pu :)
+    go (LSLeaf x)        _ _ pu = f (act x pu)
     go (LSBin _ u lt rt) l r pu = go lt l m u' . go rt (m + 1) r u' where
         m = (l + r) `div` 2
         u' = u <> pu

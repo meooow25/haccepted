@@ -42,7 +42,7 @@ foldRangeST
 Folds the elements in the range (ql, qr). Elements outside (l, r) are considered to be mempty.
 O(log n).
 
-SegTree implementable Foldable. foldMap takes O(n).
+SegTree implementable Foldable. Folding over all the elements takes O(n).
 -}
 
 module SegTree
@@ -111,10 +111,10 @@ foldRangeST ql qr (SegTree (l, _, p) root) = go root l (l + p - 1) mempty where
         where m = (l + r) `div` 2
 
 instance Foldable SegTree where
-    foldMap f (SegTree (l, r', p) root) = go root l (l + p - 1) where
-        go _ l _ | l > r' = mempty
+    foldr f z (SegTree (l, r', p) root) = go root l (l + p - 1) z where
+        go _ l _ | l > r' = id
         go (SLeaf x)      _ _ = f x
-        go (SBin _ lt rt) l r = go lt l m <> go rt (m + 1) r where m = (l + r) `div` 2
+        go (SBin _ lt rt) l r = go lt l m . go rt (m + 1) r where m = (l + r) `div` 2
 
 --------------------------------------------------------------------------------
 -- For tests

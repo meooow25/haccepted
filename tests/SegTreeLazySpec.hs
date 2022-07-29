@@ -16,7 +16,7 @@ import SegTreeLazy
     , boundsLST
     , foldRangeLST
     , fromListLST
-    , toListLST
+    , foldrLST
     , updateRangeLST
     )
 import SegTreeSpec ( pointUpds, rangeQry )
@@ -32,13 +32,13 @@ spec = do
                 forAll (rangeQry bnds) $ \(i, j) ->
                     fst (foldRangeLST i j st') `shouldBe` naive ivs i j
 
-    prop "multiple adjustLST then toListLST works ok" $
+    prop "elements are as expected after multiple adjustLST" $
         forAll genSt $ \st -> do
             let bnds = boundsLST st
             forAll (pointUpds bnds) $ \ivs -> do
                 let st' = adjustMany st ivs
                     xs = elems $ accumArray (<>) mempty bnds ivs
-                map fst (toListLST st') `shouldBe` xs
+                foldrLST ((:) . fst) [] st' `shouldBe` xs
 
     prop "multiple updateRangeLST then foldRangeLST works ok" $
         forAll genSt $ \st -> do
@@ -58,7 +58,7 @@ spec = do
             forAll (vector n :: Gen [Sum Int]) $ \xs -> do
                 let st' = fromListLST (l, r) $ map (,1) xs :: RangeAddSegTree
                     st'' = adjustMany st (zip [l..] xs)
-                toListLST st' `shouldBe` toListLST st''
+                foldrLST (:) [] st' `shouldBe` foldrLST (:) [] st''
 
   where
     naive ivs i j = fold [v | (k, v) <- ivs, i <= k && k <= j]
