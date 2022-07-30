@@ -30,9 +30,9 @@ benchfromListST n = sizedBench n gen $ nf $ fromListST (1, n) where
 benchAdjustST :: Int -> Benchmark
 benchAdjustST n = sizedBench n gen $ \ ~(st, us) -> nf (go st) us where
     gen = (emptyST (1, n), evalR $ zip <$> randIntsR (1, n) n <*> (map Sum <$> randInts n))
-    go st us = foldl' (\st (i, x) -> adjustST (const x) i st) st us
+    go = foldl' (\st (i, x) -> adjustST (const x) i st)
 
 benchFoldRangeST :: Int -> Benchmark
 benchFoldRangeST n = sizedBench n gen $ \ ~(st, qs) -> whnf (go st) qs where
     gen = (emptyST (1, n) :: SegTree (Sum Int), evalR $ randSortedIntPairsR (1, n) n)
-    go st qs = foldl' (\_ (i, j) -> foldRangeST i j st `seq` ()) () qs
+    go st = foldl' (\_ (i, j) -> foldRangeST i j st `seq` ()) ()

@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, FlexibleInstances, MultiParamTypeClasses, TupleSections #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, TupleSections #-}
 module SegTreeLazySpec where
 
 import Data.Array
@@ -11,12 +11,12 @@ import Test.QuickCheck
 
 import SegTreeLazy
     ( LazySegTree
-    , LazySegTreeUpd(..)
+    , Action(..)
     , adjustLST
     , boundsLST
     , foldRangeLST
     , fromListLST
-    , toListLST
+    , foldrLST
     , updateRangeLST
     )
 import SegTreeSpec ( pointUpds, rangeQry )
@@ -32,13 +32,13 @@ spec = do
                 forAll (rangeQry bnds) $ \(i, j) ->
                     fst (foldRangeLST i j st') `shouldBe` naive ivs i j
 
-    prop "multiple adjustLST then toListLST works ok" $
+    prop "elements are as expected after multiple adjustLST" $
         forAll genSt $ \st -> do
             let bnds = boundsLST st
             forAll (pointUpds bnds) $ \ivs -> do
                 let st' = adjustMany st ivs
                     xs = elems $ accumArray (<>) mempty bnds ivs
-                map fst (toListLST st') `shouldBe` xs
+                foldrLST ((:) . fst) [] st' `shouldBe` xs
 
     prop "multiple updateRangeLST then foldRangeLST works ok" $
         forAll genSt $ \st -> do
@@ -56,22 +56,22 @@ spec = do
             let (l, r) = boundsLST st
                 n = r - l + 1
             forAll (vector n :: Gen [Sum Int]) $ \xs -> do
-                let st' = fromListLST (l, r) $ map (,1) xs :: LazySegTree (Sum Int) SumLen
+                let st' = fromListLST (l, r) $ map (,1) xs :: RangeAddSegTree
                     st'' = adjustMany st (zip [l..] xs)
-                toListLST st' `shouldBe` toListLST st''
+                foldrLST (:) [] st' `shouldBe` foldrLST (:) [] st''
 
   where
     naive ivs i j = fold [v | (k, v) <- ivs, i <= k && k <= j]
-    adjustMany st ivs = foldl' (\st (i, v) -> adjustLST (\(x, _) -> (x <> v, 1)) i st) st ivs
-    applyRangeUpdates st ijvs = foldl' (\st (i, j, v) -> updateRangeLST v i j st) st ijvs
+    adjustMany = foldl' (\st (i, v) -> adjustLST (\(x, _) -> (x <> v, 1)) i st)
+    applyRangeUpdates = foldl' (\st (i, j, v) -> updateRangeLST v i j st)
 
 
 -- Can add a value to all elements in a range
 type RangeAddSegTree = LazySegTree (Sum Int) SumLen
 type SumLen = (Sum Int, Sum Int)
 
-instance LazySegTreeUpd (Sum Int) SumLen where
-    applyUpd (s, l) u = (s + u * l, l)
+instance Action (Sum Int) SumLen where
+    act (s, l) u = (s + u * l, l)
 
 genSt :: Gen RangeAddSegTree
 genSt = sized $ \n -> do

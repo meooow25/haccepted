@@ -40,7 +40,7 @@ spec = do
 
   where
     naive ivs i j = fold [v | (k, v) <- ivs, i <= k && k <= j]
-    adjustMany st ivs = foldl' (\st (i, v) -> adjustST (v <>) i st) st ivs
+    adjustMany = foldl' (\st (i, v) -> adjustST (v <>) i st)
 
 genSt :: Gen (SegTree (Sum Int))
 genSt = sized $ \n -> do

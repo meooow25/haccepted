@@ -15,12 +15,14 @@ See SegTree.hs because the structure is identical. The only difference is that e
 update here.
 
 LazySegTree u a is a segment tree on elements of type a and updates of type u. a and u must be
-monoids. An instance of LazySegTreeUpd u a must exist, where applyUpd a u applies u to a.
-The following must hold:
-* (x1 <> x2) `applyUpd` u = (x1 `applyUpd` u) <> (x2 `applyUpd` u)
-* x `applyUpd` (u1 <> u2) = (x `applyUpd` u1) `applyUpd` u2
+monoids. An instance of Action u a must exist, which specifies a (right) monoid action of u on a.
+The following laws hold for a monoid action:
+* (x `act` u1) `act` u2 = x `act` (u1 <> u2)
+* x `act` mempty = x
+The segment tree requires an additional law:
+* (x1 <> x2) `act` u = (x1 `act` u) <> (x2 `act` u)
 
-The complexities below assume mappend for u, mappend for a and applyUpd all take O(1) time.
+The complexities below assume <> for u, <> for a and act all take O(1) time.
 Let n = r - l + 1 in all instances below.
 
 emptyST
@@ -43,20 +45,21 @@ foldRangeST
 Folds the elements in the range (ql, qr). Elements outside (l, r) are considered to be mempty.
 O(log n).
 
-toListLST
-Gets the elements of the segment tree as a list. O(n).
+foldrLST
+Right fold over the elements of the segment tree. O(n).
+LazySegTree u cannot be Foldable because of the Action constraint :(
 -}
 
 module SegTreeLazy
     ( LazySegTree
-    , LazySegTreeUpd(..)
+    , Action(..)
     , emptyLST
     , fromListLST
     , boundsLST
     , adjustLST
     , updateRangeLST
     , foldRangeLST
-    , toListLST
+    , foldrLST
     ) where
 
 import Control.DeepSeq
@@ -66,58 +69,58 @@ import Data.Bits
 data LazySegTree u a = LazySegTree !(Int, Int, Int) !(LSegNode u a) deriving Show
 data LSegNode u a = LSLeaf !a | LSBin !a !u !(LSegNode u a) !(LSegNode u a) deriving Show
 
-class (Monoid u, Monoid a) => LazySegTreeUpd u a where
-    applyUpd :: a -> u -> a
+class (Monoid u, Monoid a) => Action u a where
+    act :: a -> u -> a
 
-buildLST :: LazySegTreeUpd u a => (Int, Int) -> (Int -> LSegNode u a) -> LazySegTree u a
+buildLST :: Action u a => (Int, Int) -> (Int -> LSegNode u a) -> LazySegTree u a
 buildLST (l, r) f
     | n < -1    = error "invalid range"
-    | n == -1   = LazySegTree (l, r, 0) $ LSLeaf mempty
-    | otherwise = LazySegTree (l, r, bit ht) $ f ht
+    | n == -1   = LazySegTree (l, r, 0) (LSLeaf mempty)
+    | otherwise = LazySegTree (l, r, bit ht) (f ht)
   where
     n = r - l
     ht = finiteBitSize n - countLeadingZeros n
 
-emptyLST :: LazySegTreeUpd u a => (Int, Int) -> LazySegTree u a
+emptyLST :: Action u a => (Int, Int) -> LazySegTree u a
 emptyLST bnds = buildLST bnds go where
-    go j | j == 0 = LSLeaf mempty
-    go j = LSBin mempty mempty lr lr where lr = go $ j - 1
+    go 0 = LSLeaf mempty
+    go j = LSBin mempty mempty lr lr where lr = go (j - 1)
 
-makeLSN :: LazySegTreeUpd u a => LSegNode u a -> LSegNode u a -> LSegNode u a
+makeLSN :: Action u a => LSegNode u a -> LSegNode u a -> LSegNode u a
 makeLSN lt rt = LSBin (getx lt <> getx rt) mempty lt rt where
     getx (LSLeaf x)      = x
     getx (LSBin x _ _ _) = x
 
-fromListLST :: LazySegTreeUpd u a => (Int, Int) -> [a] -> LazySegTree u a
+fromListLST :: Action u a => (Int, Int) -> [a] -> LazySegTree u a
 fromListLST bnds xs = buildLST bnds (flip evalState xs . go) where
     pop = state go where
         go []     = (mempty, [])
         go (x:xs) = (x,      xs)
-    go j | j == 0 = LSLeaf <$> pop
+    go 0 = LSLeaf <$> pop
     go j = makeLSN <$> go (j - 1) <*> go (j - 1)
 
 boundsLST :: LazySegTree u a -> (Int, Int)
 boundsLST (LazySegTree (l, r, _) _) = (l, r)
 
-applyLSN :: LazySegTreeUpd u a => LSegNode u a -> u -> LSegNode u a
-applyLSN (LSLeaf x)        u' = LSLeaf $ applyUpd x u'
-applyLSN (LSBin x u lt rt) u' = LSBin (applyUpd x u') (u <> u') lt rt
+applyLSN :: Action u a => LSegNode u a -> u -> LSegNode u a
+applyLSN (LSLeaf x)        u' = LSLeaf (act x u')
+applyLSN (LSBin x u lt rt) u' = LSBin (act x u') (u <> u') lt rt
 
-adjustLST :: LazySegTreeUpd u a => (a -> a) -> Int -> LazySegTree u a -> LazySegTree u a
+adjustLST :: Action u a => (a -> a) -> Int -> LazySegTree u a -> LazySegTree u a
 adjustLST f i (LazySegTree lrp@(l, r, p) root)
     | i < l || r < i = error "outside range"
-    | otherwise      = LazySegTree lrp $ go root l (l + p - 1) mempty
+    | otherwise      = LazySegTree lrp (go root l (l + p - 1) mempty)
   where
     go n l r pu | i < l || r < i = applyLSN n pu
-    go (LSLeaf x)        _ _ pu = LSLeaf $ f $ applyUpd x pu
+    go (LSLeaf x)        _ _ pu = LSLeaf (f (act x pu))
     go (LSBin _ u lt rt) l r pu = makeLSN (go lt l m u') (go rt (m + 1) r u') where
         m = (l + r) `div` 2
         u' = u <> pu
 
-updateRangeLST :: LazySegTreeUpd u a => u -> Int -> Int -> LazySegTree u a -> LazySegTree u a
+updateRangeLST :: Action u a => u -> Int -> Int -> LazySegTree u a -> LazySegTree u a
 updateRangeLST qu ql qr (LazySegTree lrp@(l, r, p) root)
     | ql < l || r < qr = error "outside range"
-    | otherwise        = LazySegTree lrp $ go root l (l + p - 1) mempty
+    | otherwise        = LazySegTree lrp (go root l (l + p - 1) mempty)
   where
     go n l r pu
         | r < ql || qr < l   = applyLSN n pu
@@ -126,23 +129,23 @@ updateRangeLST qu ql qr (LazySegTree lrp@(l, r, p) root)
         m = (l + r) `div` 2
         u' = u <> pu
 
-foldRangeLST :: LazySegTreeUpd u a => Int -> Int -> LazySegTree u a -> a
+foldRangeLST :: Action u a => Int -> Int -> LazySegTree u a -> a
 foldRangeLST ql qr _ | ql > qr + 1 = error "invalid range"
 foldRangeLST ql qr (LazySegTree (l, _, p) root) = go root l (l + p - 1) mempty mempty where
     go _ l r _ acc | r < ql || qr < l = acc
-    go (LSLeaf x) _ _ pu acc = acc <> applyUpd x pu
+    go (LSLeaf x) _ _ pu acc = acc <> act x pu
     go (LSBin x u lt rt) l r pu acc
-        | ql <= l && r <= qr = acc <> applyUpd x pu
+        | ql <= l && r <= qr = acc <> act x pu
         | otherwise          = go rt (m + 1) r u' $! go lt l m u' acc
       where
         m = (l + r) `div` 2
         u' = u <> pu
 
-toListLST :: LazySegTreeUpd u a => LazySegTree u a -> [a]
-toListLST (LazySegTree (l, r', p) root) = go root l (l + p - 1) mempty [] where
-    go _ l _ _ acc | l > r' = acc
-    go (LSLeaf x)        _ _ pu acc = applyUpd x pu : acc
-    go (LSBin _ u lt rt) l r pu acc = go lt l m u' $ go rt (m + 1) r u' acc where
+foldrLST :: Action u a => (a -> b -> b) -> b -> LazySegTree u a -> b
+foldrLST f z (LazySegTree (l, r', p) root) = go root l (l + p - 1) mempty z where
+    go _ l _ _ | l > r' = id
+    go (LSLeaf x)        _ _ pu = f (act x pu)
+    go (LSBin _ u lt rt) l r pu = go lt l m u' . go rt (m + 1) r u' where
         m = (l + r) `div` 2
         u' = u <> pu
 
