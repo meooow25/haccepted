@@ -33,8 +33,8 @@ import Geometry ( V2, turn )
 convexHull :: [V2] -> [V2]
 convexHull []  = []
 convexHull [p] = [p]
-convexHull ps  = tail (go (reverse ps') []) ++ tail (go ps' []) where
+convexHull ps  = tail (foldl' f [] (reverse ps')) ++ tail (foldl' f [] ps') where
     ps' = sort ps
-    go ps@(p:_) (p1:h@(p2:_)) | turn p2 p1 p /= LT = go ps h
-    go (p:ps) h = go ps (p:h)
-    go []     h = h
+    f hull p = go hull where
+        go (p1:h@(p2:_)) | turn p2 p1 p /= LT = go h
+        go h = p:h
