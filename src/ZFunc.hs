@@ -29,8 +29,8 @@ zFunc n at = runSTUArray $ do
     z <- newArray (0, n - 1) 0
     let go lr@(l, r) i = do
             j <- max 0 . min (r - i) <$> readArray z (i - l)
-            let k = head $ dropWhile (\k -> k < n && at (k - i) == at k) [i+j..]
-            writeArray z i $ k - i
+            let k = until (\k' -> k' == n || at (k' - i) /= at k') (+1) (i + j)
+            writeArray z i (k - i)
             pure $ if k > r then (i, k) else lr
     foldM_ go (0, 0) [1 .. n-1]
     pure z
