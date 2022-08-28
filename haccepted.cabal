@@ -23,6 +23,7 @@ library
       DSU
       Fenwick
       FloydWarshall
+      Geometry
       KMP
       Kruskal
       LabelledGraph

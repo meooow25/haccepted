@@ -2,7 +2,8 @@ module ConvexHullBench where
 
 import Criterion
 
-import ConvexHull ( Point(..), convexHull )
+import ConvexHull ( convexHull )
+import Geometry ( V2(..) )
 import Util ( evalR, randIntsR, sizedBench )
 
 benchmark :: Benchmark
@@ -16,6 +17,6 @@ sizes = [100, 10000, 200000]
 
 benchConvexHull :: Int -> Benchmark
 benchConvexHull n = sizedBench n gen $ nf convexHull where
-    gen = evalR $ zipWith Point <$> randIntsR bnds n <*> randIntsR bnds n
+    gen = evalR $ zipWith V2 <$> randIntsR bnds n <*> randIntsR bnds n
     limit = 10 ^ (9 :: Int)
     bnds = (-limit, limit)
