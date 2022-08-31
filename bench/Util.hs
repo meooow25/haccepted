@@ -3,7 +3,6 @@ module Util where
 import Control.DeepSeq
 import Control.Monad.Random
 import Data.Array
-import Data.Char
 import Data.Graph
 import Data.List
 import Data.Tree
@@ -70,7 +69,10 @@ randConnectedGraph n m = do
     buildG (1, n) . S.elems <$> go treeEdges
 
 randASCIIString :: Int -> RandStd String
-randASCIIString n = replicateM n $ chr <$> getRandomR (0, 127)
+randASCIIString n = replicateM n $ getRandomR ('\0', '\127')
+
+randLowerCaseString :: Int -> RandStd String
+randLowerCaseString n = replicateM n $ getRandomR ('a', 'z')
 
 evalR :: RandStd a -> a
 evalR = flip evalRand gen

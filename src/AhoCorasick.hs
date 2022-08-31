@@ -53,6 +53,7 @@ module AhoCorasick
     , matchAC
     ) where
 
+import Control.DeepSeq
 import Data.List
 import Data.Maybe
 import qualified Data.ByteString.Char8 as C
@@ -106,3 +107,12 @@ insertTAC s v = go s where
 
 fromListTAC :: [(C.ByteString, a)] -> TrieAC a
 fromListTAC = foldl' (\t (s, v) -> insertTAC s v t) emptyTAC
+
+--------------------------------------------------------------------------------
+-- For tests
+
+instance NFData a => NFData (ACNode a) where
+    rnf (ACNode mp vs suf out) = rnf vs `seq` suf `seq` out `seq` rnf mp
+
+instance NFData a => NFData (ACRoot a) where
+    rnf (ACRoot mp vs) = rnf vs `seq` rnf mp

@@ -121,6 +121,7 @@ benchmark bench-all
   type: exitcode-stdio-1.0
   main-is: Bench.hs
   other-modules:
+      AhoCorasickBench
       ArrayNFData
       BFSBench
       BinSearchBench
