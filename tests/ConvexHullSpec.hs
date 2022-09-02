@@ -12,8 +12,11 @@ import Geometry ( V2(..), dist2, turn )
 spec :: Spec
 spec =
     prop "convexHull" $
-        forAll (listOf $ V2 <$> arbitrary <*> arbitrary) $ \ps ->
+        forAll genps $ \ps ->
             convexHull ps `shouldBe` jarvisMarch ps
+
+genps :: Gen [V2]
+genps = fmap nub $ listOf $ V2 <$> arbitrary <*> arbitrary
 
 jarvisMarch :: [V2] -> [V2]
 jarvisMarch [] = []
