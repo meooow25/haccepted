@@ -2,13 +2,14 @@
 Aho-Corasick algorithm
 
 The Aho-Corasick algorithm builds an automaton from a set of pattern strings, and then uses it to
-find all positions in a search string where each of the pattern strings occur.
+find positions in a search string where each of the pattern strings occur.
 
 This implementation only works on ByteStrings, to keep things fast. If required it can be adapted
-to work on Strings, or even more generally Ord a => [a].
+to work on Strings, or even more generally (Ord a, Foldable f) => f a.
 
 A TrieAC a can be constructed from pattern strings with associated values a, which can be then be
-turned into an ACRoot a. An ACRoot a can then be run on a search string.
+turned into an ACRoot a. An ACRoot a can then be run on a search string to find matches.
+Construction and matching are both lazy.
 
 Sources:
 * Alfred V. Aho and Margaret J. Corasick, "Efficient string matching: An aid to bibliographic
@@ -33,14 +34,14 @@ the strings.
 
 fromTrieAC
 Builds an Aho-Corasick automaton from a trie. O(n), where n is the number of nodes in the trie.
-This is <= the total length of strings the trie was constructed with.
+This is not more than the total length of strings the trie was constructed with.
 
 matchAC
 Returns a list of length (m + 1) where m is the length of the search string. This list contains a
 list of pattern matches for every position in the string, including before the first character. A
 match at a position is present as the associated value of the pattern string found to be ending at
 that position.
-O(m * f(k) + z), where m is the length of the string and z is the sum of lengths of all matches.
+O(m * f(k) + z), where m is the length of the string and z is the total number of matches.
 -}
 
 module AhoCorasick
