@@ -78,18 +78,15 @@ fromTrieAC (TrieAC tm tvs) = ACRoot rmp tvs where
 
 matchAC :: ACRoot a -> C.ByteString -> [[a]]
 matchAC (ACRoot rmp routs) = (routs:) . go1 where
-    go1 s = case C.uncons s of
-        Nothing      -> []
-        Just (c, s') -> case IM.lookup (fromEnum c) rmp of
-            Nothing                  -> routs : go1 s'
-            Just x@(ACNode _ outs _) -> outs : go s' x
-    go s (ACNode mp _ suf) = case C.uncons s of
-        Nothing      -> []
+    go1 = go rmp $ const ((routs:) . go1)
+    go2 (ACNode mp _ suf) = go mp $ const . case suf of
+        RootL   -> go1
+        NodeL x -> go2 x
+    go mp miss s = case C.uncons s of
+        Nothing -> []
         Just (c, s') -> case IM.lookup (fromEnum c) mp of
-            Nothing -> case suf of
-                RootL   -> go1 s
-                NodeL x -> go s x
-            Just x@(ACNode _ outs _) -> outs : go s' x
+            Nothing                  -> miss s s'
+            Just x@(ACNode _ outs _) -> outs : go2 x s'
 
 data TrieAC a = TrieAC (IM.IntMap (TrieAC a)) [a] deriving Show
 
