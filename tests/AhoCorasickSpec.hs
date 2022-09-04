@@ -12,25 +12,39 @@ import AhoCorasick ( fromListTAC, fromTrieAC, matchAC )
 
 spec :: Spec
 spec = do
-    prop "build and match" $
-        forAll ((,) <$> genBS <*> listOf genBS) $ \(s, ps) -> do
-            let ac = fromTrieAC $ fromListTAC $ zip ps [1..]
+    prop "build and match binary" $
+        testAC genBinary
+    prop "build and match ASCII" $
+        testAC genASCII
+  where
+    testAC gen =
+        forAll ((,) <$> listOf gen <*> gen) $ \(ps, s) -> do
+            let ac = fromTrieAC $ fromListTAC $ zip ps [0..]
                 expected = naiveMatch ps s
-            label ("num matches " ++ labelLen (length (concat expected))) $
-                matchAC ac s `shouldBe` expected
+            label (labelNumMatches expected) $
+                label (labelNonSimpleMatches expected ps) $
+                    matchAC ac s `shouldBe` expected
 
-labelLen :: Int -> String
-labelLen n
+labelNumMatches :: [[Int]] -> String
+labelNumMatches iss = "num matches " ++ bucket (length (concat iss))
+    
+labelNonSimpleMatches :: [[Int]] -> [C.ByteString] -> String
+labelNonSimpleMatches iss ps = "num (len >1) matches " ++ bucket cnt where
+    cnt = length $ filter ((>1) . C.length . (ps!!)) $ concat iss
+
+bucket :: Int -> String
+bucket n
     | n == 0    = " = 0"
     | n <= 10   = "<= 10"
     | n <= 100  = "<= 100"
     | otherwise = " > 100"
 
-genBS :: Gen C.ByteString
-genBS = C.pack . getASCIIString <$> arbitrary
+genBinary, genASCII :: Gen C.ByteString
+genBinary = C.pack <$> listOf (elements "01")
+genASCII = C.pack . getASCIIString <$> arbitrary
 
 naiveMatch :: [C.ByteString] -> C.ByteString -> [[Int]]
 naiveMatch ps = map match . C.inits where
     ps' = reverse $ -- reverse required to match order
-        sortBy (comparing (C.length . fst)) $ zip ps [1..]
+        sortBy (comparing (C.length . fst)) $ zip ps [0..]
     match s' = [i | (p, i) <- ps', p `C.isSuffixOf` s']
