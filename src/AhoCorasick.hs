@@ -61,38 +61,32 @@ import qualified Data.ByteString.Char8 as C
 import qualified Data.IntMap.Strict as IM
 
 data ACRoot a = ACRoot (IM.IntMap (ACNode a)) [a]
-data ACNode a = ACNode (IM.IntMap (ACNode a)) [a] (ACLink a) (ACLink a)
+data ACNode a = ACNode (IM.IntMap (ACNode a)) [a] (ACLink a)
 data ACLink a = RootL | NodeL !(ACNode a)
 
 fromTrieAC :: TrieAC a -> ACRoot a
 fromTrieAC (TrieAC tm tvs) = ACRoot rmp tvs where
     rmp = IM.map go1 tm
-    go1 (TrieAC m vs) = ACNode (IM.mapWithKey (go RootL) m) vs RootL RootL
-    go psuf c (TrieAC m vs) = ACNode (IM.mapWithKey (go suf) m) vs suf out where
+    go1 (TrieAC m vs) = ACNode (IM.mapWithKey (go RootL) m) (vs ++ tvs) RootL
+    go psuf c (TrieAC m vs) = ACNode (IM.mapWithKey (go suf) m) outs suf where
         suf = getSuf psuf
-        getSuf RootL                         = maybe RootL NodeL (IM.lookup c rmp)
-        getSuf (NodeL (ACNode mp' _ suf' _)) = maybe (getSuf suf') NodeL (IM.lookup c mp')
-        out = case suf of
-            RootL                      -> RootL
-            NodeL (ACNode _ [] _ out') -> out'
-            x                          -> x
+        getSuf RootL                       = maybe RootL NodeL (IM.lookup c rmp)
+        getSuf (NodeL (ACNode mp' _ suf')) = maybe (getSuf suf') NodeL (IM.lookup c mp')
+        outs = vs ++ case suf of
+            RootL                    -> tvs
+            NodeL (ACNode _ outs' _) -> outs'
 
 matchAC :: ACRoot a -> C.ByteString -> [[a]]
-matchAC (ACRoot rmp rvs) = (rvs:) . go1 where
-    go1 s = case C.uncons s of
-        Nothing      -> []
-        Just (c, s') -> case IM.lookup (fromEnum c) rmp of
-            Nothing -> rvs : go1 s'
-            Just x  -> outs x : go s' x
-    go s (ACNode mp _ suf _) = case C.uncons s of
-        Nothing      -> []
+matchAC (ACRoot rmp routs) = (routs:) . go1 where
+    go1 = go rmp $ const ((routs:) . go1)
+    go2 (ACNode mp _ suf) = go mp $ const . case suf of
+        RootL   -> go1
+        NodeL x -> go2 x
+    go mp miss s = case C.uncons s of
+        Nothing -> []
         Just (c, s') -> case IM.lookup (fromEnum c) mp of
-            Nothing -> case suf of
-                RootL   -> go1 s
-                NodeL x -> go s x
-            Just x -> outs x : go s' x
-    outs (ACNode _ vs _ RootL)     = vs ++ rvs
-    outs (ACNode _ vs _ (NodeL x)) = vs ++ outs x
+            Nothing                  -> miss s s'
+            Just x@(ACNode _ outs _) -> outs : go2 x s'
 
 data TrieAC a = TrieAC (IM.IntMap (TrieAC a)) [a] deriving Show
 
@@ -112,8 +106,9 @@ fromListTAC = foldl' (\t (s, v) -> insertTAC s v t) emptyTAC
 --------------------------------------------------------------------------------
 -- For tests
 
+-- outs of nodes share structure, so rnf is O(n^2)
 instance NFData a => NFData (ACNode a) where
-    rnf (ACNode mp vs suf out) = rnf vs `seq` suf `seq` out `seq` rnf mp
+    rnf (ACNode mp outs suf) = rnf outs `seq` suf `seq` rnf mp
 
 instance NFData a => NFData (ACRoot a) where
-    rnf (ACRoot mp vs) = rnf vs `seq` rnf mp
+    rnf (ACRoot mp outs) = rnf outs `seq` rnf mp
