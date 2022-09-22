@@ -15,47 +15,59 @@ import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
 import SuffixTree
-import TreeDebugUtil
+import Misc ( unique )
 
 spec :: Spec
 spec = do
-    prop "build, check structure" $
-        forAll genBS $ \s -> do
-            let st = buildSufT (const ()) const const s
-                st' = naiveBuild (const ()) const const s
-            expectEqSufTrees st st'
-
-    prop "build, check structure and value" $
-        forAll genBS $ \s -> do
-            let st = buildSufT Leaf EdgeUpd Merge s
+    prop "build binary" $
+        testBuild genBinary
+    prop "distinct prefix match binary" $
+        testDistinctPrefixMatch genBinary
+    prop "build ASCII" $
+        testBuild genASCII
+    prop "distinct prefix match ASCII" $
+        testDistinctPrefixMatch genASCII
+  where
+    testBuild gen =
+        forAll gen $ \s -> do
+            let SuffixTree _ st _ = buildSufT Leaf EdgeUpd Merge s
                 st' = naiveBuild Leaf EdgeUpd Merge s
-            expectEqSufTrees st st'
+            st `shouldBeEqSufTree` st'
 
-genBS :: Gen C.ByteString
--- genBS = C.pack . getASCIIString <$> arbitrary
-genBS = C.pack <$> listOf (elements "01")
+    -- Example query, count number of distinct substrings of s that have t as prefix
+    testDistinctPrefixMatch gen =
+        forAll ((,) <$> gen <*> gen) $ \(s, t) -> do
+            let st = buildSufT (const 0) (+) (+) s
+                act = (+1) <$> matchSufT st t
+                exp = numDistinctPrefixMatch s t
+            classify (isJust exp) "matched" $
+                act `shouldBe` exp
+
+genBinary, genASCII :: Gen C.ByteString
+genBinary = C.pack <$> listOf (elements "01")
+genASCII = C.pack . getASCIIString <$> arbitrary
 
 deriving instance Eq a => Eq (SufTreeNode a)
 deriving instance Eq a => Eq (SufTreeEdge a)
 
-expectEqSufTrees :: (Eq a, Show a) => SufTreeNode a -> SufTreeNode a -> Expectation
-expectEqSufTrees act exp = unless (act == exp) $ expectationFailure $ unlines
-    [ "actual:"
-    , drawSufTreeNode act
-    , "expected:"
+shouldBeEqSufTree :: (Eq a, Show a) => SufTreeNode a -> SufTreeNode a -> Expectation
+shouldBeEqSufTree got exp = unless (got == exp) $ expectationFailure $ unlines
+    [ "expected:"
     , drawSufTreeNode exp
+    , "but got:"
+    , drawSufTreeNode got
     ]
-
-drawSufTreeNode :: Show a => SufTreeNode a -> String
-drawSufTreeNode = draw (show . valSufT) nbs where
-    nbs (SufTreeNode _ nxt) = [(show (left, len), v)| SufTreeEdge left len v <- IM.elems nxt]
-    nbs _ = []
 
 data SufTreeTrace
     = Leaf !Int
     | EdgeUpd !SufTreeTrace !Int
     | Merge !SufTreeTrace !SufTreeTrace
     deriving (Show, Eq)
+
+numDistinctPrefixMatch :: C.ByteString -> C.ByteString -> Maybe Int
+numDistinctPrefixMatch s t = if cnt == 0 then Nothing else Just cnt where
+    subs = unique $ sort $ C.tails s >>= C.inits
+    cnt = length $ filter (t `C.isPrefixOf`) subs
 
 ----------------
 -- Naive build

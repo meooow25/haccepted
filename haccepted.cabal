@@ -39,7 +39,7 @@ library
       Sort
       SparseTable
       SuffixTree
-      TreeDebugUtil
+      TreeDraw
       TwoSat
       ZFunc
   other-modules:
