@@ -30,15 +30,15 @@ spec = do
   where
     testBuild gen =
         forAll gen $ \s -> do
-            let SuffixTree _ st _ = buildSufT Leaf EdgeUpd Merge s
+            let SuffixTree _ _ st = buildSufT Leaf EdgeUpd Merge (C.length s) (fromEnum . C.index s)
                 st' = naiveBuild Leaf EdgeUpd Merge s
-            st `shouldBeEqSufTree` st'
+            st `shouldBeEqSufNode` st'
 
     -- Example query, count number of distinct substrings of s that have t as prefix
     testDistinctPrefixMatch gen =
         forAll ((,) <$> gen <*> gen) $ \(s, t) -> do
-            let st = buildSufT (const 0) (+) (+) s
-                act = (+1) <$> matchSufT st t
+            let st = buildSufT (const 0) (+) (+) (C.length s) (fromEnum . C.index s)
+                act = (+1) <$> matchSufT st (C.length t) (fromEnum . C.index t)
                 exp = numDistinctPrefixMatch s t
             classify (isJust exp) "matched" $
                 act `shouldBe` exp
@@ -50,8 +50,8 @@ genASCII = C.pack . getASCIIString <$> arbitrary
 deriving instance Eq a => Eq (SufTreeNode a)
 deriving instance Eq a => Eq (SufTreeEdge a)
 
-shouldBeEqSufTree :: (Eq a, Show a) => SufTreeNode a -> SufTreeNode a -> Expectation
-shouldBeEqSufTree got exp = unless (got == exp) $ expectationFailure $ unlines
+shouldBeEqSufNode :: (Eq a, Show a) => SufTreeNode a -> SufTreeNode a -> Expectation
+shouldBeEqSufNode got exp = unless (got == exp) $ expectationFailure $ unlines
     [ "expected:"
     , drawSufTreeNode exp
     , "but got:"

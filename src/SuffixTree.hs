@@ -16,21 +16,20 @@ import Data.Array.ST
 import Data.Array.Unboxed
 import Data.Array.Unsafe
 import Data.List
-import qualified Data.ByteString.Char8 as C
 import qualified Data.IntMap.Strict as IM
 
 import TreeDraw ( draw )
 
 data SufTreeEdge a = SufTreeEdge !Int !Int !(SufTreeNode a)
 data SufTreeNode a = SufTreeNode !a !(IM.IntMap (SufTreeEdge a))
-data SuffixTree a = SuffixTree !C.ByteString !(SufTreeNode a) !(a -> Int -> a)
+data SuffixTree a = SuffixTree !(Int -> IM.Key) !(a -> Int -> a) !(SufTreeNode a)
 
 valSufT :: SufTreeNode a -> a
 valSufT (SufTreeNode a _) = a
 
-buildSufT :: (Int -> a) -> (a -> Int -> a) -> (a -> a -> a) -> C.ByteString -> SuffixTree a
-buildSufT fromLeaf updEdge merge ss = SuffixTree ss (mkNode (C.length ss) 0) updEdge where
-    (nxt, left, len) = buildSufT_ (C.length ss) (fromEnum . C.index ss)
+buildSufT :: (Int -> a) -> (a -> Int -> a) -> (a -> a -> a) -> Int -> (Int -> IM.Key) -> SuffixTree a
+buildSufT fromLeaf updEdge merge n at = SuffixTree at updEdge (mkNode n 0) where
+    (nxt, left, len) = buildSufT_ n at
     mkNode dep i = SufTreeNode a nxt' where
         nxt' = (\j -> SufTreeEdge (left!j) (len!j) (mkNode (dep - len!j) j)) <$> nxt!i
         a | IM.null nxt' = fromLeaf dep
@@ -90,20 +89,19 @@ buildSufT_ n at = runST $ do
 
     (,,) <$> unsafeFreeze nxt <*> unsafeFreeze left <*> unsafeFreeze len
 
-matchSufT :: SuffixTree a -> C.ByteString -> Maybe a
-matchSufT (SuffixTree s u updEdge) = go u where
-    go u@(SufTreeNode _ nxt) t = case C.uncons t of
-        Nothing -> Just (valSufT u)
-        Just (c, _) -> IM.lookup (fromEnum c) nxt >>= go' where
-            go'(SufTreeEdge left len v)
-                | n == len  = go v t'
-                | C.null t' = Just a
-                | otherwise = Nothing
-              where
-                s' = C.take len (C.drop left s)
-                n = length $ takeWhile id $ C.zipWith (==) s' t
-                t' = C.drop n t
-                a = updEdge (valSufT v) (len - n)
+matchSufT :: SuffixTree a -> Int -> (Int -> IM.Key) -> Maybe a
+matchSufT (SuffixTree at updEdge u) m at' = go u 0 where
+    go (SufTreeNode a _) i | i == m = Just a
+    go (SufTreeNode _ nxt) i = IM.lookup (at' i) nxt >>= go' where
+        go' (SufTreeEdge left len v)
+            | d == len  = go v i'
+            | i' == m   = Just (updEdge (valSufT v) (len - d))
+            | otherwise = Nothing
+          where
+            d = commonPrefix (min len (m - i)) (at . (+left)) (at' . (+i))
+            i' = i + d
+    commonPrefix n f g = go 0 where
+        go i = if i < n && f i == g i then go (i + 1) else i
 
 --------------------------------------------------------------------------------
 -- For tests
@@ -115,7 +113,7 @@ instance NFData a => NFData (SufTreeNode a) where
     rnf (SufTreeNode a nxt) = rnf a `seq` rnf nxt
 
 instance NFData a => NFData (SuffixTree a) where
-    rnf (SuffixTree _ u _) = rnf u
+    rnf (SuffixTree _ _ u) = rnf u
 
 drawSufTreeNode :: Show a => SufTreeNode a -> String
 drawSufTreeNode = draw (show . valSufT) nbs where

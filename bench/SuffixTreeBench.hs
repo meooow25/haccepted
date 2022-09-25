@@ -27,7 +27,7 @@ matchSizes :: [Int]
 matchSizes = map (*numMatches) sizes
 
 benchBuild :: Int -> Benchmark
-benchBuild n = sizedBench n gen $ nf buildCountSufTree where
+benchBuild n = sizedBench n gen $ \s -> nf (buildCountSufTree (C.length s)) (fromEnum . C.index s) where
     gen = evalR $ C.pack <$> randLowerCaseString n
 
 benchMatch :: Int -> Benchmark 
@@ -35,9 +35,9 @@ benchMatch n = sizedBench n gen $ \(st, ts) -> nf (go st) ts where
     gen = evalR $ do
         let n' = div n numMatches
         s <- C.pack <$> randLowerCaseString n'
-        let st = buildCountSufTree s
+        let st = buildCountSufTree (C.length s) (fromEnum . C.index s)
         pure (st, replicate numMatches s)
-    go st = foldl' (\_ t -> matchSufT st t `seq` ()) ()
+    go st = foldl' (\_ t -> matchSufT st (C.length t) (fromEnum . C.index t) `seq` ()) ()
 
-buildCountSufTree :: C.ByteString -> SuffixTree Int
-buildCountSufTree = buildSufT (const (1 :: Int)) const (+)
+buildCountSufTree :: Int -> (Int -> Int) -> SuffixTree Int
+buildCountSufTree = buildSufT (const 1) const (+)
