@@ -1,4 +1,65 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-
+Suffix tree
+
+A moderately simple and flexible suffix tree.
+A suffix tree of a string is a compressed trie of all the suffixes of the string, useful for fast
+matching on substrings of the string or to calculate certain properties of the string.
+Other suffix structures such as suffix arrays and suffix automata may serve as alternates to suffix
+trees.
+
+The implementation here constructs a SuffixTree a from a given string index function, with string
+elements of type Int. Ukkonen's algorithm is used for construction. This is not lazy, the entire
+tree is constructed right away.
+Only the implicit suffix tree is constructed, which is a suffix tree where suffixes that are
+prefixes of other suffixes do not end in leaves. To make them end in leaves, set the last element
+of the string to a unique value.
+A SuffixTree a also stores accumulated values of type a at every node. These values are calculated
+using user supplied functions, which can be chosen based on what the tree will be used for.
+
+Sources:
+* Esko Ukkonen, "On–line construction of suffix trees", 1995
+  https://www.cs.helsinki.fi/u/ukkonen/SuffixT1withFigs.pdf
+* Dan Gusfield, "Algorithms on Strings, Trees, and Sequences", 1997
+  https://doi.org/10.1017/CBO9780511574931
+
+Implementation notes:
+* Ukkonen's algorithm is used to construct the suffix tree. The implementation here is similar to
+  the one in his paper. The state maintained is (u, pos). For index i the substring [pos..i] must be
+  inserted at node u, then at the suffix link of u, and so on.
+* buildSufT builds a nicer-to-use tree on top of arrays calculated by Ukkonen's algorithm.
+* Suffix links, which can be useful in some situations, are not retained for simplicity.
+* There is no setup for fast LCA queries, which are also useful in some situations.
+* matchSufT can be easily modified to return the value for the longest prefix of the pattern
+  matched, if it does not match completely.
+
+String indexing is assumed to take O(1). Let k be the alphabet size. Let the complexity of IntMap
+operations be f(n), where n is the size of the map. f(n) is O(min(n, word size)), see IntMap
+documentation for details.
+
+buildSufT
+Builds a suffix tree. n is the length of the string. at is a 0-based indexing function into the
+string. fromLeaf constructs a value from a leaf index. updEdge constructs a value from an existing
+value and a length of an edge leading to it. merge combines two values.
+Examples:
+  To query the number of times a pattern occurs in the string, use const 1, const, and (+).
+  To calculate the number of distinct substrings, use const 0, (+), and (+).
+O(n * f(k)), plus the above functions are each called O(n) times.
+
+matchSufT
+Matches a pattern on the suffix tree. updEdge and at are as defined for buildSufT. m is the length
+of the pattern. at' is a 0-based indexing function into the pattern. If the pattern is not present,
+returns Nothing. Otherwise returns the accumulated value for the subtree where the pattern ends.
+O(m * f(k)) plus at most one call of updEdge.
+
+buildMatchSufT
+buildSufT together with matchSufT to avoid having to repeat arguments. Apply partially for
+multiple queries.
+
+drawSufTNode
+Draws a suffix tree.
+-}
+
 module SuffixTree
     ( SufTNode(..)
     , SufTEdge(..)
