@@ -14,48 +14,45 @@ import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
-import SuffixTree
+import SuffixTree ( SufTNode(..), SufTEdge(..), buildSufT, buildMatchSufT, drawSufTNode )
 import Misc ( unique )
+import Util ( genBinaryBS, genASCIIBS )
 
 spec :: Spec
 spec = do
     prop "build binary" $
-        testBuild genBinary
+        testBuild genBinaryBS
     prop "distinct prefix match binary" $
-        testDistinctPrefixMatch genBinary
+        testDistinctPrefixMatch genBinaryBS
     prop "build ASCII" $
-        testBuild genASCII
+        testBuild genASCIIBS
     prop "distinct prefix match ASCII" $
-        testDistinctPrefixMatch genASCII
+        testDistinctPrefixMatch genASCIIBS
   where
     testBuild gen =
         forAll gen $ \s -> do
-            let SuffixTree _ _ st = buildSufT Leaf EdgeUpd Merge (C.length s) (fromEnum . C.index s)
+            let st = buildSufT Leaf EdgeUpd Merge (C.length s) (fromEnum . C.index s)
                 st' = naiveBuild Leaf EdgeUpd Merge s
             st `shouldBeEqSufNode` st'
 
     -- Example query, count number of distinct substrings of s that have t as prefix
     testDistinctPrefixMatch gen =
         forAll ((,) <$> gen <*> gen) $ \(s, t) -> do
-            let st = buildSufT (const 0) (+) (+) (C.length s) (fromEnum . C.index s)
-                act = (+1) <$> matchSufT st (C.length t) (fromEnum . C.index t)
+            let match = buildMatchSufT (const 0) (+) (+) (C.length s) (fromEnum . C.index s)
+                act = (+1) <$> match (C.length t) (fromEnum . C.index t)
                 exp = numDistinctPrefixMatch s t
             classify (isJust exp) "matched" $
                 act `shouldBe` exp
 
-genBinary, genASCII :: Gen C.ByteString
-genBinary = C.pack <$> listOf (elements "01")
-genASCII = C.pack . getASCIIString <$> arbitrary
+deriving instance Eq a => Eq (SufTNode a)
+deriving instance Eq a => Eq (SufTEdge a)
 
-deriving instance Eq a => Eq (SufTreeNode a)
-deriving instance Eq a => Eq (SufTreeEdge a)
-
-shouldBeEqSufNode :: (Eq a, Show a) => SufTreeNode a -> SufTreeNode a -> Expectation
+shouldBeEqSufNode :: (Eq a, Show a) => SufTNode a -> SufTNode a -> Expectation
 shouldBeEqSufNode got exp = unless (got == exp) $ expectationFailure $ unlines
     [ "expected:"
-    , drawSufTreeNode exp
+    , drawSufTNode exp
     , "but got:"
-    , drawSufTreeNode got
+    , drawSufTNode got
     ]
 
 data SufTreeTrace
@@ -81,18 +78,16 @@ suffixTail (Suffix start s)
   where
     s' = C.tail s
 
-naiveBuild :: (Int -> a) -> (a -> Int -> a) -> (a -> a -> a) -> C.ByteString -> SufTreeNode a
+naiveBuild :: (Int -> a) -> (a -> Int -> a) -> (a -> a -> a) -> C.ByteString -> SufTNode a
 naiveBuild fromLeaf updEdge merge s = go (C.length s) (sortBy (comparing str_) $ suffixes s) where
-    go dep [] = SufTreeNode (fromLeaf dep) IM.empty
-    go dep csufs = SufTreeNode a nxt where
-        nxt = IM.fromList
-            [ (fromEnum c, SufTreeEdge mini lcp child)
-            | (c, sufs) <- groupByFirst csufs
-            , let mini = minimum (map start_ sufs)
-                  (lcp, sufs') = trimLCP sufs
-                  child = go (dep - lcp) sufs'
-            ]
-        a = foldl1' merge [updEdge (valSufT v) len | SufTreeEdge _ len v <- IM.elems nxt]
+    go dep [] = SufTNode (fromLeaf dep) IM.empty
+    go dep sufs = SufTNode a nxt where
+        nxt = IM.fromList $ mkEdge <$> groupByFirst sufs
+        mkEdge (c, sufs) = (fromEnum c, SufTEdge left len v) where
+            left = minimum (map start_ sufs)
+            (len, sufs') = trimLCP sufs
+            v = go (dep - len) sufs'
+        a = foldl1' merge [updEdge a' len | SufTEdge _ len (SufTNode a' _) <- IM.elems nxt]
 
 suffixes :: C.ByteString -> [Suffix]
 suffixes = zipWith Suffix [0..] . init . C.tails

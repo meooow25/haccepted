@@ -3,6 +3,7 @@ module Util where
 import Data.Array
 import Data.Functor
 import Data.Graph
+import qualified Data.ByteString.Char8 as C
 
 import Test.QuickCheck
 
@@ -62,3 +63,9 @@ genLTree = do
 
 genNonEmptyForest :: Gen (Bounds, [Tree Vertex])
 genNonEmptyForest = genForest `suchThat` ((>0) . rangeSize . fst)
+
+genBinaryBS :: Gen C.ByteString
+genBinaryBS = C.pack <$> listOf (elements "01")
+
+genASCIIBS :: Gen C.ByteString
+genASCIIBS = C.pack . getASCIIString <$> arbitrary

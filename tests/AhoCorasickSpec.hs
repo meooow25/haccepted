@@ -9,13 +9,14 @@ import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
 import AhoCorasick ( fromListTAC, fromTrieAC, matchAC )
+import Util ( genBinaryBS, genASCIIBS )
 
 spec :: Spec
 spec = do
     prop "build and match binary" $
-        testAC genBinary
+        testAC genBinaryBS
     prop "build and match ASCII" $
-        testAC genASCII
+        testAC genASCIIBS
   where
     testAC gen =
         forAll ((,) <$> listOf gen <*> gen) $ \(ps, s) -> do
@@ -27,7 +28,7 @@ spec = do
 
 labelNumMatches :: [[Int]] -> String
 labelNumMatches iss = "num matches " ++ bucket (length (concat iss))
-    
+
 labelNonSimpleMatches :: [[Int]] -> [C.ByteString] -> String
 labelNonSimpleMatches iss ps = "num (len >1) matches " ++ bucket cnt where
     cnt = length $ filter ((>1) . C.length . (ps!!)) $ concat iss
@@ -38,10 +39,6 @@ bucket n
     | n <= 10   = "<= 10"
     | n <= 100  = "<= 100"
     | otherwise = " > 100"
-
-genBinary, genASCII :: Gen C.ByteString
-genBinary = C.pack <$> listOf (elements "01")
-genASCII = C.pack . getASCIIString <$> arbitrary
 
 naiveMatch :: [C.ByteString] -> C.ByteString -> [[Int]]
 naiveMatch ps = map match . C.inits where

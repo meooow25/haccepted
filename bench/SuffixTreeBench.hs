@@ -5,7 +5,7 @@ import qualified Data.ByteString.Char8 as C
 
 import Criterion
 
-import SuffixTree ( SuffixTree, buildSufT, matchSufT )
+import SuffixTree ( SufTNode, buildSufT, matchSufT )
 import Util ( evalR, randLowerCaseString, sizedBench )
 
 benchmark :: Benchmark
@@ -20,24 +20,25 @@ benchmark = bgroup "SuffixTree"
 sizes :: [Int]
 sizes = [100, 10000, 200000]
 
-numMatches :: Int
-numMatches = 50
+numQueries :: Int
+numQueries = 50
 
 matchSizes :: [Int]
-matchSizes = map (*numMatches) sizes
+matchSizes = map (*numQueries) sizes
 
 benchBuild :: Int -> Benchmark
-benchBuild n = sizedBench n gen $ \s -> nf (buildCountSufTree (C.length s)) (fromEnum . C.index s) where
+benchBuild n = sizedBench n gen $ \s -> nf (buildCountSufT (C.length s)) (fromEnum . C.index s) where
     gen = evalR $ C.pack <$> randLowerCaseString n
 
 benchMatch :: Int -> Benchmark 
-benchMatch n = sizedBench n gen $ \(st, ts) -> nf (go st) ts where
+benchMatch n = sizedBench n gen $ \(s, st, ts) -> nf (go s st) ts where
     gen = evalR $ do
-        let n' = div n numMatches
+        let n' = div n numQueries
         s <- C.pack <$> randLowerCaseString n'
-        let st = buildCountSufTree (C.length s) (fromEnum . C.index s)
-        pure (st, replicate numMatches s)
-    go st = foldl' (\_ t -> matchSufT st (C.length t) (fromEnum . C.index t) `seq` ()) ()
+        let st = buildCountSufT (C.length s) (fromEnum . C.index s)
+        pure (s, st, replicate numQueries s)
+    go s st = foldl' (\_ t -> match t `seq` ()) () where
+        match t = matchSufT const (fromEnum . C.index s) st (C.length t) (fromEnum . C.index t)
 
-buildCountSufTree :: Int -> (Int -> Int) -> SuffixTree Int
-buildCountSufTree = buildSufT (const 1) const (+)
+buildCountSufT :: Int -> (Int -> Int) -> SufTNode Int
+buildCountSufT = buildSufT (const 1) const (+)

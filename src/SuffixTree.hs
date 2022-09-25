@@ -1,12 +1,11 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module SuffixTree
-    ( SufTreeEdge(..)
-    , SufTreeNode(..)
-    , SuffixTree(..)
-    , valSufT
+    ( SufTNode(..)
+    , SufTEdge(..)
     , buildSufT
     , matchSufT
-    , drawSufTreeNode
+    , buildMatchSufT
+    , drawSufTNode
     ) where
 
 import Control.DeepSeq
@@ -20,102 +19,100 @@ import qualified Data.IntMap.Strict as IM
 
 import TreeDraw ( draw )
 
-data SufTreeEdge a = SufTreeEdge !Int !Int !(SufTreeNode a)
-data SufTreeNode a = SufTreeNode !a !(IM.IntMap (SufTreeEdge a))
-data SuffixTree a = SuffixTree !(Int -> IM.Key) !(a -> Int -> a) !(SufTreeNode a)
+type Chr = Int
 
-valSufT :: SufTreeNode a -> a
-valSufT (SufTreeNode a _) = a
+data SufTNode a = SufTNode !a !(IM.IntMap (SufTEdge a))
+data SufTEdge a = SufTEdge !Int !Int !(SufTNode a)
 
-buildSufT :: (Int -> a) -> (a -> Int -> a) -> (a -> a -> a) -> Int -> (Int -> IM.Key) -> SuffixTree a
-buildSufT fromLeaf updEdge merge n at = SuffixTree at updEdge (mkNode n 0) where
-    (nxt, left, len) = buildSufT_ n at
-    mkNode dep i = SufTreeNode a nxt' where
-        nxt' = (\j -> SufTreeEdge (left!j) (len!j) (mkNode (dep - len!j) j)) <$> nxt!i
-        a | IM.null nxt' = fromLeaf dep
-          | otherwise    = foldl1' merge [updEdge (valSufT v) len | SufTreeEdge _ len v <- IM.elems nxt']
+buildSufT :: (Int -> a) -> (a -> Int -> a) -> (a -> a -> a)
+          -> Int -> (Int -> Chr)
+          -> SufTNode a
+buildSufT fromLeaf updEdge merge n at = mkNode n 0 where
+    (nxta, lefta, lena) = ukkonen n at
+    mkNode dep i = SufTNode a nxt where
+        nxt = IM.map (\j -> SufTEdge (lefta!j) (lena!j) (mkNode (dep - lena!j) j)) (nxta!i)
+        a | IM.null nxt = fromLeaf dep
+          | otherwise   = foldl1' merge [updEdge a' len | SufTEdge _ len (SufTNode a' _) <- IM.elems nxt]
 
-buildSufT_ :: Int -> (Int -> IM.Key) -> (Array Int (IM.IntMap Int), UArray Int Int, UArray Int Int)
-buildSufT_ n at = runST $ do
-    let nn = 2 * n + 1
-    nxt :: STArray s Int (IM.IntMap Int) <- newArray (0, nn) IM.empty
-    suf :: STUArray s Int Int <- newArray (0, nn) 0
-    left :: STUArray s Int Int <- newArray (0, nn) 0
-    len :: STUArray s Int Int <- newArray (0, nn) 0
-
+ukkonen :: Int -> (Int -> Chr) -> (Array Int (IM.IntMap Int), UArray Int Int, UArray Int Int)
+ukkonen n at = runST $ do
+    let sz = max (n + 1) (2 * n - 1)
+    nxt :: STArray s Int (IM.IntMap Int) <- newArray (0, sz - 1) IM.empty
+    [suf, left, len] :: [STUArray s Int Int] <- replicateM 3 (newArray (0, sz - 1) 0)
     cur :: STUArray s () Int <- newArray ((), ()) 1
     let root = 0
-        nxtId = do
-            i <- readArray cur ()
-            writeArray cur () $ i + 1
-            pure i
-        step i = go root
-          where
+        nxtId = readArray cur () >>= \i -> i <$ writeArray cur () (i + 1)
+        step i = go root where
             go prv pos u = do
                 nxtu <- readArray nxt u
                 case nxtu IM.!? at pos of
-                    Nothing -> insLeafGo u -- pos == i
+                    Nothing -> insLeafGo u
                     Just v  -> join $ tryEdge nxtu v <$> readArray left v <*> readArray len v
               where
-                setprvsuf v = writeArray suf prv v :: ST s ()
+                tryEdge nxtu v leftv lenv
+                    | pos + lenv <= i = go prv (pos + lenv) v
+                    | at i /= at j    = doSplit >>= insLeafGo
+                    | pos == leftv    = goSuf u
+                    | otherwise       = (u, pos) <$ setSufPrv u
+                  where
+                    lenw = i - pos
+                    j = leftv + lenw
+                    doSplit = do
+                        w <- nxtId
+                        writeArray left w leftv
+                        writeArray len w lenw
+                        writeArray nxt w $! IM.singleton (at j) v
+                        writeArray left v (leftv + lenw)
+                        writeArray len v (lenv - lenw)
+                        writeArray nxt u $! IM.insert (at pos) w nxtu
+                        pure w
+                insLeafGo v = setSufPrv v *> insLeaf v *> goSuf v
+                setSufPrv v = writeArray suf prv v :: ST s ()
+                insLeaf v = do
+                    w <- nxtId
+                    writeArray left w i
+                    writeArray len w (n - i)
+                    nxtv <- readArray nxt v
+                    writeArray nxt v $! IM.insert (at i) w nxtv
                 goSuf v
                     | u /= root = readArray suf u >>= go v pos
                     | pos < i   = go v (pos + 1) root
                     | otherwise = pure (root, pos)
-                insLeaf v = do
-                    w <- nxtId
-                    writeArray left w i :: ST s ()
-                    writeArray len w (n - i)
-                    nxtv <- readArray nxt v
-                    writeArray nxt v $! IM.insert (at i) w nxtv
-                insLeafGo v = setprvsuf v *> insLeaf v *> goSuf v
-                tryEdge nxtu v leftv lenv
-                    | pos + lenv <= i = go prv (pos + lenv) v
-                    | at i == wantc = if pos == leftv then goSuf u else (u, pos) <$ setprvsuf u
-                    | otherwise = doSplit >>= insLeafGo
-                  where
-                    lenu' = i - pos
-                    wantc = at (leftv + lenu')
-                    doSplit = do
-                        w <- nxtId
-                        writeArray left w leftv
-                        writeArray len w lenu'
-                        writeArray nxt w $! IM.singleton wantc v
-                        writeArray left v (leftv + lenu')
-                        writeArray len v (lenv - lenu')
-                        writeArray nxt u $! IM.insert (at pos) w nxtu
-                        pure w
-
     foldM_ (\(u, pos) i -> step i pos u) (root, 0) [0 .. n-1]
-
     (,,) <$> unsafeFreeze nxt <*> unsafeFreeze left <*> unsafeFreeze len
 
-matchSufT :: SuffixTree a -> Int -> (Int -> IM.Key) -> Maybe a
-matchSufT (SuffixTree at updEdge u) m at' = go u 0 where
-    go (SufTreeNode a _) i | i == m = Just a
-    go (SufTreeNode _ nxt) i = IM.lookup (at' i) nxt >>= go' where
-        go' (SufTreeEdge left len v)
-            | d == len  = go v i'
-            | i' == m   = Just (updEdge (valSufT v) (len - d))
-            | otherwise = Nothing
+matchSufT :: (a -> Int -> a) -> (Int -> Chr) -> SufTNode a
+          -> Int -> (Int -> Chr)
+          -> Maybe a
+matchSufT updEdge at (SufTNode a nxt) m at' = if m == 0 then Just a else go nxt 0 where
+    go nxt i = IM.lookup (at' i) nxt >>= go' where
+        go' (SufTEdge left len (SufTNode a nxt'))
+            | i' == m && d == len = Just a
+            | i' == m             = Just (updEdge a (len - d))
+            | d == len            = go nxt' i'
+            | otherwise           = Nothing
           where
             d = commonPrefix (min len (m - i)) (at . (+left)) (at' . (+i))
             i' = i + d
-    commonPrefix n f g = go 0 where
-        go i = if i < n && f i == g i then go (i + 1) else i
+    commonPrefix n f g = until (\i -> i == n || f i /= g i) (+1) 0
+
+buildMatchSufT :: (Int -> a) -> (a -> Int -> a) -> (a -> a -> a)
+               -> Int -> (Int -> Chr)
+               -> Int -> (Int -> Chr)
+               -> Maybe a
+buildMatchSufT fromLeaf updEdge merge n at = matchSufT updEdge at st where
+    st = buildSufT fromLeaf updEdge merge n at
 
 --------------------------------------------------------------------------------
 -- For tests
 
-instance NFData a => NFData (SufTreeEdge a) where
-    rnf (SufTreeEdge _ _ n) = rnf n
+instance NFData a => NFData (SufTEdge a) where
+    rnf (SufTEdge _ _ u) = rnf u
 
-instance NFData a => NFData (SufTreeNode a) where
-    rnf (SufTreeNode a nxt) = rnf a `seq` rnf nxt
+instance NFData a => NFData (SufTNode a) where
+    rnf (SufTNode a nxt) = rnf a `seq` rnf nxt
 
-instance NFData a => NFData (SuffixTree a) where
-    rnf (SuffixTree _ _ u) = rnf u
-
-drawSufTreeNode :: Show a => SufTreeNode a -> String
-drawSufTreeNode = draw (show . valSufT) nbs where
-    nbs (SufTreeNode _ nxt) = [(Just (show (left, len)), v)| SufTreeEdge left len v <- IM.elems nxt]
+drawSufTNode :: Show a => SufTNode a -> String
+drawSufTNode = draw showa nbs where
+    showa (SufTNode a _) = show a
+    nbs (SufTNode _ nxt) = [(Just (show (left, len)), v)| SufTEdge left len v <- IM.elems nxt]
