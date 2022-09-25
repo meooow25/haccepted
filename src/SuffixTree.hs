@@ -66,7 +66,8 @@ buildSufT_ n at = runST $ do
                     w <- nxtId
                     writeArray left w i :: ST s ()
                     writeArray len w (n - i)
-                    readArray nxt v >>= writeArray nxt v . IM.insert (at i) w
+                    nxtv <- readArray nxt v
+                    writeArray nxt v $! IM.insert (at i) w nxtv
                 insLeafGo v = setprvsuf v *> insLeaf v *> goSuf v
                 tryEdge nxtu v leftv lenv
                     | pos + lenv <= i = go prv (pos + lenv) v
@@ -79,10 +80,10 @@ buildSufT_ n at = runST $ do
                         w <- nxtId
                         writeArray left w leftv
                         writeArray len w lenu'
-                        writeArray nxt w (IM.singleton wantc v)
+                        writeArray nxt w $! IM.singleton wantc v
                         writeArray left v (leftv + lenu')
                         writeArray len v (lenv - lenu')
-                        writeArray nxt u (IM.insert (at pos) w nxtu)
+                        writeArray nxt u $! IM.insert (at pos) w nxtu
                         pure w
 
     foldM_ (\(u, pos) i -> step i pos u) (root, 0) [0 .. n-1]
