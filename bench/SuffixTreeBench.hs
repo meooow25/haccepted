@@ -10,10 +10,10 @@ import Util ( evalR, randLowerCaseString, sizedBench )
 
 benchmark :: Benchmark
 benchmark = bgroup "SuffixTree"
-    [ -- Build a suffix tree from a a-z string of length n.
+    [ -- Build a suffix tree from an a-z string of length n.
       bgroup "build" $ map benchBuild sizes
 
-      -- Query n/50 patterns, each equal to the a-z string the suffix tree was constructed with.
+      -- Query 100 patterns, each equal to the a-z string the suffix tree was constructed with.
     , bgroup "match" $ map benchMatch matchSizes
     ]
 
@@ -21,7 +21,7 @@ sizes :: [Int]
 sizes = [100, 10000, 200000]
 
 numQueries :: Int
-numQueries = 50
+numQueries = 100
 
 matchSizes :: [Int]
 matchSizes = map (*numQueries) sizes
