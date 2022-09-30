@@ -14,7 +14,7 @@ import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
-import SuffixTree ( SufTNode(..), SufTEdge(..), buildSufT, buildMatchSufT, drawSufTNode )
+import SuffixTree ( SufTNode(..), SufTEdge(..), buildSufT, buildMatchSufT, drawSufT )
 import Misc ( unique )
 import Util ( genBinaryBS, genASCIIBS )
 
@@ -50,9 +50,9 @@ deriving instance Eq a => Eq (SufTEdge a)
 shouldBeEqSufNode :: (Eq a, Show a) => SufTNode a -> SufTNode a -> Expectation
 shouldBeEqSufNode got exp = unless (got == exp) $ expectationFailure $ unlines
     [ "expected:"
-    , drawSufTNode exp
+    , drawSufT exp
     , "but got:"
-    , drawSufTNode got
+    , drawSufT got
     ]
 
 data SufTreeTrace

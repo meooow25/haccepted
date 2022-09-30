@@ -4,6 +4,13 @@ Draws trees, primarily for debugging.
 draw
 Draws a tree. Like Data.Tree.drawTree but works with any type, can show edge labels and uses
 unicode box characters.
+Example:
+a
+├── 1 ── b
+├── 2 ── c
+│        ├── d
+│        └── e
+└── 3 ── f
 -}
 
 module TreeDraw

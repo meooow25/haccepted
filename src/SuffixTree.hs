@@ -56,8 +56,8 @@ buildMatchSufT
 buildSufT together with matchSufT to avoid having to repeat arguments. Apply partially for
 multiple queries.
 
-drawSufTNode
-Draws a suffix tree.
+drawSufT
+Draws a suffix tree. Can be used for debugging.
 -}
 
 module SuffixTree
@@ -66,7 +66,7 @@ module SuffixTree
     , buildSufT
     , matchSufT
     , buildMatchSufT
-    , drawSufTNode
+    , drawSufT
     ) where
 
 import Control.DeepSeq
@@ -173,7 +173,7 @@ instance NFData a => NFData (SufTEdge a) where
 instance NFData a => NFData (SufTNode a) where
     rnf (SufTNode a nxt) = rnf a `seq` rnf nxt
 
-drawSufTNode :: Show a => SufTNode a -> String
-drawSufTNode = draw showa nbs where
+drawSufT :: Show a => SufTNode a -> String
+drawSufT = draw showa nbs where
     showa (SufTNode a _) = show a
     nbs (SufTNode _ nxt) = [(Just (show (left, len)), v)| SufTEdge left len v <- IM.elems nxt]
