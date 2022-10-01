@@ -9,6 +9,7 @@ import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
 import ZFunc ( zFunc, zFuncBS )
+import Util ( genASCIIBS )
 
 spec :: Spec
 spec = do
@@ -18,10 +19,10 @@ spec = do
             bounds z `shouldBe` (0, length xs - 1)
             elems z  `shouldBe` naiveZFunc xs
     prop "zFuncBS" $
-        \(ASCIIString s) -> do
-            let z = zFuncBS $ C.pack s
-            bounds z `shouldBe` (0, length s - 1)
-            elems z  `shouldBe` naiveZFunc s
+        forAll genASCIIBS $ \s -> do
+            let z = zFuncBS s
+            bounds z `shouldBe` (0, C.length s - 1)
+            elems z  `shouldBe` naiveZFunc (C.unpack s)
 
 naiveZFunc :: Eq a => [a] -> [Int]
 naiveZFunc [] = []

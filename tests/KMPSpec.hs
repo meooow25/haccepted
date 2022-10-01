@@ -9,6 +9,7 @@ import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
 import KMP ( prefixFunc, prefixFuncBS )
+import Util ( genASCIIBS )
 
 spec :: Spec
 spec = do
@@ -18,10 +19,10 @@ spec = do
             bounds p `shouldBe` (0, length xs - 1)
             elems p  `shouldBe` naivePrefixFunc xs
     prop "prefixFuncBS" $
-        \(ASCIIString s) -> do
-            let p = prefixFuncBS $ C.pack s
-            bounds p `shouldBe` (0, length s - 1)
-            elems p  `shouldBe` naivePrefixFunc s
+        forAll genASCIIBS $ \s -> do
+            let p = prefixFuncBS s
+            bounds p `shouldBe` (0, C.length s - 1)
+            elems p  `shouldBe` naivePrefixFunc (C.unpack s)
 
 naivePrefixFunc :: Eq a => [a] -> [Int]
 naivePrefixFunc xs = map getCnt $ tail xsInits where

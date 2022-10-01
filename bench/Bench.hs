@@ -20,6 +20,7 @@ import qualified SegTreeBench
 import qualified SegTreeLazyBench
 import qualified SortBench
 import qualified SparseTableBench
+import qualified SuffixTreeBench
 import qualified TwoSatBench
 import qualified ZBench
 
@@ -45,6 +46,7 @@ main = defaultMain
     , SegTreeLazyBench.benchmark
     , SortBench.benchmark
     , SparseTableBench.benchmark
+    , SuffixTreeBench.benchmark
     , TwoSatBench.benchmark
     , ZBench.benchmark
     ]
