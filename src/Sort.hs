@@ -21,6 +21,10 @@ Sorts a list for an element type that can be put in an unboxed array. O(n log n)
 sortUBy
 Sorts a list for an element type that can be put in an unboxed array with a comparison function.
 O(n log n).
+
+countingSort
+Sorts an array using counting sort. f is a function that maps every element to an Int in [0..b-1].
+O(n + b).
 -}
 
 module Sort
@@ -28,12 +32,15 @@ module Sort
     , sortBy
     , sortU
     , sortUBy
+    , countingSort
     ) where
 
 import Control.Monad
 import Control.Monad.ST
 import Data.Array.Base
 import Data.Array.ST
+
+import Misc ( modifyArray )
 
 sort :: Ord e => [e] -> [e]
 sort = sortBy compare
@@ -73,9 +80,25 @@ mergeSort a cmp = do
         forM_ [0 .. n-1] $ \i -> unsafeRead b i >>= unsafeWrite a i
 {-# INLINE mergeSort #-}
 
+countingSort :: (IArray UArray e, forall s. MArray (STUArray s) e (ST s))
+             => Int -> (e -> Int) -> UArray Int e -> UArray Int e
+countingSort b f a = runSTUArray $ do
+    cnt <- newArray (0, b) 0 :: ST s (STUArray s Int Int)
+    forM_ (elems a) $ \x -> modifyArray cnt (f x + 1) (+1)
+    writeArray cnt 0 (fst (bounds a))
+    forM_ [1 .. b-1] $ \i -> readArray cnt (i - 1) >>= modifyArray cnt i . (+)
+    a' <- newArray_ (bounds a)
+    forM_ (elems a) $ \x -> do
+        let y = f x
+        i <- readArray cnt y
+        writeArray cnt y (i + 1)
+        writeArray a' i x
+    pure a'
+
 --------------------------------------------------------------------------------
 -- For tests
 
 -- Allows specialization across modules
 {-# INLINABLE sortU #-}
 {-# INLINABLE sortUBy #-}
+{-# INLINABLE countingSort #-}
