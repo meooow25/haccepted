@@ -4,26 +4,36 @@ Suffix array
 
 module SuffixArray
     ( buildSufArray
+    , buildSufArrayL
     ) where
 
 import Control.Monad
 import Control.Monad.ST
 import Data.Array.ST
 import Data.Array.Unboxed
+import Data.Function
 import Data.List
+import Data.Ord
 
-import Sort
+import Sort ( sortUBy, countingSort )
 
 type Chr = Int
 type Index = Int
 
-buildSufArray :: Int -> (Int -> Chr) -> UArray Int Index
-buildSufArray n at = sufArrayDoubling n p0 r0 where
+buildSufArray :: Chr -> Int -> (Int -> Chr) -> UArray Int Index
+buildSufArray b = buildSufArray_ (countingSort (b + 1))
+
+buildSufArrayL :: Int -> (Int -> Chr) -> UArray Int Index
+buildSufArrayL n = buildSufArray_ (\f -> listArray (0, n-1) . sortUBy (comparing f) . elems) n
+
+buildSufArray_ :: ((Int -> Chr) -> UArray Int Index -> UArray Int Index)
+               -> Int -> (Int -> Chr) -> UArray Int Index
+buildSufArray_ sortf n at = sufArrayDoubling n p0 r0 where
+    p0 = sortf at' (listArray (0, n-1) [0..])
+    r0 = rank p0 ((==) `on` at')
     lastc = at (n - 1)
     at' i | i == n - 1 = lastc
     at' i = let c = at i in c + fromEnum (c >= lastc)
-    p0 = countingSort 129 at' (listArray (0, n-1) [0..])
-    r0 = rank p0 (\i j -> at' i == at' j)
 
 sufArrayDoubling :: Int -> UArray Int Index -> UArray Index Int -> UArray Int Index
 sufArrayDoubling n p0 r0 = sa where
@@ -47,5 +57,8 @@ rank p eq = array (0, n') $ (p!0, 0) : foldr f (const []) [1..n'] 0 where
                 in cur `seq` (p!i, cur) : k cur
 {-# INLINE rank #-}
 
+--------------------------------------------------------------------------------
+-- For tests
+
 {-# INLINABLE buildSufArray #-}
-{-# INLINABLE sufArrayDoubling #-}
+{-# INLINABLE buildSufArrayL #-}
