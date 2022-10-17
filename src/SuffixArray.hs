@@ -1,5 +1,42 @@
 {-
-Suffix array
+Suffix array and LCP array
+
+A suffix array is the sorted array of all suffixes of a string, each suffix represented by its
+start index. An LCP (longest common prefix) array is an array of the lengths of the longest common
+prefixes of consecutive suffixes in the suffix array.
+A suffix array, sometimes with its LCP array, can be used to perform tasks like finding patterns
+in the string or calculating certain properties of the string.
+Other suffix structures, such as suffix trees and suffix automata may serve as alternates to suffix
+arrays.
+
+This implementation constructs the suffix array and LCP array from a given string indexing function,
+with elements of type Int. It takes O(n log n), which is usually fast enough. O(n) algorithms to
+construct suffix arrays exist.
+
+Sources:
+* Udi Manber and Gene Myers, "Suffix Arrays: A New Method for On-Line String Searches", 1990
+  https://dl.acm.org/doi/10.5555/320176.320218
+* Kasai et al., "Linear-Time Longest-Common-Prefix Computation in Suffix Arrays and Its
+  Applications", 2001
+  https://link.springer.com/chapter/10.1007/3-540-48194-X_17
+* https://sites.google.com/site/indy256/algo/suffix_array
+
+Implementation notes:
+* The construction is implemented using a prefix doubling algorithm, similar to the algorithm due to
+  Manber and Myers. Each step sorts substrings of lengths in successive powers of two.
+* The last character is considered smaller than other equal characters. This is one way, and an easy
+  one, to allow shorter substrings to appear first in the suffix array.
+* At the step sorting substrings of length 2 * m, we go over the substrings in the sorted order of
+  their right halves and put them into positons corresponding to the ranks of their left halves.
+* The LCP array is constructed from the suffix array using Kasai's algorithm.
+
+buildSufA
+Builds a suffix array and LCP array. Characters must be in [0..b-1]. Faster than buildSufAL unless
+b is too large. O(b + n log n).
+
+buildSufAL
+Builds a suffix array and LCP array. For large alphabets, no bound on characters necessary.
+O(n log n).
 -}
 
 module SuffixArray
