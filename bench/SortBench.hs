@@ -6,7 +6,7 @@ import Data.Array.Unboxed
 import Criterion
 
 import ArrayNFData ()
-import Sort ( sort, sortU, countingSort )
+import Sort ( sort, sortU, countingSortUA )
 import Util ( evalR, randInts, randIntsR, sizedBench )
 
 benchmark :: Benchmark
@@ -18,7 +18,7 @@ benchmark = bgroup "Sort"
     , bgroup "sortU" $ map (benchSort sortU) sizes
 
       -- Counting sort n ints in [0..255]
-    , bgroup "countingSort" $ map benchCountingSort sizes
+    , bgroup "countingSortUA" $ map benchCountingSort sizes
     ]
 
 sizes :: [Int]
@@ -29,6 +29,6 @@ benchSort sortF n = sizedBench n gen $ nf sortF where
     gen = evalR $ randInts n
 
 benchCountingSort :: Int -> Benchmark
-benchCountingSort n = sizedBench n gen $ whnf (countingSort b id) where
+benchCountingSort n = sizedBench n gen $ whnf (countingSortUA b id) where
     b = 256
     gen = listArray @UArray (1, n) $ evalR $ randIntsR (0, b-1) n

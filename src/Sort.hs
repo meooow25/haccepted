@@ -2,12 +2,16 @@
 {-
 Sorting
 
-A simple mergesort. Data.List.sort is rather inefficient when we don't care about laziness and just
-want to fully sort a list. An in-place sort can have much better performance. Benchmarks show that
-for a list of Ints, sort and sortU are 4x and 8x faster than Data.List.sort.
+Data.List.sort is rather inefficient when we don't care about laziness and just want to fully sort a
+list. An in-place sort can have much better performance. Benchmarks show that for a list of Ints,
+sort and sortU are 4x and 8x faster than Data.List.sort.
+
+sort, sortBy, sortU, sortUBy use merge sort. countingSortUA uses counting sort. Both are stable
+sorts.
 
 Sources:
 * https://en.wikipedia.org/wiki/Merge_sort
+* https://en.wikipedia.org/wiki/Counting_sort
 
 sort
 Sorts a list. O(n log n).
@@ -16,15 +20,18 @@ sortBy
 Sorts a list with a comparison function. O(n log n).
 
 sortU
-Sorts a list for an element type that can be put in an unboxed array. O(n log n).
+Sorts a list for an element type that can be put in unboxed arrays. Faster than sort. O(n log n).
 
 sortUBy
-Sorts a list for an element type that can be put in an unboxed array with a comparison function.
-O(n log n).
+Sorts a list for an element type that can be put in unboxed arrays with a comparison function.
+Faster than sortBy. O(n log n).
 
-countingSort
-Sorts an array using counting sort. f is a function that maps every element to an Int in [0..b-1].
-O(n + b).
+sortUABy
+Sorts an unboxed array with a comparison function. O(n log n).
+
+countingSortUA
+Sorts an unboxed array using counting sort. f should be a function that maps every element to an Int
+in [0..b-1]. O(n + b).
 -}
 
 module Sort
@@ -32,7 +39,8 @@ module Sort
     , sortBy
     , sortU
     , sortUBy
-    , countingSort
+    , sortUABy
+    , countingSortUA
     ) where
 
 import Control.Monad
@@ -61,6 +69,13 @@ sortUBy cmp xs = elems $ runSTUArray $ do
     mergeSort a cmp
     pure a
 
+sortUABy :: (forall s. MArray (STUArray s) e (ST s), IArray UArray e)
+         => (e -> e -> Ordering) -> UArray Int e -> UArray Int e
+sortUABy cmp a = runSTUArray $ do
+    a' <- thaw a
+    mergeSort a' cmp
+    pure a'
+
 mergeSort :: forall a e m. (MArray a e m) => a Int e -> (e -> e -> Ordering) -> m ()
 mergeSort a cmp = do
     n <- getNumElements a
@@ -80,9 +95,9 @@ mergeSort a cmp = do
         forM_ [0 .. n-1] $ \i -> unsafeRead b i >>= unsafeWrite a i
 {-# INLINE mergeSort #-}
 
-countingSort :: (IArray UArray e, forall s. MArray (STUArray s) e (ST s))
-             => Int -> (e -> Int) -> UArray Int e -> UArray Int e
-countingSort b f a = runSTUArray $ do
+countingSortUA :: (IArray UArray e, forall s. MArray (STUArray s) e (ST s))
+               => Int -> (e -> Int) -> UArray Int e -> UArray Int e
+countingSortUA b f a = runSTUArray $ do
     cnt <- newArray (0, b) 0 :: ST s (STUArray s Int Int)
     forM_ (elems a) $ \x -> modifyArray cnt (f x + 1) (+1)
     writeArray cnt 0 (fst (bounds a))
@@ -101,4 +116,5 @@ countingSort b f a = runSTUArray $ do
 -- Allows specialization across modules
 {-# INLINABLE sortU #-}
 {-# INLINABLE sortUBy #-}
-{-# INLINABLE countingSort #-}
+{-# INLINABLE sortUABy #-}
+{-# INLINABLE countingSortUA #-}

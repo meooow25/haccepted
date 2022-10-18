@@ -15,16 +15,16 @@ import Data.Function
 import Data.List
 import Data.Ord
 
-import Sort ( sortUBy, countingSort )
+import Sort ( sortUABy, countingSortUA )
 
 type Chr = Int
 type SuffixId = Int
 
 buildSufA :: Chr -> Int -> (Int -> Chr) -> (UArray Int SuffixId, UArray Int Int)
-buildSufA b = buildSufA_ (countingSort (b + 1))
+buildSufA b = buildSufA_ (countingSortUA (b + 1))
 
 buildSufAL :: Int -> (Int -> Chr) -> (UArray Int SuffixId, UArray Int Int)
-buildSufAL n = buildSufA_ (\f -> listArray (0, n-1) . sortUBy (comparing f) . elems) n
+buildSufAL = buildSufA_ (sortUABy . comparing)
 
 buildSufA_ :: ((Int -> Chr) -> UArray Int SuffixId -> UArray Int SuffixId)
            -> Int -> (Int -> Chr) -> (UArray Int SuffixId, UArray Int Int)
