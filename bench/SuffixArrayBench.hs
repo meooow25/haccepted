@@ -13,10 +13,10 @@ import Util ( evalR, randInts, randLowerCaseString, sizedBench )
 benchmark :: Benchmark
 benchmark = bgroup "SuffixArray"
     [ -- Build a suffix array and LCP array from an a-z string of length n.
-      bgroup "build" $ map benchBuild sizes
+      bgroup "buildSufA" $ map benchBuild sizes
     
     , -- Build a suffix array and LCP array from a string of length n.
-      bgroup "build large alphabet" $ map benchBuildL sizes
+      bgroup "buildSufAL" $ map benchBuildL sizes
     ]
 
 sizes :: [Int]
