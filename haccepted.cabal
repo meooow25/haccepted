@@ -38,6 +38,7 @@ library
       SegTreeLazy
       Sort
       SparseTable
+      SuffixArray
       SuffixTree
       TreeDraw
       TwoSat
@@ -100,6 +101,7 @@ test-suite test-all
       SegTreeSpec
       SortSpec
       SparseTableSpec
+      SuffixArraySpec
       SuffixTreeSpec
       TwoSatSpec
       Util
@@ -145,6 +147,7 @@ benchmark bench-all
       SegTreeLazyBench
       SortBench
       SparseTableBench
+      SuffixArrayBench
       SuffixTreeBench
       TwoSatBench
       Util
