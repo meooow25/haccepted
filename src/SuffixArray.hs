@@ -102,9 +102,3 @@ kasai at p r = array (0, n'-1) $ foldr f (const []) [0..n'] 0 where
     f i k x = (r!i, x') : k (max 0 (x' - 1)) where
         j = p!(r!i + 1)
         x' = until (\x'' -> i + x'' > n' || j + x'' > n' || at (i + x'') /= at (j + x'')) (+1) x
-
---------------------------------------------------------------------------------
--- For tests
-
-{-# INLINABLE buildSufA #-}
-{-# INLINABLE buildSufAL #-}
