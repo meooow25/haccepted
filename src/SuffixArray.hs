@@ -31,12 +31,13 @@ Implementation notes:
 * The LCP array is constructed from the suffix array using Kasai's algorithm.
 
 buildSufA
-Builds a suffix array and LCP array. Characters must be in [0..b-1]. Faster than buildSufAL unless
-b is too large. O(b + n log n).
+Builds a suffix array and LCP array. n is the length of the string. at is a 0-based indexing
+function into the string. Characters must be in [0..b-1]. Faster than buildSufAL unless b is too
+large. O(b + n log n).
 
 buildSufAL
-Builds a suffix array and LCP array. For large alphabets, no bound on characters necessary.
-O(n log n).
+Builds a suffix array and LCP array. n is the length of the string. at is a 0-based indexing
+function into the string. Intended for large alphabets. O(n log n).
 -}
 
 module SuffixArray
