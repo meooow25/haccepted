@@ -32,6 +32,9 @@ Modifies an element in a mutable array. Strict version.
 foldMComp
 Compose a strict left fold function with a mapM function. Useful for foldMs.
 foldM (f `foldMComp` g) z = fmap (foldl' f z) . mapM g
+
+farthest
+Repeatedly applies a function to a value and returns the value which gives back Nothing.
 -}
 
 module Misc
@@ -44,6 +47,7 @@ module Misc
     , modifyArray
     , modifyArray'
     , foldMComp
+    , farthest
     ) where
 
 import Control.Monad
@@ -93,3 +97,6 @@ modifyArray' a i f = do
 foldMComp :: Monad m => (b -> a -> b) -> (c -> m a) -> b -> c -> m b
 foldMComp f g = \z x -> f z <$!> g x
 {-# INLINE foldMComp #-}
+
+farthest :: (a -> Maybe a) -> a -> a
+farthest f = go where go x = maybe x go (f x)
