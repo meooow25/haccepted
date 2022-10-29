@@ -74,7 +74,7 @@ foldExclusive f b as = go b (length as) as [] where
         b2 = foldl' f b as2
 
 modifyArray :: (MArray a e m, Ix i) => a i e -> i -> (e -> e) -> m ()
-modifyArray a i f = writeArray a i . f =<< readArray a i
+modifyArray a i f = readArray a i >>= writeArray a i . f
 {-# INLINE modifyArray #-}
 
 modifyArray' :: (MArray a e m, Ix i) => a i e -> i -> (e -> e) -> m ()
