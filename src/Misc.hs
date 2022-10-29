@@ -41,15 +41,16 @@ module Misc
     , modifyArray'
     ) where
 
-import Data.Array
+import Data.Array.IArray
 import Data.Array.MArray
 import Data.List
 
 pairs :: [a] -> [(a, a)]
 pairs xs = [(x, x') | (x:xs') <- tails xs, x' <- xs']
 
-fArray :: Ix i => (i, i) -> (i -> a) -> Array i a
-fArray b f = array b [(i, f i) | i <- range b]
+fArray :: (IArray a e, Ix i) => (i, i) -> (i -> e) -> a i e
+fArray b f = listArray b (f <$> range b)
+{-# INLINE fArray #-}
 
 chunksOf :: Int -> [a] -> [[a]]
 chunksOf n = go where
