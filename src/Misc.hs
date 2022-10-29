@@ -53,9 +53,9 @@ fArray b f = listArray b (f <$> range b)
 {-# INLINE fArray #-}
 
 chunksOf :: Int -> [a] -> [[a]]
-chunksOf n = go where
-    go [] = []
-    go xs = xs' : go xs'' where (xs', xs'') = splitAt n xs
+chunksOf n = unfoldr f where
+    f [] = Nothing
+    f xs = Just (splitAt n xs)
 
 replicateL :: Int -> [a] -> [a]
 replicateL n = concat . replicate n
