@@ -66,8 +66,8 @@ unique = map head . group
 foldExclusive :: (b -> a -> b) -> b -> [a] -> [b]
 foldExclusive _ _ [] = []
 foldExclusive f b as = go b (length as) as [] where
-    go b 1 _  acc = b:acc
-    go b n as acc = b1 `seq` b2 `seq` go b2 n' as1 $ go b1 (n - n') as2 acc where
+    go b 1 _  = (b:)
+    go b n as = b1 `seq` b2 `seq` go b2 n' as1 . go b1 (n - n') as2 where
         n' = n `div` 2
         (as1, as2) = splitAt n' as
         b1 = foldl' f b as1
