@@ -28,6 +28,10 @@ Modifies an element in a mutable array.
 
 modifyArray'
 Modifies an element in a mutable array. Strict version.
+
+foldMComp
+Compose a strict left fold function with a mapM function. Useful for foldMs.
+foldM (f `foldMComp` g) z = fmap (foldl' f z) . mapM g
 -}
 
 module Misc
@@ -39,8 +43,10 @@ module Misc
     , foldExclusive
     , modifyArray
     , modifyArray'
+    , foldMComp
     ) where
 
+import Control.Monad
 import Data.Array.IArray
 import Data.Array.MArray
 import Data.List
@@ -83,3 +89,7 @@ modifyArray' a i f = do
     let x' = f x
     x' `seq` writeArray a i x'
 {-# INLINE modifyArray' #-}
+
+foldMComp :: Monad m => (b -> a -> b) -> (c -> m a) -> b -> c -> m b
+foldMComp f g = \z x -> f z <$!> g x
+{-# INLINE foldMComp #-}
