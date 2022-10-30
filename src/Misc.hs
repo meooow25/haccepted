@@ -28,6 +28,10 @@ Modifies an element in a mutable array.
 
 modifyArray'
 Modifies an element in a mutable array. Strict version.
+
+foldMComp
+Compose a strict left fold function with a mapM function. Useful for foldMs.
+foldM (f `foldMComp` g) z = fmap (foldl' f z) . mapM g
 -}
 
 module Misc
@@ -39,22 +43,25 @@ module Misc
     , foldExclusive
     , modifyArray
     , modifyArray'
+    , foldMComp
     ) where
 
-import Data.Array
+import Control.Monad
+import Data.Array.IArray
 import Data.Array.MArray
 import Data.List
 
 pairs :: [a] -> [(a, a)]
 pairs xs = [(x, x') | (x:xs') <- tails xs, x' <- xs']
 
-fArray :: Ix i => (i, i) -> (i -> a) -> Array i a
-fArray b f = array b [(i, f i) | i <- range b]
+fArray :: (IArray a e, Ix i) => (i, i) -> (i -> e) -> a i e
+fArray b f = listArray b (f <$> range b)
+{-# INLINE fArray #-}
 
 chunksOf :: Int -> [a] -> [[a]]
-chunksOf n = go where
-    go [] = []
-    go xs = xs' : go xs'' where (xs', xs'') = splitAt n xs
+chunksOf n = unfoldr f where
+    f [] = Nothing
+    f xs = Just (splitAt n xs)
 
 replicateL :: Int -> [a] -> [a]
 replicateL n = concat . replicate n
@@ -65,15 +72,15 @@ unique = map head . group
 foldExclusive :: (b -> a -> b) -> b -> [a] -> [b]
 foldExclusive _ _ [] = []
 foldExclusive f b as = go b (length as) as [] where
-    go b 1 _  acc = b:acc
-    go b n as acc = b1 `seq` b2 `seq` go b2 n' as1 $ go b1 (n - n') as2 acc where
+    go b 1 _  = (b:)
+    go b n as = b1 `seq` b2 `seq` go b2 n' as1 . go b1 (n - n') as2 where
         n' = n `div` 2
         (as1, as2) = splitAt n' as
         b1 = foldl' f b as1
         b2 = foldl' f b as2
 
 modifyArray :: (MArray a e m, Ix i) => a i e -> i -> (e -> e) -> m ()
-modifyArray a i f = writeArray a i . f =<< readArray a i
+modifyArray a i f = readArray a i >>= writeArray a i . f
 {-# INLINE modifyArray #-}
 
 modifyArray' :: (MArray a e m, Ix i) => a i e -> i -> (e -> e) -> m ()
@@ -82,3 +89,7 @@ modifyArray' a i f = do
     let x' = f x
     x' `seq` writeArray a i x'
 {-# INLINE modifyArray' #-}
+
+foldMComp :: Monad m => (b -> a -> b) -> (c -> m a) -> b -> c -> m b
+foldMComp f g = \z x -> f z <$!> g x
+{-# INLINE foldMComp #-}
