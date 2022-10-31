@@ -12,19 +12,17 @@ Sources:
 * https://github.com/cheran-senthil/PyRival/blob/master/pyrival/graphs/centroid_decomposition.py
 
 Implementation notes:
-Potential TLE warning!
-All the trees get constructed so it needs O(n log n) time and memory, unlike a typical imperative
-implementation which modifies the graph in place and doesn't need extra memory.
-The decomposition is done on a tree of (node, tree size), and the tree size is dropped off before
-returning the result. This is wasteful, so a possible optimization is to skip this step if the
-caller works on trees of (node, tree size), possibly ignoring the tree size.
+- The decomposition is done in the usual manner by rerooting the tree at its centroid, then
+  recursively decomposing its subtrees.
+- Yes, centroidDecompose and centroidDecomposeL are very similar but pulling out the common parts
+  makes it messy, so they remain different functions.
 
 centroidDecompose
 Performs centroid decomposition on a tree of n nodes, returning the decomposition as a tree of
 n trees. O(n log n).
 
 centroidDecomposeL
-Almost identical to centroidDecompose, for edge-labelled graphs. O(n log n).
+Same as centroidDecompose, for edge-labelled graphs. O(n log n).
 -}
 
 module CentroidDecomp
