@@ -32,14 +32,12 @@ module CentroidDecomp
 
 import Data.Tree
 
-import LabelledGraph ( LTree(..) )
+import LabelledGraph ( LTree(..), lTreeToTree )
 import Misc ( farthest )
 
 centroidDecompose :: Tree a -> Tree (Tree a)
-centroidDecompose t = go t (szTree t) where
-    szTree (Node _ ts) = sz `seq` Node sz szts where
-        szts = map szTree ts
-        sz   = 1 + sum (map rootLabel szts) :: Int
+centroidDecompose t = go t (foldTree szf t) where
+    szf _ szts = let sz = 1 + sum (map rootLabel szts) :: Int in sz `seq` Node sz szts
     go (Node r rts) (Node sz rszts) = case farthest step (r, rts, rszts) of
         (u, uts, uszts) -> Node (Node u uts) (zipWith go uts uszts)
       where
@@ -49,10 +47,8 @@ centroidDecompose t = go t (szTree t) where
                 vszts' = let usz' = sz - vsz in usz' `seq` Node usz' uszts' : vszts
 
 centroidDecomposeL :: LTree b a -> Tree (LTree b a)
-centroidDecomposeL t = go t (szTree t) where
-    szTree (LNode _ ts) = sz `seq` Node sz szts where
-        szts = map (szTree . snd) ts
-        sz   = 1 + sum (map rootLabel szts) :: Int
+centroidDecomposeL t = go t (foldTree szf $ lTreeToTree t) where
+    szf _ szts = let sz = 1 + sum (map rootLabel szts) :: Int in sz `seq` Node sz szts
     go (LNode r rts) (Node sz rszts) = case farthest step (r, rts, rszts) of
         (u, uts, uszts) -> Node (LNode u uts) (zipWith go (snd <$> uts) uszts)
       where
