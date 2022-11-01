@@ -35,6 +35,10 @@ foldM (f `foldMComp` g) z = fmap (foldl' f z) . mapM g
 
 farthest
 Repeatedly applies a function to a value and returns the value which gives back Nothing.
+
+foldTree'
+Folds a tree. This does the same job as Data.Tree.foldTree but with different fold functions, which
+may be preferable in cases such as CPS folds.
 -}
 
 module Misc
@@ -48,12 +52,14 @@ module Misc
     , modifyArray'
     , foldMComp
     , farthest
+    , foldTree'
     ) where
 
 import Control.Monad
 import Data.Array.IArray
 import Data.Array.MArray
 import Data.List
+import Data.Tree
 
 pairs :: [a] -> [(a, a)]
 pairs xs = [(x, x') | (x:xs') <- tails xs, x' <- xs']
@@ -100,3 +106,7 @@ foldMComp f g = \z x -> f z <$!> g x
 
 farthest :: (a -> Maybe a) -> a -> a
 farthest f = go where go x = maybe x go (f x)
+
+foldTree' :: (a -> b -> c) -> (c -> b -> b) -> b -> Tree a -> c
+foldTree' f g z = go where go (Node x ts) = f x (foldr (g . go) z ts)
+{-# INLINE foldTree' #-}
