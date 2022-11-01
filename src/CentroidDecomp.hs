@@ -50,7 +50,7 @@ centroidDecomposeL :: LTree b a -> Tree (LTree b a)
 centroidDecomposeL t = go t (foldTree szf $ lTreeToTree t) where
     szf _ szts = let sz = 1 + sum (map rootLabel szts) :: Int in sz `seq` Node sz szts
     go (LNode r rts) (Node sz rszts) = case farthest step (r, rts, rszts) of
-        (u, uts, uszts) -> Node (LNode u uts) (zipWith go (snd <$> uts) uszts)
+        (u, uts, uszts) -> Node (LNode u uts) (zipWith (go . snd) uts uszts)
       where
         step (u, uts, uszts) = mkv <$> removeOne ((>sz) . (*2) . rootLabel) uts uszts where
             mkv ((l, LNode v vts), Node vsz vszts, uts', uszts') = (v, vts', vszts') where
