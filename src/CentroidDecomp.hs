@@ -12,19 +12,17 @@ Sources:
 * https://github.com/cheran-senthil/PyRival/blob/master/pyrival/graphs/centroid_decomposition.py
 
 Implementation notes:
-Potential TLE warning!
-All the trees get constructed so it needs O(n log n) time and memory, unlike a typical imperative
-implementation which modifies the graph in place and doesn't need extra memory.
-The decomposition is done on a tree of (node, tree size), and the tree size is dropped off before
-returning the result. This is wasteful, so a possible optimization is to skip this step if the
-caller works on trees of (node, tree size), possibly ignoring the tree size.
+- The decomposition is done in the usual manner by rerooting the tree at its centroid, then
+  recursively decomposing its subtrees.
+- Yes, centroidDecompose and centroidDecomposeL are very similar but pulling out the common parts
+  makes it messy, so they remain different functions.
 
 centroidDecompose
 Performs centroid decomposition on a tree of n nodes, returning the decomposition as a tree of
 n trees. O(n log n).
 
 centroidDecomposeL
-Almost identical to centroidDecompose, for edge-labelled graphs. O(n log n).
+Same as centroidDecompose, for edge-labelled graphs. O(n log n).
 -}
 
 module CentroidDecomp
@@ -32,31 +30,37 @@ module CentroidDecomp
     , centroidDecomposeL
     ) where
 
-import Data.List
 import Data.Tree
 
-import LabelledGraph ( LTree(..) )
+import LabelledGraph ( LTree(..), lTreeToTree )
+import Misc ( farthest )
 
 centroidDecompose :: Tree a -> Tree (Tree a)
-centroidDecompose t = fmap fst <$> go (withSize t) where
-    withSize (Node u ts) = Node (u, sz) ts' where
-        ts' = map withSize ts
-        sz = (1 :: Int) + sum (map (snd . rootLabel) ts')
-    reroot (Node (u, sz) ts) = go u ts where
-        go u uts = case partition ((>sz) . (*2) . snd . rootLabel) uts of
-            ([], _) -> Node (u, sz) uts
-            (~[Node (v, vsz) vts], uts') -> go v vts' where
-                vts' = let usz' = sz - vsz in usz' `seq` Node (u, usz') uts' : vts
-    go t = Node t' $ map go $ subForest t' where t' = reroot t
+centroidDecompose t = go t (foldTree szf t) where
+    szf _ szts = let sz = 1 + sum (map rootLabel szts) :: Int in sz `seq` Node sz szts
+    go (Node r rts) (Node sz rszts) = case farthest step (r, rts, rszts) of
+        (u, uts, uszts) -> Node (Node u uts) (zipWith go uts uszts)
+      where
+        step (u, uts, uszts) = mkv <$> removeOne ((>sz) . (*2) . rootLabel) uts uszts where
+            mkv (Node v vts, Node vsz vszts, uts', uszts') = (v, vts', vszts') where
+                vts'   = Node u uts' : vts
+                vszts' = let usz' = sz - vsz in usz' `seq` Node usz' uszts' : vszts
 
 centroidDecomposeL :: LTree b a -> Tree (LTree b a)
-centroidDecomposeL t = fmap fst <$> go (withSize t) where
-    withSize (LNode u ts) = LNode (u, sz) $ zip (map fst ts) ts' where
-        ts' = map (withSize . snd) ts
-        sz = (1 :: Int) + sum (map (snd . rootLabelL) ts')
-    reroot (LNode (u, sz) ts) = go u ts where
-        go u uts = case partition ((>sz) . (*2) . snd . rootLabelL . snd) uts of
-            ([], _) -> LNode (u, sz) uts
-            (~[(l, LNode (v, vsz) vts)], uts') -> go v vts' where
-                vts' = let usz' = sz - vsz in usz' `seq` (l, LNode (u, usz') uts') : vts
-    go t = Node t' $ map (go . snd) $ subForestL t' where t' = reroot t
+centroidDecomposeL t = go t (foldTree szf $ lTreeToTree t) where
+    szf _ szts = let sz = 1 + sum (map rootLabel szts) :: Int in sz `seq` Node sz szts
+    go (LNode r rts) (Node sz rszts) = case farthest step (r, rts, rszts) of
+        (u, uts, uszts) -> Node (LNode u uts) (zipWith (go . snd) uts uszts)
+      where
+        step (u, uts, uszts) = mkv <$> removeOne ((>sz) . (*2) . rootLabel) uts uszts where
+            mkv ((l, LNode v vts), Node vsz vszts, uts', uszts') = (v, vts', vszts') where
+                vts'   = (l, LNode u uts') : vts
+                vszts' = let usz' = sz - vsz in usz' `seq` Node usz' uszts' : vszts
+
+removeOne :: (b -> Bool) -> [a] -> [b] -> Maybe (a, b, [a], [b])
+removeOne p = go where
+    go [] [] = Nothing
+    go (a:as) (b:bs)
+        | p b       = Just (a, b, as, bs)
+        | otherwise = (\(a', b', as', bs') -> (a', b', a:as', b:bs')) <$> go as bs
+    go _ _ = error "bad input"

@@ -32,6 +32,13 @@ Modifies an element in a mutable array. Strict version.
 foldMComp
 Compose a strict left fold function with a mapM function. Useful for foldMs.
 foldM (f `foldMComp` g) z = fmap (foldl' f z) . mapM g
+
+farthest
+Repeatedly applies a function to a value and returns the value which gives back Nothing.
+
+foldTree'
+Folds a tree. This does the same job as Data.Tree.foldTree but with different fold functions, which
+may be preferable in cases such as CPS folds.
 -}
 
 module Misc
@@ -44,12 +51,15 @@ module Misc
     , modifyArray
     , modifyArray'
     , foldMComp
+    , farthest
+    , foldTree'
     ) where
 
 import Control.Monad
 import Data.Array.IArray
 import Data.Array.MArray
 import Data.List
+import Data.Tree
 
 pairs :: [a] -> [(a, a)]
 pairs xs = [(x, x') | (x:xs') <- tails xs, x' <- xs']
@@ -93,3 +103,10 @@ modifyArray' a i f = do
 foldMComp :: Monad m => (b -> a -> b) -> (c -> m a) -> b -> c -> m b
 foldMComp f g = \z x -> f z <$!> g x
 {-# INLINE foldMComp #-}
+
+farthest :: (a -> Maybe a) -> a -> a
+farthest f = go where go x = maybe x go (f x)
+
+foldTree' :: (a -> b -> c) -> (c -> b -> b) -> b -> Tree a -> c
+foldTree' f g z = go where go (Node x ts) = f x (foldr (g . go) z ts)
+{-# INLINE foldTree' #-}
