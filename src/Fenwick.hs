@@ -60,9 +60,9 @@ module Fenwick
     , toScanl1F
     ) where
 
-import Data.Bits
 import Control.DeepSeq
 import Control.Monad.State
+import Data.Bits
 
 import Misc ( Commutative, Group(..) )
 
@@ -71,28 +71,28 @@ data FNode a = FTip | FBin !a !(FNode a) !(FNode a) deriving Show
 
 buildF :: Monoid a => (Int, Int) -> (Int -> FNode a) -> FTree a
 buildF (l, r) f
-    | n < 0     = error "invalid range"
+    | n < 0     = error "buildF: invalid range"
     | n == 0    = FTree (l, r, 0) FTip
-    | otherwise = FTree (l, r, bit ht) $ f ht
+    | otherwise = FTree (l, r, bit ht) (f ht)
   where
     n = r - l + 1
     ht = finiteBitSize n - countLeadingZeros n - 1
 
 emptyF :: Monoid a => (Int, Int) -> FTree a
 emptyF bnds = buildF bnds go where
-    go j | j < 0 = FTip
-    go j = FBin mempty lr lr where lr = go $ j - 1
+    go (-1) = FTip
+    go j    = FBin mempty lr lr where lr = go (j - 1)
 
 fromListF :: Monoid a => (Int, Int) -> [a] -> FTree a
 fromListF bnds xs = buildF bnds (fst . flip evalState xs . go) where
     pop = state go where
         go []     = (mempty, [])
         go (x:xs) = (x,      xs)
-    go j | j < 0 = pure (FTip, mempty)
+    go (-1) = pure (FTip, mempty)
     go j = do
-        (lt, lx) <- go $ j - 1
+        (lt, lx) <- go (j - 1)
         x <- pop
-        (rt, rx) <- go $ j - 1
+        (rt, rx) <- go (j - 1)
         let x'  = lx <> x
             x'' = x' <> rx
             n   = FBin x' lt rt
@@ -103,23 +103,25 @@ boundsF (FTree (l, r, _) _) = (l, r)
 
 mappendF :: Commutative a => a -> Int -> FTree a -> FTree a
 mappendF y i (FTree lrp@(l, r, p) rt) = FTree lrp (go rt p) where
-    i' = if i < l || r < i then error "outside range" else i - l + 1
-    q = bit $ countTrailingZeros i'
-    go ~(FBin x l r) p
+    i' = if i < l || r < i then error "mappendF: outside range" else i - l + 1
+    q = bit (countTrailingZeros i')
+    go (FBin x l r) p
         | i' .&. p == 0 = FBin (x <> y) (go l p') r
         | p == q        = FBin (x <> y) l r
         | otherwise     = FBin x l (go r p')
         where p' = p `shiftR` 1
+    go FTip _ = error "unexpected"
 
 foldPrefixF :: Monoid a => Int -> FTree a -> a
 foldPrefixF i (FTree (l, r, p) rt) = if i' == 0 then mempty else go rt p mempty where
-    i' = max 0 $ min r i - l + 1
-    q = bit $ countTrailingZeros i'
-    go ~(FBin x l r) p acc
+    i' = max 0 (min r i - l + 1)
+    q = bit (countTrailingZeros i')
+    go (FBin x l r) p acc
         | i' .&. p == 0 = go l p' acc
         | p == q        = acc <> x
         | otherwise     = go r p' $! acc <> x
         where p' = p `shiftR` 1
+    go FTip _ _ = error "unexpected"
 
 foldRangeF :: (Commutative a, Group a) => Int -> Int -> FTree a -> a
 foldRangeF l r ft = foldPrefixF r ft <> invert (foldPrefixF (l - 1) ft)
@@ -131,8 +133,8 @@ mappendRangeF y l r ft@(FTree (_, r', _) _) = ft'' where
 
 toScanl1F :: Monoid a => FTree a -> [a]
 toScanl1F (FTree (l, r, _) rt) = take (r - l + 1) $ go rt mempty [] where
-    go FTip _ acc = acc
-    go (FBin x l r) y acc = go l y $ x' : go r x' acc where x' = y <> x
+    go FTip         _   = id
+    go (FBin x l r) acc = go l acc . (acc':) . go r acc' where acc' = acc <> x
 
 --------------------------------------------------------------------------------
 -- For tests
