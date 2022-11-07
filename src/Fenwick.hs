@@ -70,10 +70,8 @@ data FTree a = FTree !(Int, Int, Int) !(FNode a) deriving Show
 data FNode a = FTip | FBin !a !(FNode a) !(FNode a) deriving Show
 
 buildF :: Monoid a => (Int, Int) -> (Int -> FNode a) -> FTree a
-buildF (l, r) f
-    | n < 0     = error "buildF: invalid range"
-    | n == 0    = FTree (l, r, 0) FTip
-    | otherwise = FTree (l, r, bit ht) (f ht)
+buildF (l, r) _ | l > r + 1 = error "buildF: invalid range"
+buildF (l, r) f = FTree (l, r, ht) (f ht)
   where
     n = r - l + 1
     ht = finiteBitSize n - countLeadingZeros n - 1
@@ -102,25 +100,23 @@ boundsF :: FTree a -> (Int, Int)
 boundsF (FTree (l, r, _) _) = (l, r)
 
 mappendF :: Commutative a => a -> Int -> FTree a -> FTree a
-mappendF y i (FTree lrp@(l, r, p) rt) = FTree lrp (go rt p) where
+mappendF y i (FTree lrh@(l, r, ht) rt) = FTree lrh (go rt ht) where
     i' = if i < l || r < i then error "mappendF: outside range" else i - l + 1
-    q = bit (countTrailingZeros i')
-    go (FBin x l r) p
-        | i' .&. p == 0 = FBin (x <> y) (go l p') r
-        | p == q        = FBin (x <> y) l r
-        | otherwise     = FBin x l (go r p')
-        where p' = p `shiftR` 1
+    h' = countTrailingZeros i'
+    go (FBin x l r) h
+        | h == h'      = FBin (x <> y) l r
+        | testBit i' h = FBin x l (go r (h - 1))
+        | otherwise    = FBin (x <> y) (go l (h - 1)) r
     go FTip _ = error "unexpected"
 
 foldPrefixF :: Monoid a => Int -> FTree a -> a
-foldPrefixF i (FTree (l, r, p) rt) = if i' == 0 then mempty else go rt p mempty where
+foldPrefixF i (FTree (l, r, ht) rt) = if i' == 0 then mempty else go rt ht mempty where
     i' = max 0 (min r i - l + 1)
-    q = bit (countTrailingZeros i')
-    go (FBin x l r) p acc
-        | i' .&. p == 0 = go l p' acc
-        | p == q        = acc <> x
-        | otherwise     = go r p' $! acc <> x
-        where p' = p `shiftR` 1
+    h' = countTrailingZeros i'
+    go (FBin x l r) h acc
+        | h == h'      = acc <> x
+        | testBit i' h = go r (h - 1) $! acc <> x
+        | otherwise    = go l (h - 1) acc
     go FTip _ _ = error "unexpected"
 
 foldRangeF :: (Commutative a, Group a) => Int -> Int -> FTree a -> a
@@ -145,7 +141,7 @@ toScanl1F (FTree (l, r, _) rt) = take (r - l + 1) $ go rt mempty [] where
 {-# INLINABLE foldPrefixF #-}
 
 instance NFData a => NFData (FTree a) where
-    rnf (FTree lrp rt) = rnf lrp `seq` rnf rt
+    rnf (FTree lrh rt) = rnf lrh `seq` rnf rt
 
 instance NFData a => NFData (FNode a) where
     rnf FTip = ()
