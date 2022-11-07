@@ -99,9 +99,12 @@ fromListF bnds xs = buildF bnds (fst . flip evalState xs . go) where
 boundsF :: FTree a -> (Int, Int)
 boundsF (FTree (l, r, _) _) = (l, r)
 
-mappendF :: Commutative a => a -> Int -> FTree a -> FTree a
-mappendF y i (FTree lrh@(l, r, ht) rt) = FTree lrh (go rt ht) where
-    i' = if i < l || r < i then error "mappendF: outside range" else i - l + 1
+mappendF :: Commutative a => Int -> a -> FTree a -> FTree a
+mappendF i y (FTree lrh@(l, r, ht) rt)
+    | i < l || r < i = error "mappendF: outside range"
+    | otherwise      = FTree lrh (go rt ht)
+  where
+    i' = i - l + 1
     h' = countTrailingZeros i'
     go (FBin x l r) h
         | h == h'      = FBin (x <> y) l r
@@ -122,10 +125,10 @@ foldPrefixF i (FTree (l, r, ht) rt) = if i' == 0 then mempty else go rt ht mempt
 foldRangeF :: (Commutative a, Group a) => Int -> Int -> FTree a -> a
 foldRangeF l r ft = foldPrefixF r ft <> invert (foldPrefixF (l - 1) ft)
 
-mappendRangeF :: (Commutative a, Group a) => a -> Int -> Int -> FTree a -> FTree a
-mappendRangeF y l r ft@(FTree (_, r', _) _) = ft'' where
-    ft' = mappendF y l ft
-    ft'' = if r == r' then ft' else mappendF (invert y) (r + 1) ft'
+mappendRangeF :: (Commutative a, Group a) => Int -> Int -> a -> FTree a -> FTree a
+mappendRangeF l r y ft@(FTree (_, r', _) _) = ft'' where
+    ft' = mappendF l y ft
+    ft'' = if r == r' then ft' else mappendF (r + 1) (invert y) ft'
 
 toScanl1F :: Monoid a => FTree a -> [a]
 toScanl1F (FTree (l, r, _) rt) = take (r - l + 1) $ go rt mempty [] where

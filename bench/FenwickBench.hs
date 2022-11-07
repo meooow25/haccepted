@@ -30,7 +30,7 @@ benchFromListF n = sizedBench n gen $ nf $ fromListF (1, n) where
 benchMappendF :: Int -> Benchmark
 benchMappendF n = sizedBench n gen $ \(ft, us) -> nf (go ft) us where
     gen = (emptyF (1, n), evalR $ zip <$> randIntsR (1, n) n <*> (map Sum <$> randInts n))
-    go = foldl' (\ft (i, x) -> mappendF x i ft)
+    go = foldl' (\ft (i, x) -> mappendF i x ft)
 
 benchFoldPrefixF :: Int -> Benchmark
 benchFoldPrefixF n = sizedBench n gen $ \(ft, qs) -> whnf (go ft) qs where
