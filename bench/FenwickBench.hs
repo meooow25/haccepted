@@ -14,7 +14,7 @@ benchmark = bgroup "Fenwick"
     [ -- Build a Fenwick tree from a list of size n
       bgroup "fromListF" $ map benchFromListF sizes
 
-      -- n updates on a Fenwick tree of size n
+      -- n updates on an empty Fenwick tree of size n
     , bgroup "mappendF" $ map benchMappendF sizes
 
       -- n queries on a Fenwick tree of size n
@@ -38,7 +38,7 @@ benchMappendF n = sizedBench n gen $ \(ft, us) -> nf (go ft) us where
 
 benchFoldPrefixF :: Int -> Benchmark
 benchFoldPrefixF n = sizedBench n gen $ \(ft, qs) -> whnf (go ft) qs where
-    gen = (emptyF (1, n) :: FTree (Sum Int), evalR $ randIntsR (1, n) n)
+    gen = evalR $ (,) <$> genFTree n <*> randIntsR (1, n) n
     go ft = foldl' (\_ i -> foldPrefixF i ft `seq` ()) ()
 
 benchBinSearchF :: Int -> Benchmark
