@@ -1,11 +1,20 @@
 {-|
-Fenwick tree or binary indexed tree
+Fenwick tree, or binary indexed tree
 
 A data structure supporting point updates and range queries, or the opposite.
+Large ranges, beyond typical memory limits, are supported.
 
-The implementation here is literally a tree, unlike the usual implementation with an array.
-The responsibilies of the indices remain the same. The tree is a complete binary tree where each
-node stores the accumulation of values in its left subtree and itself.
+Sources:
+* https://en.wikipedia.org/wiki/Fenwick_tree
+* Peter M. Fenwick, "A New Data Structure for Cumulative Frequency Tables", 1994
+  https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.14.8917
+* https://hackage.haskell.org/package/binary-indexed-tree
+
+Implementation notes:
+* The implementation here is literally a tree, unlike the usual implementation with an array.
+  The responsibilies of the indices remain the same.
+* It is a complete binary tree where each node stores the accumulation of values in its left
+  subtree and itself.
 
      4
     / \
@@ -14,13 +23,10 @@ node stores the accumulation of values in its left subtree and itself.
  / \   / \
 1   3 5   7
 
-Sources:
-* https://en.wikipedia.org/wiki/Fenwick_tree
-* Peter M. Fenwick, "A New Data Structure for Cumulative Frequency Tables", 1994
-  https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.14.8917
-* https://hackage.haskell.org/package/binary-indexed-tree
+Let n = r - l + 1 where (l, r) is the range of the Fenwick tree.
+The complexities assume (<>) takes O(1) time.
 
-buildF
+emptyF
 Builds a Fenwick tree on range (l, r) where each element is mempty. O(log n).
 
 fromListF
@@ -58,10 +64,10 @@ module Fenwick
     , fromListF
     , boundsF
     , mappendF
-    , binSearchF
     , foldPrefixF
     , foldRangeF
     , mappendRangeF
+    , binSearchF
     , toScanl1F
     ) where
 
