@@ -1,6 +1,8 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module FenwickSpec where
 
 import Data.Foldable
+import Data.Maybe
 import Data.Monoid
 
 import Test.Hspec
@@ -9,6 +11,7 @@ import Test.QuickCheck
 
 import Fenwick
     ( FTree
+    , binSearchF
     , boundsF
     , emptyF
     , foldPrefixF
@@ -36,7 +39,7 @@ spec = do
             forAll (pointUpds (l, h)) $ \ivs -> do
                 let ft' = applyUpdates ivs ft
                 forAll (genSortedIntPair (l, h)) $ \(i, j) ->
-                    foldRangeF negate i j ft' `shouldBe` naive ivs i j
+                    foldRangeF i j ft' `shouldBe` naive ivs i j
 
     prop "range updates, queries" $
         forAll genFt $ \ft -> do
@@ -58,16 +61,25 @@ spec = do
                 let ft' = fromListF (l, h) xs
                 toScanl1F ft' `shouldBe` scanl1 (<>) xs
 
-    prop "toScanl1F" $ \xs' -> do
-            let xs = map Sum xs' :: [Sum Int]
-                n = length xs
+    prop "binSearchF" $
+        \(xs :: [NonNegative (Sum Int)], l, x) -> do
+            let n = length xs
+                xs' = map getNonNegative xs
+                ft = fromListF (l, l + n - 1) xs'
+                expected = find ((>=x) . snd) $ zip [l..] (scanl1 (<>) xs')
+            classify (isJust expected) "in range" $
+                binSearchF (>=x) ft `shouldBe` expected
+
+    prop "toScanl1F" $
+        \(xs :: [Sum Int]) -> do
+            let n = length xs
                 ft = fromListF (1, n) xs
             toScanl1F ft `shouldBe` scanl1 (<>) xs
 
   where
     naive ivs i j = fold [v | (k, v) <- ivs, i <= k && k <= j]
-    applyUpdates ivs ft = foldl' (\ft (i, v) -> mappendF v i ft) ft ivs
-    applyRangeUpdates ijvs ft = foldl' (\ft (i, j, v) -> mappendRangeF negate v i j ft) ft ijvs
+    applyUpdates ivs ft = foldl' (\ft (i, x) -> mappendF i x ft) ft ivs
+    applyRangeUpdates ijvs ft = foldl' (\ft (i, j, x) -> mappendRangeF i j x ft) ft ijvs
 
 genFt :: Gen (FTree (Sum Int))
 genFt = sized $ \n -> do
