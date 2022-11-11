@@ -1,4 +1,4 @@
-{-
+{-|
 Lowest common ancestor queries on a tree
 
 Uses an Euler tour and a sparse table for range minimum queries, with an range size optimization

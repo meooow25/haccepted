@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-{-
+{-|
 Breadth first search
 
 Source:

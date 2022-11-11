@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-{-
+{-|
 Dinic's algorithm or Dinitz's algorithm
 
 An algorithm to find the maximum flow in a flow network.

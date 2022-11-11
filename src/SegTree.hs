@@ -1,4 +1,4 @@
-{-
+{-|
 Segment tree
 
 A data structure supporting point updates and range queries on a sequence of monoids.

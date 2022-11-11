@@ -1,5 +1,5 @@
 {-# LANGUAGE DeriveTraversable #-}
-{-
+{-|
 Utilities for working with edge-labeled/weighted graphs.
 
 There are useful definitions and algorithms in Data.Tree and Data.Graph but sadly these only deal

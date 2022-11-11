@@ -1,4 +1,4 @@
-{-
+{-|
 Kruskal's algorithm
 
 An algorithm to find the minimum spanning forest of an edge-weighted graph.

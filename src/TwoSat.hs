@@ -1,4 +1,4 @@
-{-
+{-|
 2-satisfiability
 
 Solves the 2-sat problem, which assigns boolean values to variables (a, b, c...) such that it

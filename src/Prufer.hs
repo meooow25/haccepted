@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-{-
+{-|
 Prufer sequences
 
 Functions to convert trees to Prufer sequences and vice versa

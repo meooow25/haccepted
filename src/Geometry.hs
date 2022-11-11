@@ -1,4 +1,4 @@
-{-
+{-|
 Simple utilities for 2D geometry.
 
 mag2

@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts, QuantifiedConstraints, ScopedTypeVariables #-}
-{-
+{-|
 Sorting
 
 Data.List.sort is rather inefficient when we don't care about laziness and just want to fully sort a

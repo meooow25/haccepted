@@ -1,4 +1,4 @@
-{-
+{-|
 2D convex hull
 
 The convex hull is calculated using Andrew's monotone chain algorithm.

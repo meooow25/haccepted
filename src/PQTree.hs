@@ -1,4 +1,4 @@
-{-
+{-|
 PQ-tree, a data structure for representing permutations
 
 An implementation of PQ-tree as described by Booth and Lueker, useful for solving the consecutive

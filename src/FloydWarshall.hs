@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-
+{-|
 Floyd-Warshall algorithm
 
 Finds shortest paths between all pairs of vertices in a directed weighted graph.

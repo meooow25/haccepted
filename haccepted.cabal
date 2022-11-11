@@ -6,6 +6,8 @@ cabal-version: 1.12
 
 name:           haccepted
 version:        0.1.0.0
+synopsis:       Data structures and algorithms
+description:    Data structures and algorithms for competitive programming in Haskell
 license:        MIT
 license-file:   LICENSE
 build-type:     Simple

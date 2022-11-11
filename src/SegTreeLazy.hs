@@ -1,5 +1,5 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-
+{-|
 Segment tree with lazy propagation
 
 A data structure supporting point updates, range queries, and certain range updates on a sequence of
