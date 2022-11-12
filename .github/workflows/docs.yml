@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy_demo_site:
+  deploy_docs:
     runs-on: "ubuntu-latest"
     steps:
       - name: Checkout
@@ -45,6 +45,6 @@ jobs:
           git add --all
           git -c user.name="${GITHUB_ACTOR}" -c user.email="${GITHUB_ACTOR}@users.noreply.github.com" \
             commit --quiet \
-            --message "Deploy demo-site from ${GITHUB_SHA}" \
+            --message "Deploy docs from ${GITHUB_SHA}" \
             --message "$SOURCE_COMMIT"
           git push
