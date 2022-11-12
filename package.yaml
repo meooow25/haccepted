@@ -47,3 +47,9 @@ executables:
     - csv
     - table-layout
     - text
+
+  rewrite-srcs:
+    source-dirs: gendocs
+    main: RewriteSrcs.hs
+    dependencies:
+    - filepath
