@@ -37,6 +37,12 @@ jobs:
           stack run rewrite-srcs src/*.hs
           stack haddock --haddock-arguments "--odir=_docs/docs"
 
+      - name: Link to Hackage
+        # Make links to other libraries in html files to point to Hackage
+        run : |
+          find _docs -type f -name "*.html" -exec \
+            sed -i 's|<a href="\.\./\([^/]\+\)|<a href="https://hackage.haskell.org/package/\1/docs|g' {} +
+
       - name: Push to pages branch
         run: |
           SOURCE_COMMIT="$(git log -1 --pretty="%an: %B" "$GITHUB_SHA")"
