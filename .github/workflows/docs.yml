@@ -43,14 +43,20 @@ jobs:
           find _docs -type f -name "*.html" -exec \
             sed -i 's|<a href="\.\./\([^/]\+\)|<a href="https://hackage.haskell.org/package/\1/docs|g' {} +
 
-      - name: Push to pages branch
+      - name: Commit to pages branch
+        id: commit
+        continue-on-error: true
+        working-directory: _docs
         run: |
           SOURCE_COMMIT="$(git log -1 --pretty="%an: %B" "$GITHUB_SHA")"
-          cd _docs
 
           git add --all
           git -c user.name="${GITHUB_ACTOR}" -c user.email="${GITHUB_ACTOR}@users.noreply.github.com" \
             commit --quiet \
             --message "Deploy docs from ${GITHUB_SHA}" \
             --message "$SOURCE_COMMIT"
-          git push
+
+      - name: Push to pages branch
+        if: steps.commit.outcome == success
+        working-directory: _docs
+        run: git push
