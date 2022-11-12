@@ -1,4 +1,4 @@
-name: Deploy Docs
+name: Deploy docs
 
 # Adapted from https://github.com/jekyll/minima/blob/master/.github/workflows/demo_site.yml
 
