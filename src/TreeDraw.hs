@@ -1,4 +1,4 @@
-{-
+{-|
 Draws trees, primarily for debugging.
 
 draw

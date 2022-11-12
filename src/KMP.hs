@@ -1,4 +1,4 @@
-{-
+{-|
 Knuth-Morris-Pratt algorithm
 
 A string matching algorithm that generates a prefix function p from an input string s, where p(i)

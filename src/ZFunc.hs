@@ -1,4 +1,4 @@
-{-
+{-|
 Z-function
 
 A string matching algorithm. The Z-algorithm generates the function z from a string s, where z(i)

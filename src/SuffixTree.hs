@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-{-
+{-|
 Suffix tree
 
 A moderately simple and flexible suffix tree.

@@ -1,4 +1,4 @@
-{-
+{-|
 Suffix array and LCP array
 
 A suffix array is the sorted array of all suffixes of a string, each suffix represented by its

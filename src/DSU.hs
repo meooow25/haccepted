@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-
+{-|
 Disjoint set union
 
 Data structure to maintain disjoint sets of Ints, supporting find and union.

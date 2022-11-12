@@ -1,4 +1,4 @@
-{-
+{-|
 Mo's algorithm
 
 Useful for answering certain range queries on a static sequence. The algorithm works by maintaining

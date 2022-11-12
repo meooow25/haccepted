@@ -1,0 +1,72 @@
+name: Deploy docs
+
+# Adapted from https://github.com/jekyll/minima/blob/master/.github/workflows/demo_site.yml
+
+on:
+  push:
+    branches:
+      - master
+      - doc
+  workflow_dispatch:
+
+jobs:
+  deploy_docs:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Haskell
+        uses: haskell/actions/setup@v2
+        with:
+          ghc-version: '8.10.1'
+          enable-stack: true
+          stack-version: 'latest'
+
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.stack
+            ./stack-work
+          key: ${{ runner.os }}-stack-${{ hashFiles('stack.yaml.lock', 'package.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-stack
+
+      - name: Clone pages branch
+        run: |
+          REMOTE_BRANCH="${REMOTE_BRANCH:-gh-pages}"
+          REMOTE_REPO="https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
+
+          echo "Publishing to ${GITHUB_REPOSITORY} on branch ${REMOTE_BRANCH}"
+          rm -rf _docs/
+          git clone --depth=1 --branch="${REMOTE_BRANCH}" --single-branch "${REMOTE_REPO}" _docs/
+
+      - name: Generate docs
+        run: |
+          stack --system-ghc run rewrite-srcs src/*.hs
+          stack --system-ghc haddock --haddock-arguments "--odir=_docs/docs"
+
+      - name: Link to Hackage
+        # Make links to other libraries in html files to point to Hackage
+        run : |
+          find _docs -type f -name "*.html" -exec \
+            sed -i 's|<a href="\.\./\([^/]\+\)|<a href="https://hackage.haskell.org/package/\1/docs|g' {} +
+
+      - name: Commit to pages branch
+        id: commit
+        continue-on-error: true
+        run: |
+          SOURCE_COMMIT="$(git log -1 --pretty="%an: %B" "$GITHUB_SHA")"
+          cd _docs
+
+          git add --all
+          git -c user.name="${GITHUB_ACTOR}" -c user.email="${GITHUB_ACTOR}@users.noreply.github.com" \
+            commit --quiet \
+            --message "Deploy docs from ${GITHUB_SHA}" \
+            --message "$SOURCE_COMMIT"
+
+      - name: Push to pages branch
+        if: steps.commit.outcome == 'success'
+        working-directory: _docs
+        run: git push

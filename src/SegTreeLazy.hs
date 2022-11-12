@@ -1,5 +1,5 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-
+{-|
 Segment tree with lazy propagation
 
 A data structure supporting point updates, range queries, and certain range updates on a sequence of
@@ -25,23 +25,23 @@ The segment tree requires an additional law:
 The complexities below assume <> for u, <> for a and act all take O(1) time.
 Let n = r - l + 1 in all instances below.
 
-emptyST
+emptyLST
 Builds a segment tree on range (l, r) where each element is mempty. O(log n).
 
-fromListST
+fromListLST
 Builds a segment tree on (l, r) where the elements are taken from a list. If the list is shorter
 than the range, the remaining elements are mempty. O(n).
 
-boundsST
+boundsLST
 The bounds of the segment tree. O(1).
 
-adjustST
+adjustLST
 Adjusts the element at index i. O(log n).
 
 updateRangeLST
 Applies an update on elements in the range (ql, qr). O(log n).
 
-foldRangeST
+foldRangeLST
 Folds the elements in the range (ql, qr). Elements outside (l, r) are considered to be mempty.
 O(log n).
 

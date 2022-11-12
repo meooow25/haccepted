@@ -1,5 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
-{-
+{-|
 Dijkstra's algorithm
 
 An algorithm to find multi-source shortest paths in a graph with non-negative edges.

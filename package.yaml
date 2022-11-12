@@ -1,5 +1,7 @@
 name: haccepted
 version: 0.1.0.0
+synopsis: Data structures and algorithms
+description: Data structures and algorithms for competitive programming in Haskell
 
 extra-source-files:
 - README.md
@@ -47,3 +49,9 @@ executables:
     - csv
     - table-layout
     - text
+
+  rewrite-srcs:
+    source-dirs: gendocs
+    main: RewriteSrcs.hs
+    dependencies:
+    - filepath

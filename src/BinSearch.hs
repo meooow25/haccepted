@@ -1,5 +1,5 @@
 {-|
-Standard binary search
+Binary search
 
 Source: https://en.wikipedia.org/wiki/Binary_search_algorithm#Procedure_for_finding_the_leftmost_element
 

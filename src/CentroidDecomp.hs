@@ -1,4 +1,4 @@
-{-
+{-|
 Centroid decomposition
 
 A recursive decomposition (divide-and-conquer) of a tree into multiple subtrees.
@@ -12,9 +12,9 @@ Sources:
 * https://github.com/cheran-senthil/PyRival/blob/master/pyrival/graphs/centroid_decomposition.py
 
 Implementation notes:
-- The decomposition is done in the usual manner by rerooting the tree at its centroid, then
+* The decomposition is done in the usual manner by rerooting the tree at its centroid, then
   recursively decomposing its subtrees.
-- Yes, centroidDecompose and centroidDecomposeL are very similar but pulling out the common parts
+* Yes, centroidDecompose and centroidDecomposeL are very similar but pulling out the common parts
   makes it messy, so they remain different functions.
 
 centroidDecompose
