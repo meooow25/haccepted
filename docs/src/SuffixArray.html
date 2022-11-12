@@ -1,0 +1,579 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">{-|
+== Suffix array and LCP array
+
+A suffix array is the sorted array of all suffixes of a string, each suffix represented by its
+start index. An LCP (longest common prefix) array is an array of the lengths of the longest common
+prefixes of consecutive suffixes in the suffix array.
+A suffix array, sometimes with its LCP array, can be used to perform tasks like finding patterns
+in the string or calculating certain properties of the string.
+Other suffix structures, such as suffix trees and suffix automata may serve as alternates to suffix
+arrays.
+
+This implementation constructs the suffix array and LCP array from a given string indexing function,
+with elements of type Int. It takes O(n log n), which is usually fast enough. O(n) algorithms to
+construct suffix arrays exist.
+
+Sources:
+
+* Udi Manber and Gene Myers, &quot;Suffix Arrays: A New Method for On-Line String Searches&quot;, 1990
+  https://dl.acm.org/doi/10.5555/320176.320218
+* Kasai et al., &quot;Linear-Time Longest-Common-Prefix Computation in Suffix Arrays and Its
+  Applications&quot;, 2001
+  https://link.springer.com/chapter/10.1007/3-540-48194-X_17
+* https://sites.google.com/site/indy256/algo/suffix_array
+
+-}</span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span class="hs-comment">{-
+Implementation notes:
+* The construction is implemented using a prefix doubling algorithm, similar to the algorithm due to
+  Manber and Myers. Each step sorts substrings of lengths in successive powers of two.
+* The last character is considered smaller than other equal characters. This is one way, and an easy
+  one, to allow shorter substrings to appear first in the suffix array.
+* At the step sorting substrings of length 2 * m, we go over the substrings in the sorted order of
+  their right halves and put them into positons corresponding to the ranks of their left halves.
+* The LCP array is constructed from the suffix array using Kasai's algorithm.
+-}</span><span>
+</span><span id="line-37"></span><span>
+</span><span id="line-38"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">SuffixArray</span><span>
+</span><span id="line-39"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="SuffixArray.html#buildSufA"><span class="hs-identifier">buildSufA</span></a></span><span>
+</span><span id="line-40"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="SuffixArray.html#buildSufAL"><span class="hs-identifier">buildSufAL</span></a></span><span>
+</span><span id="line-41"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-42"></span><span>
+</span><span id="line-43"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad</span></span><span>
+</span><span id="line-44"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.ST</span></span><span>
+</span><span id="line-45"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Array.ST</span></span><span>
+</span><span id="line-46"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Array.Unboxed</span></span><span>
+</span><span id="line-47"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Function</span></span><span>
+</span><span id="line-48"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.List</span></span><span>
+</span><span id="line-49"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Ord</span></span><span>
+</span><span id="line-50"></span><span>
+</span><span id="line-51"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Sort.html"><span class="hs-identifier">Sort</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Sort.html#sortUABy"><span class="hs-identifier">sortUABy</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Sort.html#countingSortUA"><span class="hs-identifier">countingSortUA</span></a></span><span> </span><span class="hs-special">)</span><span>
+</span><span id="line-52"></span><span>
+</span><span id="line-53"></span><span class="hs-keyword">type</span><span> </span><span id="Chr"><span class="annot"><a href="SuffixArray.html#Chr"><span class="hs-identifier hs-var">Chr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-54"></span><span class="hs-keyword">type</span><span> </span><span id="SuffixId"><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-var">SuffixId</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-55"></span><span>
+</span><span id="line-56"></span><span class="hs-comment">-- | Builds a suffix array and LCP array. n is the length of the string. at is a 0-based indexing</span><span>
+</span><span id="line-57"></span><span class="hs-comment">-- function into the string. Characters must be in [0..b-1]. Faster than buildSufAL unless b is too</span><span>
+</span><span id="line-58"></span><span class="hs-comment">-- large. O(b + n log n).</span><span>
+</span><span id="line-59"></span><span class="annot"><a href="SuffixArray.html#buildSufA"><span class="hs-identifier hs-type">buildSufA</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="SuffixArray.html#Chr"><span class="hs-identifier hs-type">Chr</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SuffixArray.html#Chr"><span class="hs-identifier hs-type">Chr</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span>
+</span><span id="line-60"></span><span id="buildSufA"><span class="annot"><span class="annottext">buildSufA :: Chr -&gt; Chr -&gt; (Chr -&gt; Chr) -&gt; (UArray Chr Chr, UArray Chr Chr)
+</span><a href="SuffixArray.html#buildSufA"><span class="hs-identifier hs-var hs-var">buildSufA</span></a></span></span><span> </span><span id="local-6989586621679068246"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068246"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Chr -&gt; Chr) -&gt; UArray Chr Chr -&gt; UArray Chr Chr)
+-&gt; Chr -&gt; (Chr -&gt; Chr) -&gt; (UArray Chr Chr, UArray Chr Chr)
+</span><a href="SuffixArray.html#buildSufA_"><span class="hs-identifier hs-var">buildSufA_</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr -&gt; (Chr -&gt; Chr) -&gt; UArray Chr Chr -&gt; UArray Chr Chr
+forall e.
+(IArray UArray e, forall s. MArray (STUArray s) e (ST s)) =&gt;
+Chr -&gt; (e -&gt; Chr) -&gt; UArray Chr e -&gt; UArray Chr e
+</span><a href="Sort.html#countingSortUA"><span class="hs-identifier hs-var">countingSortUA</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068246"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-61"></span><span>
+</span><span id="line-62"></span><span class="hs-comment">-- | Builds a suffix array and LCP array. n is the length of the string. at is a 0-based indexing</span><span>
+</span><span id="line-63"></span><span class="hs-comment">-- function into the string. Intended for large alphabets. O(n log n).</span><span>
+</span><span id="line-64"></span><span class="annot"><a href="SuffixArray.html#buildSufAL"><span class="hs-identifier hs-type">buildSufAL</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SuffixArray.html#Chr"><span class="hs-identifier hs-type">Chr</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span>
+</span><span id="line-65"></span><span id="buildSufAL"><span class="annot"><span class="annottext">buildSufAL :: Chr -&gt; (Chr -&gt; Chr) -&gt; (UArray Chr Chr, UArray Chr Chr)
+</span><a href="SuffixArray.html#buildSufAL"><span class="hs-identifier hs-var hs-var">buildSufAL</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Chr -&gt; Chr) -&gt; UArray Chr Chr -&gt; UArray Chr Chr)
+-&gt; Chr -&gt; (Chr -&gt; Chr) -&gt; (UArray Chr Chr, UArray Chr Chr)
+</span><a href="SuffixArray.html#buildSufA_"><span class="hs-identifier hs-var">buildSufA_</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Chr -&gt; Chr -&gt; Ordering) -&gt; UArray Chr Chr -&gt; UArray Chr Chr
+forall e.
+(forall s. MArray (STUArray s) e (ST s), IArray UArray e) =&gt;
+(e -&gt; e -&gt; Ordering) -&gt; UArray Chr e -&gt; UArray Chr e
+</span><a href="Sort.html#sortUABy"><span class="hs-identifier hs-var">sortUABy</span></a></span><span> </span><span class="annot"><span class="annottext">((Chr -&gt; Chr -&gt; Ordering) -&gt; UArray Chr Chr -&gt; UArray Chr Chr)
+-&gt; ((Chr -&gt; Chr) -&gt; Chr -&gt; Chr -&gt; Ordering)
+-&gt; (Chr -&gt; Chr)
+-&gt; UArray Chr Chr
+-&gt; UArray Chr Chr
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(Chr -&gt; Chr) -&gt; Chr -&gt; Chr -&gt; Ordering
+forall a b. Ord a =&gt; (b -&gt; a) -&gt; b -&gt; b -&gt; Ordering
+</span><span class="hs-identifier hs-var">comparing</span></span><span class="hs-special">)</span><span>
+</span><span id="line-66"></span><span>
+</span><span id="line-67"></span><span class="annot"><a href="SuffixArray.html#buildSufA_"><span class="hs-identifier hs-type">buildSufA_</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SuffixArray.html#Chr"><span class="hs-identifier hs-type">Chr</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-68"></span><span>           </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SuffixArray.html#Chr"><span class="hs-identifier hs-type">Chr</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span>
+</span><span id="line-69"></span><span id="buildSufA_"><span class="annot"><span class="annottext">buildSufA_ :: ((Chr -&gt; Chr) -&gt; UArray Chr Chr -&gt; UArray Chr Chr)
+-&gt; Chr -&gt; (Chr -&gt; Chr) -&gt; (UArray Chr Chr, UArray Chr Chr)
+</span><a href="SuffixArray.html#buildSufA_"><span class="hs-identifier hs-var hs-var">buildSufA_</span></a></span></span><span> </span><span id="local-6989586621679068241"><span class="annot"><span class="annottext">(Chr -&gt; Chr) -&gt; UArray Chr Chr -&gt; UArray Chr Chr
+</span><a href="#local-6989586621679068241"><span class="hs-identifier hs-var">sortf</span></a></span></span><span> </span><span id="local-6989586621679068240"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068240"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span id="local-6989586621679068239"><span class="annot"><span class="annottext">Chr -&gt; Chr
+</span><a href="#local-6989586621679068239"><span class="hs-identifier hs-var">at</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068238"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068237"><span class="hs-identifier hs-var">lcp</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-70"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679068238"><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068238"><span class="hs-identifier hs-var">p</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068236"><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068236"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Chr
+-&gt; UArray Chr Chr
+-&gt; UArray Chr Chr
+-&gt; (UArray Chr Chr, UArray Chr Chr)
+</span><a href="SuffixArray.html#sufADoubling"><span class="hs-identifier hs-var">sufADoubling</span></a></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068240"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068234"><span class="hs-identifier hs-var">p0</span></a></span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068233"><span class="hs-identifier hs-var">r0</span></a></span><span>
+</span><span id="line-71"></span><span>    </span><span id="local-6989586621679068237"><span class="annot"><span class="annottext">lcp :: UArray Chr Chr
+</span><a href="#local-6989586621679068237"><span class="hs-identifier hs-var hs-var">lcp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Chr -&gt; Chr) -&gt; UArray Chr Chr -&gt; UArray Chr Chr -&gt; UArray Chr Chr
+</span><a href="SuffixArray.html#kasai"><span class="hs-identifier hs-var">kasai</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr
+</span><a href="#local-6989586621679068239"><span class="hs-identifier hs-var">at</span></a></span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068238"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068236"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><span id="line-72"></span><span>    </span><span id="local-6989586621679068234"><span class="annot"><span class="annottext">p0 :: UArray Chr Chr
+</span><a href="#local-6989586621679068234"><span class="hs-identifier hs-var hs-var">p0</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Chr -&gt; Chr) -&gt; UArray Chr Chr -&gt; UArray Chr Chr
+</span><a href="#local-6989586621679068241"><span class="hs-identifier hs-var">sortf</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr
+</span><a href="#local-6989586621679068231"><span class="hs-identifier hs-var">at'</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Chr, Chr) -&gt; [Chr] -&gt; UArray Chr Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+(i, i) -&gt; [e] -&gt; a i e
+</span><span class="hs-identifier hs-var">listArray</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">0</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068240"><span class="hs-identifier hs-var">n</span></a></span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">0</span></span><span class="hs-glyph">..</span><span class="hs-special">]</span><span class="hs-special">)</span><span>
+</span><span id="line-73"></span><span>    </span><span id="local-6989586621679068233"><span class="annot"><span class="annottext">r0 :: UArray Chr Chr
+</span><a href="#local-6989586621679068233"><span class="hs-identifier hs-var hs-var">r0</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; (Chr -&gt; Chr -&gt; Bool) -&gt; UArray Chr Chr
+</span><a href="SuffixArray.html#rankSufA"><span class="hs-identifier hs-var">rankSufA</span></a></span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068234"><span class="hs-identifier hs-var">p0</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">(==)</span></span><span> </span><span class="annot"><span class="annottext">(Chr -&gt; Chr -&gt; Bool) -&gt; (Chr -&gt; Chr) -&gt; Chr -&gt; Chr -&gt; Bool
+forall b c a. (b -&gt; b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">`on`</span></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr
+</span><a href="#local-6989586621679068231"><span class="hs-identifier hs-var">at'</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-74"></span><span>    </span><span id="local-6989586621679068227"><span class="annot"><span class="annottext">lastc :: Chr
+</span><a href="#local-6989586621679068227"><span class="hs-identifier hs-var hs-var">lastc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr
+</span><a href="#local-6989586621679068239"><span class="hs-identifier hs-var">at</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068240"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
+</span><span id="line-75"></span><span>    </span><span id="local-6989586621679068231"><span class="annot"><span class="annottext">at' :: Chr -&gt; Chr
+</span><a href="#local-6989586621679068231"><span class="hs-identifier hs-var hs-var">at'</span></a></span></span><span> </span><span id="local-6989586621679068226"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068226"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068226"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068240"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">1</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068227"><span class="hs-identifier hs-var">lastc</span></a></span><span>
+</span><span id="line-76"></span><span>    </span><span class="annot"><a href="#local-6989586621679068231"><span class="hs-identifier hs-var">at'</span></a></span><span> </span><span id="local-6989586621679068225"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068225"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679068224"><span class="annot"><span class="annottext">c :: Chr
+</span><a href="#local-6989586621679068224"><span class="hs-identifier hs-var hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr
+</span><a href="#local-6989586621679068239"><span class="hs-identifier hs-var">at</span></a></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068225"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068224"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Chr
+forall a. Enum a =&gt; a -&gt; Chr
+</span><span class="hs-identifier hs-var">fromEnum</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068224"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;=</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068227"><span class="hs-identifier hs-var">lastc</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-77"></span><span>
+</span><span id="line-78"></span><span class="annot"><a href="SuffixArray.html#sufADoubling"><span class="hs-identifier hs-type">sufADoubling</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span>
+</span><span id="line-79"></span><span id="sufADoubling"><span class="annot"><span class="annottext">sufADoubling :: Chr
+-&gt; UArray Chr Chr
+-&gt; UArray Chr Chr
+-&gt; (UArray Chr Chr, UArray Chr Chr)
+</span><a href="SuffixArray.html#sufADoubling"><span class="hs-identifier hs-var hs-var">sufADoubling</span></a></span></span><span> </span><span id="local-6989586621679068222"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068222"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span id="local-6989586621679068221"><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068221"><span class="hs-identifier hs-var">p0</span></a></span></span><span> </span><span id="local-6989586621679068220"><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068220"><span class="hs-identifier hs-var">r0</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((UArray Chr Chr, UArray Chr Chr)
+ -&gt; Chr -&gt; (UArray Chr Chr, UArray Chr Chr))
+-&gt; (UArray Chr Chr, UArray Chr Chr)
+-&gt; [Chr]
+-&gt; (UArray Chr Chr, UArray Chr Chr)
+forall (t :: * -&gt; *) b a.
+Foldable t =&gt;
+(b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b
+</span><span class="hs-identifier hs-var">foldl'</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(UArray Chr Chr
+ -&gt; UArray Chr Chr -&gt; Chr -&gt; (UArray Chr Chr, UArray Chr Chr))
+-&gt; (UArray Chr Chr, UArray Chr Chr)
+-&gt; Chr
+-&gt; (UArray Chr Chr, UArray Chr Chr)
+forall a b c. (a -&gt; b -&gt; c) -&gt; (a, b) -&gt; c
+</span><span class="hs-identifier hs-var">uncurry</span></span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+-&gt; UArray Chr Chr -&gt; Chr -&gt; (UArray Chr Chr, UArray Chr Chr)
+</span><a href="#local-6989586621679068217"><span class="hs-identifier hs-var">step</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068221"><span class="hs-identifier hs-var">p0</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068220"><span class="hs-identifier hs-var">r0</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([Chr] -&gt; (UArray Chr Chr, UArray Chr Chr))
+-&gt; [Chr] -&gt; (UArray Chr Chr, UArray Chr Chr)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(Chr -&gt; Bool) -&gt; [Chr] -&gt; [Chr]
+forall a. (a -&gt; Bool) -&gt; [a] -&gt; [a]
+</span><span class="hs-identifier hs-var">takeWhile</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;</span></span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068222"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([Chr] -&gt; [Chr]) -&gt; [Chr] -&gt; [Chr]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(Chr -&gt; Chr) -&gt; Chr -&gt; [Chr]
+forall a. (a -&gt; a) -&gt; a -&gt; [a]
+</span><span class="hs-identifier hs-var">iterate</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">*</span></span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">2</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">1</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-80"></span><span>    </span><span class="annot"><a href="#local-6989586621679068217"><span class="hs-identifier hs-type">step</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span>
+</span><span id="line-81"></span><span>    </span><span id="local-6989586621679068217"><span class="annot"><span class="annottext">step :: UArray Chr Chr
+-&gt; UArray Chr Chr -&gt; Chr -&gt; (UArray Chr Chr, UArray Chr Chr)
+</span><a href="#local-6989586621679068217"><span class="hs-identifier hs-var hs-var">step</span></a></span></span><span> </span><span id="local-6989586621679068212"><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068212"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679068211"><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068211"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679068210"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068210"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068211"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+-&gt; (UArray Chr Chr, UArray Chr Chr)
+-&gt; (UArray Chr Chr, UArray Chr Chr)
+</span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068209"><span class="hs-identifier hs-var">p'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068208"><span class="hs-identifier hs-var">r'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-82"></span><span>        </span><span id="local-6989586621679068209"><span class="annot"><span class="annottext">p' :: UArray Chr Chr
+</span><a href="#local-6989586621679068209"><span class="hs-identifier hs-var hs-var">p'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(forall s. ST s (STUArray s Chr Chr)) -&gt; UArray Chr Chr
+forall i e. (forall s. ST s (STUArray s i e)) -&gt; UArray i e
+</span><span class="hs-identifier hs-var">runSTUArray</span></span><span> </span><span class="annot"><span class="annottext">((forall s. ST s (STUArray s Chr Chr)) -&gt; UArray Chr Chr)
+-&gt; (forall s. ST s (STUArray s Chr Chr)) -&gt; UArray Chr Chr
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-83"></span><span>            </span><span id="local-6989586621679068206"><span class="annot"><span class="annottext">STUArray s Chr Chr
+</span><a href="#local-6989586621679068206"><span class="hs-identifier hs-var">pos</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span id="local-6989586621679068205"><span class="annot"><span class="annottext">(Chr, Chr) -&gt; [Chr] -&gt; ST s (STUArray s Chr Chr)
+forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
+(MArray a e m, Ix i) =&gt;
+(i, i) -&gt; [e] -&gt; m (a i e)
+</span><span class="hs-identifier hs-var">newListArray</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">0</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068222"><span class="hs-identifier hs-var">n</span></a></span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">0</span></span><span class="hs-glyph">..</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ST</span></span><span> </span><span class="annot"><a href="#local-6989586621679068205"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">STUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068205"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-84"></span><span>            </span><span id="local-6989586621679068203"><span class="annot"><span class="annottext">STUArray s Chr Chr
+</span><a href="#local-6989586621679068203"><span class="hs-identifier hs-var">pa</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; ST s (STUArray s Chr Chr)
+forall i (a :: * -&gt; * -&gt; *) e (b :: * -&gt; * -&gt; *) (m :: * -&gt; *).
+(Ix i, IArray a e, MArray b e m) =&gt;
+a i e -&gt; m (b i e)
+</span><span class="hs-identifier hs-var">thaw</span></span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068212"><span class="hs-identifier hs-var">p</span></a></span><span>
+</span><span id="line-85"></span><span>            </span><span class="annot"><span class="annottext">[Chr] -&gt; (Chr -&gt; ST s ()) -&gt; ST s ()
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Foldable t, Monad m) =&gt;
+t a -&gt; (a -&gt; m b) -&gt; m ()
+</span><span class="hs-identifier hs-var">forM_</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068200"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068210"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="local-6989586621679068200"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068200"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; [Chr]
+forall (a :: * -&gt; * -&gt; *) e i. (IArray a e, Ix i) =&gt; a i e -&gt; [e]
+</span><span class="hs-identifier hs-var">elems</span></span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068212"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068200"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;=</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068210"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">((Chr -&gt; ST s ()) -&gt; ST s ()) -&gt; (Chr -&gt; ST s ()) -&gt; ST s ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679068198"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068198"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-86"></span><span>                </span><span id="local-6989586621679068197"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068197"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">STUArray s Chr Chr -&gt; Chr -&gt; ST s Chr
+forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
+(MArray a e m, Ix i) =&gt;
+a i e -&gt; i -&gt; m e
+</span><span class="hs-identifier hs-var">readArray</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Chr Chr
+</span><a href="#local-6989586621679068206"><span class="hs-identifier hs-var">pos</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068211"><span class="hs-identifier hs-var">r</span></a></span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; Chr -&gt; Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068198"><span class="hs-identifier hs-var">i</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-87"></span><span>                </span><span class="annot"><span class="annottext">STUArray s Chr Chr -&gt; Chr -&gt; Chr -&gt; ST s ()
+forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
+(MArray a e m, Ix i) =&gt;
+a i e -&gt; i -&gt; e -&gt; m ()
+</span><span class="hs-identifier hs-var">writeArray</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Chr Chr
+</span><a href="#local-6989586621679068206"><span class="hs-identifier hs-var">pos</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068211"><span class="hs-identifier hs-var">r</span></a></span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; Chr -&gt; Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068198"><span class="hs-identifier hs-var">i</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068197"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
+</span><span id="line-88"></span><span>                </span><span class="annot"><span class="annottext">STUArray s Chr Chr -&gt; Chr -&gt; Chr -&gt; ST s ()
+forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
+(MArray a e m, Ix i) =&gt;
+a i e -&gt; i -&gt; e -&gt; m ()
+</span><span class="hs-identifier hs-var">writeArray</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Chr Chr
+</span><a href="#local-6989586621679068203"><span class="hs-identifier hs-var">pa</span></a></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068197"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068198"><span class="hs-identifier hs-var">i</span></a></span><span>
+</span><span id="line-89"></span><span>            </span><span class="annot"><span class="annottext">STUArray s Chr Chr -&gt; ST s (STUArray s Chr Chr)
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Chr Chr
+</span><a href="#local-6989586621679068203"><span class="hs-identifier hs-var">pa</span></a></span><span>
+</span><span id="line-90"></span><span>        </span><span id="local-6989586621679068208"><span class="annot"><span class="annottext">r' :: UArray Chr Chr
+</span><a href="#local-6989586621679068208"><span class="hs-identifier hs-var hs-var">r'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; (Chr -&gt; Chr -&gt; Bool) -&gt; UArray Chr Chr
+</span><a href="SuffixArray.html#rankSufA"><span class="hs-identifier hs-var">rankSufA</span></a></span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068209"><span class="hs-identifier hs-var">p'</span></a></span><span> </span><span class="annot"><span class="annottext">((Chr -&gt; Chr -&gt; Bool) -&gt; UArray Chr Chr)
+-&gt; (Chr -&gt; Chr -&gt; Bool) -&gt; UArray Chr Chr
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679068193"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068193"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679068192"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068192"><span class="hs-identifier hs-var">j</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068211"><span class="hs-identifier hs-var">r</span></a></span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; Chr -&gt; Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068193"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068211"><span class="hs-identifier hs-var">r</span></a></span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; Chr -&gt; Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068192"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068193"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068210"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068222"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068211"><span class="hs-identifier hs-var">r</span></a></span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; Chr -&gt; Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068193"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068210"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068211"><span class="hs-identifier hs-var">r</span></a></span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; Chr -&gt; Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068192"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068210"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-91"></span><span>
+</span><span id="line-92"></span><span class="annot"><a href="SuffixArray.html#rankSufA"><span class="hs-identifier hs-type">rankSufA</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-93"></span><span id="rankSufA"><span class="annot"><span class="annottext">rankSufA :: UArray Chr Chr -&gt; (Chr -&gt; Chr -&gt; Bool) -&gt; UArray Chr Chr
+</span><a href="SuffixArray.html#rankSufA"><span class="hs-identifier hs-var hs-var">rankSufA</span></a></span></span><span> </span><span id="local-6989586621679068190"><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068190"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679068189"><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Bool
+</span><a href="#local-6989586621679068189"><span class="hs-identifier hs-var">eq</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Chr, Chr) -&gt; [(Chr, Chr)] -&gt; UArray Chr Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+(i, i) -&gt; [(i, e)] -&gt; a i e
+</span><span class="hs-identifier hs-var">array</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">0</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068187"><span class="hs-identifier hs-var">n'</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([(Chr, Chr)] -&gt; UArray Chr Chr) -&gt; [(Chr, Chr)] -&gt; UArray Chr Chr
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068190"><span class="hs-identifier hs-var">p</span></a></span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; Chr -&gt; Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">0</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">0</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Chr, Chr) -&gt; [(Chr, Chr)] -&gt; [(Chr, Chr)]
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">(Chr -&gt; (Chr -&gt; [(Chr, Chr)]) -&gt; Chr -&gt; [(Chr, Chr)])
+-&gt; (Chr -&gt; [(Chr, Chr)]) -&gt; [Chr] -&gt; Chr -&gt; [(Chr, Chr)]
+forall (t :: * -&gt; *) a b.
+Foldable t =&gt;
+(a -&gt; b -&gt; b) -&gt; b -&gt; t a -&gt; b
+</span><span class="hs-identifier hs-var">foldr</span></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; (Chr -&gt; [(Chr, Chr)]) -&gt; Chr -&gt; [(Chr, Chr)]
+</span><a href="#local-6989586621679068185"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[(Chr, Chr)] -&gt; Chr -&gt; [(Chr, Chr)]
+forall a b. a -&gt; b -&gt; a
+</span><span class="hs-identifier hs-var">const</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">1</span></span><span class="hs-glyph">..</span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068187"><span class="hs-identifier hs-var">n'</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">0</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-94"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">0</span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068187"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068187"><span class="hs-identifier hs-var">n'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; (Chr, Chr)
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; (i, i)
+</span><span class="hs-identifier hs-var">bounds</span></span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068190"><span class="hs-identifier hs-var">p</span></a></span><span>
+</span><span id="line-95"></span><span>    </span><span id="local-6989586621679068185"><span class="annot"><span class="annottext">f :: Chr -&gt; (Chr -&gt; [(Chr, Chr)]) -&gt; Chr -&gt; [(Chr, Chr)]
+</span><a href="#local-6989586621679068185"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679068182"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068182"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679068181"><span class="annot"><span class="annottext">Chr -&gt; [(Chr, Chr)]
+</span><a href="#local-6989586621679068181"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span id="local-6989586621679068180"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068180"><span class="hs-identifier hs-var">prv</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679068179"><span class="annot"><span class="annottext">cur :: Chr
+</span><a href="#local-6989586621679068179"><span class="hs-identifier hs-var hs-var">cur</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Bool
+</span><a href="#local-6989586621679068189"><span class="hs-identifier hs-var">eq</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068190"><span class="hs-identifier hs-var">p</span></a></span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; Chr -&gt; Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068182"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068190"><span class="hs-identifier hs-var">p</span></a></span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; Chr -&gt; Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068182"><span class="hs-identifier hs-var">i</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068180"><span class="hs-identifier hs-var">prv</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068182"><span class="hs-identifier hs-var">i</span></a></span><span>
+</span><span id="line-96"></span><span>                </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068179"><span class="hs-identifier hs-var">cur</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; [(Chr, Chr)] -&gt; [(Chr, Chr)]
+</span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068190"><span class="hs-identifier hs-var">p</span></a></span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; Chr -&gt; Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068182"><span class="hs-identifier hs-var">i</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068179"><span class="hs-identifier hs-var">cur</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Chr, Chr) -&gt; [(Chr, Chr)] -&gt; [(Chr, Chr)]
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; [(Chr, Chr)]
+</span><a href="#local-6989586621679068181"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068179"><span class="hs-identifier hs-var">cur</span></a></span><span>
+</span><span id="line-97"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="SuffixArray.html#rankSufA"><span class="hs-pragma hs-type">rankSufA</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-98"></span><span>
+</span><span id="line-99"></span><span class="annot"><a href="SuffixArray.html#kasai"><span class="hs-identifier hs-type">kasai</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SuffixArray.html#Chr"><span class="hs-identifier hs-type">Chr</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><a href="SuffixArray.html#SuffixId"><span class="hs-identifier hs-type">SuffixId</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-100"></span><span id="kasai"><span class="annot"><span class="annottext">kasai :: (Chr -&gt; Chr) -&gt; UArray Chr Chr -&gt; UArray Chr Chr -&gt; UArray Chr Chr
+</span><a href="SuffixArray.html#kasai"><span class="hs-identifier hs-var hs-var">kasai</span></a></span></span><span> </span><span id="local-6989586621679068178"><span class="annot"><span class="annottext">Chr -&gt; Chr
+</span><a href="#local-6989586621679068178"><span class="hs-identifier hs-var">at</span></a></span></span><span> </span><span id="local-6989586621679068177"><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068177"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679068176"><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068176"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Chr, Chr) -&gt; [(Chr, Chr)] -&gt; UArray Chr Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+(i, i) -&gt; [(i, e)] -&gt; a i e
+</span><span class="hs-identifier hs-var">array</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">0</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068175"><span class="hs-identifier hs-var">n'</span></a></span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([(Chr, Chr)] -&gt; UArray Chr Chr) -&gt; [(Chr, Chr)] -&gt; UArray Chr Chr
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(Chr -&gt; (Chr -&gt; [(Chr, Chr)]) -&gt; Chr -&gt; [(Chr, Chr)])
+-&gt; (Chr -&gt; [(Chr, Chr)]) -&gt; [Chr] -&gt; Chr -&gt; [(Chr, Chr)]
+forall (t :: * -&gt; *) a b.
+Foldable t =&gt;
+(a -&gt; b -&gt; b) -&gt; b -&gt; t a -&gt; b
+</span><span class="hs-identifier hs-var">foldr</span></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; (Chr -&gt; [(Chr, Chr)]) -&gt; Chr -&gt; [(Chr, Chr)]
+</span><a href="#local-6989586621679068174"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[(Chr, Chr)] -&gt; Chr -&gt; [(Chr, Chr)]
+forall a b. a -&gt; b -&gt; a
+</span><span class="hs-identifier hs-var">const</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">0</span></span><span class="hs-glyph">..</span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068175"><span class="hs-identifier hs-var">n'</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">0</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-101"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">0</span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068175"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068175"><span class="hs-identifier hs-var">n'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; (Chr, Chr)
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; (i, i)
+</span><span class="hs-identifier hs-var">bounds</span></span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068177"><span class="hs-identifier hs-var">p</span></a></span><span>
+</span><span id="line-102"></span><span>    </span><span id="local-6989586621679068174"><span class="annot"><span class="annottext">f :: Chr -&gt; (Chr -&gt; [(Chr, Chr)]) -&gt; Chr -&gt; [(Chr, Chr)]
+</span><a href="#local-6989586621679068174"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679068173"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068173"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679068172"><span class="annot"><span class="annottext">Chr -&gt; [(Chr, Chr)]
+</span><a href="#local-6989586621679068172"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068176"><span class="hs-identifier hs-var">r</span></a></span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; Chr -&gt; Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068173"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068175"><span class="hs-identifier hs-var">n'</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Chr -&gt; [(Chr, Chr)]
+</span><a href="#local-6989586621679068172"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">0</span></span><span>
+</span><span id="line-103"></span><span>    </span><span class="annot"><a href="#local-6989586621679068174"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span id="local-6989586621679068171"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068171"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679068170"><span class="annot"><span class="annottext">Chr -&gt; [(Chr, Chr)]
+</span><a href="#local-6989586621679068170"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span id="local-6989586621679068169"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068169"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068176"><span class="hs-identifier hs-var">r</span></a></span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; Chr -&gt; Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068171"><span class="hs-identifier hs-var">i</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068168"><span class="hs-identifier hs-var">x'</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Chr, Chr) -&gt; [(Chr, Chr)] -&gt; [(Chr, Chr)]
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; [(Chr, Chr)]
+</span><a href="#local-6989586621679068170"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Ord a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-identifier hs-var">max</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">0</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068168"><span class="hs-identifier hs-var">x'</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-104"></span><span>        </span><span id="local-6989586621679068166"><span class="annot"><span class="annottext">j :: Chr
+</span><a href="#local-6989586621679068166"><span class="hs-identifier hs-var hs-var">j</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068177"><span class="hs-identifier hs-var">p</span></a></span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; Chr -&gt; Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="hs-special">(</span><span class="annot"><span class="annottext">UArray Chr Chr
+</span><a href="#local-6989586621679068176"><span class="hs-identifier hs-var">r</span></a></span><span class="annot"><span class="annottext">UArray Chr Chr -&gt; Chr -&gt; Chr
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068171"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
+</span><span id="line-105"></span><span>        </span><span id="local-6989586621679068168"><span class="annot"><span class="annottext">x' :: Chr
+</span><a href="#local-6989586621679068168"><span class="hs-identifier hs-var hs-var">x'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Chr -&gt; Bool) -&gt; (Chr -&gt; Chr) -&gt; Chr -&gt; Chr
+forall a. (a -&gt; Bool) -&gt; (a -&gt; a) -&gt; a -&gt; a
+</span><span class="hs-identifier hs-var">until</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679068164"><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068164"><span class="hs-identifier hs-var">x''</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068171"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068164"><span class="hs-identifier hs-var">x''</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068175"><span class="hs-identifier hs-var">n'</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068166"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068164"><span class="hs-identifier hs-var">x''</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068175"><span class="hs-identifier hs-var">n'</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr
+</span><a href="#local-6989586621679068178"><span class="hs-identifier hs-var">at</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068171"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068164"><span class="hs-identifier hs-var">x''</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr
+</span><a href="#local-6989586621679068178"><span class="hs-identifier hs-var">at</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068166"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068164"><span class="hs-identifier hs-var">x''</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Chr -&gt; Chr -&gt; Chr
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span class="annot"><span class="annottext">Chr
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Chr
+</span><a href="#local-6989586621679068169"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-106"></span></pre></body></html>

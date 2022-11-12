@@ -1,0 +1,715 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">{-|
+== Fenwick tree, or binary indexed tree
+
+A data structure supporting point updates and range queries, or the opposite.
+Large ranges, beyond typical memory limits, are supported.
+
+Sources:
+
+* https://en.wikipedia.org/wiki/Fenwick_tree
+* Peter M. Fenwick, &quot;A New Data Structure for Cumulative Frequency Tables&quot;, 1994
+  https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.14.8917
+* https://hackage.haskell.org/package/binary-indexed-tree
+
+     4
+    / \
+   /   \
+  2     6
+ / \   / \
+1   3 5   7
+
+Let n = r - l + 1 where (l, r) is the range of the Fenwick tree.
+The complexities assume (&lt;&gt;) takes O(1) time.
+
+-}</span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span class="hs-comment">{-
+Implementation notes:
+* The implementation here is literally a tree, unlike the usual implementation with an array.
+  The responsibilies of the indices remain the same.
+* It is a complete binary tree where each node stores the accumulation of values in its left
+  subtree and itself.
+-}</span><span>
+</span><span id="line-33"></span><span>
+</span><span id="line-34"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Fenwick</span><span>
+</span><span id="line-35"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier">FTree</span></a></span><span>
+</span><span id="line-36"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Fenwick.html#emptyF"><span class="hs-identifier">emptyF</span></a></span><span>
+</span><span id="line-37"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Fenwick.html#fromListF"><span class="hs-identifier">fromListF</span></a></span><span>
+</span><span id="line-38"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Fenwick.html#boundsF"><span class="hs-identifier">boundsF</span></a></span><span>
+</span><span id="line-39"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Fenwick.html#mappendF"><span class="hs-identifier">mappendF</span></a></span><span>
+</span><span id="line-40"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Fenwick.html#foldPrefixF"><span class="hs-identifier">foldPrefixF</span></a></span><span>
+</span><span id="line-41"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Fenwick.html#foldRangeF"><span class="hs-identifier">foldRangeF</span></a></span><span>
+</span><span id="line-42"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Fenwick.html#mappendRangeF"><span class="hs-identifier">mappendRangeF</span></a></span><span>
+</span><span id="line-43"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Fenwick.html#binSearchF"><span class="hs-identifier">binSearchF</span></a></span><span>
+</span><span id="line-44"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Fenwick.html#toScanl1F"><span class="hs-identifier">toScanl1F</span></a></span><span>
+</span><span id="line-45"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-46"></span><span>
+</span><span id="line-47"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Applicative</span></span><span>
+</span><span id="line-48"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.DeepSeq</span></span><span>
+</span><span id="line-49"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.State</span></span><span>
+</span><span id="line-50"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Bits</span></span><span>
+</span><span id="line-51"></span><span>
+</span><span id="line-52"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Misc.html"><span class="hs-identifier">Misc</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Misc.html#Commutative"><span class="hs-identifier">Commutative</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Misc.html#Group"><span class="hs-identifier">Group</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span> </span><span class="hs-special">)</span><span>
+</span><span id="line-53"></span><span>
+</span><span id="line-54"></span><span class="hs-keyword">data</span><span> </span><span id="FTree"><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-var">FTree</span></a></span></span><span> </span><span id="local-6989586621679066026"><span class="annot"><a href="#local-6989586621679066026"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="FTree"><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-var">FTree</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FNode"><span class="hs-identifier hs-type">FNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679066026"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679065946"><span id="local-6989586621679065948"><span id="local-6989586621679065950"><span class="annot"><span class="annottext">Int -&gt; FTree a -&gt; ShowS
+[FTree a] -&gt; ShowS
+FTree a -&gt; String
+(Int -&gt; FTree a -&gt; ShowS)
+-&gt; (FTree a -&gt; String) -&gt; ([FTree a] -&gt; ShowS) -&gt; Show (FTree a)
+forall a. Show a =&gt; Int -&gt; FTree a -&gt; ShowS
+forall a. Show a =&gt; [FTree a] -&gt; ShowS
+forall a. Show a =&gt; FTree a -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [FTree a] -&gt; ShowS
+$cshowList :: forall a. Show a =&gt; [FTree a] -&gt; ShowS
+show :: FTree a -&gt; String
+$cshow :: forall a. Show a =&gt; FTree a -&gt; String
+showsPrec :: Int -&gt; FTree a -&gt; ShowS
+$cshowsPrec :: forall a. Show a =&gt; Int -&gt; FTree a -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span>
+</span><span id="line-55"></span><span class="hs-keyword">data</span><span> </span><span id="FNode"><span class="annot"><a href="Fenwick.html#FNode"><span class="hs-identifier hs-var">FNode</span></a></span></span><span> </span><span id="local-6989586621679066019"><span class="annot"><a href="#local-6989586621679066019"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="FTip"><span class="annot"><a href="Fenwick.html#FTip"><span class="hs-identifier hs-var">FTip</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="FBin"><span class="annot"><a href="Fenwick.html#FBin"><span class="hs-identifier hs-var">FBin</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="#local-6989586621679066019"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FNode"><span class="hs-identifier hs-type">FNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679066019"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FNode"><span class="hs-identifier hs-type">FNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679066019"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679065937"><span id="local-6989586621679065939"><span id="local-6989586621679065941"><span class="annot"><span class="annottext">Int -&gt; FNode a -&gt; ShowS
+[FNode a] -&gt; ShowS
+FNode a -&gt; String
+(Int -&gt; FNode a -&gt; ShowS)
+-&gt; (FNode a -&gt; String) -&gt; ([FNode a] -&gt; ShowS) -&gt; Show (FNode a)
+forall a. Show a =&gt; Int -&gt; FNode a -&gt; ShowS
+forall a. Show a =&gt; [FNode a] -&gt; ShowS
+forall a. Show a =&gt; FNode a -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [FNode a] -&gt; ShowS
+$cshowList :: forall a. Show a =&gt; [FNode a] -&gt; ShowS
+show :: FNode a -&gt; String
+$cshow :: forall a. Show a =&gt; FNode a -&gt; String
+showsPrec :: Int -&gt; FNode a -&gt; ShowS
+$cshowsPrec :: forall a. Show a =&gt; Int -&gt; FNode a -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span>
+</span><span id="line-56"></span><span>
+</span><span id="line-57"></span><span id="local-6989586621679066022"><span class="annot"><a href="Fenwick.html#buildF"><span class="hs-identifier hs-type">buildF</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679066022"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Fenwick.html#FNode"><span class="hs-identifier hs-type">FNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679066022"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679066022"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-58"></span><span id="buildF"><span class="annot"><span class="annottext">buildF :: (Int, Int) -&gt; (Int -&gt; FNode a) -&gt; FTree a
+</span><a href="Fenwick.html#buildF"><span class="hs-identifier hs-var hs-var">buildF</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679065935"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065935"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065934"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065934"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int -&gt; FNode a
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065935"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065934"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; FTree a
+forall a. HasCallStack =&gt; String -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;buildF: invalid range&quot;</span></span><span>
+</span><span id="line-59"></span><span class="annot"><a href="Fenwick.html#buildF"><span class="hs-identifier hs-var">buildF</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679065930"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065930"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065929"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065929"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679065928"><span class="annot"><span class="annottext">Int -&gt; FNode a
+</span><a href="#local-6989586621679065928"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int, Int) -&gt; FNode a -&gt; FTree a
+forall a. (Int, Int, Int) -&gt; FNode a -&gt; FTree a
+</span><a href="Fenwick.html#FTree"><span class="hs-identifier hs-var">FTree</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065930"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065929"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065927"><span class="hs-identifier hs-var">ht</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; FNode a
+</span><a href="#local-6989586621679065928"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065927"><span class="hs-identifier hs-var">ht</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-60"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-61"></span><span>    </span><span id="local-6989586621679065926"><span class="annot"><span class="annottext">n :: Int
+</span><a href="#local-6989586621679065926"><span class="hs-identifier hs-var hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065929"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065930"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span>
+</span><span id="line-62"></span><span>    </span><span id="local-6989586621679065927"><span class="annot"><span class="annottext">ht :: Int
+</span><a href="#local-6989586621679065927"><span class="hs-identifier hs-var hs-var">ht</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int
+forall b. FiniteBits b =&gt; b -&gt; Int
+</span><span class="hs-identifier hs-var">finiteBitSize</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065926"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int
+forall b. FiniteBits b =&gt; b -&gt; Int
+</span><span class="hs-identifier hs-var">countLeadingZeros</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065926"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span>
+</span><span id="line-63"></span><span>
+</span><span id="line-64"></span><span class="hs-comment">-- | Builds a Fenwick tree on range (l, r) where each element is mempty. O(log n).</span><span>
+</span><span id="line-65"></span><span id="local-6989586621679065923"><span class="annot"><a href="Fenwick.html#emptyF"><span class="hs-identifier hs-type">emptyF</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679065923"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065923"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-66"></span><span id="emptyF"><span class="annot"><span class="annottext">emptyF :: (Int, Int) -&gt; FTree a
+</span><a href="Fenwick.html#emptyF"><span class="hs-identifier hs-var hs-var">emptyF</span></a></span></span><span> </span><span id="local-6989586621679065922"><span class="annot"><span class="annottext">(Int, Int)
+</span><a href="#local-6989586621679065922"><span class="hs-identifier hs-var">bnds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int) -&gt; (Int -&gt; FNode a) -&gt; FTree a
+forall a. Monoid a =&gt; (Int, Int) -&gt; (Int -&gt; FNode a) -&gt; FTree a
+</span><a href="Fenwick.html#buildF"><span class="hs-identifier hs-var">buildF</span></a></span><span> </span><span class="annot"><span class="annottext">(Int, Int)
+</span><a href="#local-6989586621679065922"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; FNode a
+forall a a. (Eq a, Monoid a, Num a) =&gt; a -&gt; FNode a
+</span><a href="#local-6989586621679065921"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-67"></span><span>    </span><span id="local-6989586621679065921"><span class="annot"><span class="annottext">go :: a -&gt; FNode a
+</span><a href="#local-6989586621679065921"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">-</span><span class="hs-number">1</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FNode a
+forall a. FNode a
+</span><a href="Fenwick.html#FTip"><span class="hs-identifier hs-var">FTip</span></a></span><span>
+</span><span id="line-68"></span><span>    </span><span class="annot"><a href="#local-6989586621679065921"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679065920"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065920"><span class="hs-identifier hs-var">j</span></a></span></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; FNode a -&gt; FNode a -&gt; FNode a
+forall a. a -&gt; FNode a -&gt; FNode a -&gt; FNode a
+</span><a href="Fenwick.html#FBin"><span class="hs-identifier hs-var">FBin</span></a></span><span> </span><span class="annot"><span class="annottext">a
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065919"><span class="hs-identifier hs-var">lr</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065919"><span class="hs-identifier hs-var">lr</span></a></span><span> </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679065919"><span class="annot"><span class="annottext">lr :: FNode a
+</span><a href="#local-6989586621679065919"><span class="hs-identifier hs-var hs-var">lr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; FNode a
+</span><a href="#local-6989586621679065921"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065920"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
+</span><span id="line-69"></span><span>
+</span><span id="line-70"></span><span class="hs-comment">-- | Builds a Fenwick tree on (l, r) where the elements are taken from a list. If the list is shorter</span><span>
+</span><span id="line-71"></span><span class="hs-comment">-- than the range, the remaining elements are mempty. O(n).</span><span>
+</span><span id="line-72"></span><span id="local-6989586621679065918"><span class="annot"><a href="Fenwick.html#fromListF"><span class="hs-identifier hs-type">fromListF</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679065918"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679065918"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065918"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-73"></span><span id="fromListF"><span class="annot"><span class="annottext">fromListF :: (Int, Int) -&gt; [a] -&gt; FTree a
+</span><a href="Fenwick.html#fromListF"><span class="hs-identifier hs-var hs-var">fromListF</span></a></span></span><span> </span><span id="local-6989586621679065917"><span class="annot"><span class="annottext">(Int, Int)
+</span><a href="#local-6989586621679065917"><span class="hs-identifier hs-var">bnds</span></a></span></span><span> </span><span id="local-6989586621679065916"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679065916"><span class="hs-identifier hs-var">xs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int) -&gt; (Int -&gt; FNode a) -&gt; FTree a
+forall a. Monoid a =&gt; (Int, Int) -&gt; (Int -&gt; FNode a) -&gt; FTree a
+</span><a href="Fenwick.html#buildF"><span class="hs-identifier hs-var">buildF</span></a></span><span> </span><span class="annot"><span class="annottext">(Int, Int)
+</span><a href="#local-6989586621679065917"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(FNode a, a) -&gt; FNode a
+forall a b. (a, b) -&gt; a
+</span><span class="hs-identifier hs-var">fst</span></span><span> </span><span class="annot"><span class="annottext">((FNode a, a) -&gt; FNode a)
+-&gt; (Int -&gt; (FNode a, a)) -&gt; Int -&gt; FNode a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(State [a] (FNode a, a) -&gt; [a] -&gt; (FNode a, a))
+-&gt; [a] -&gt; State [a] (FNode a, a) -&gt; (FNode a, a)
+forall a b c. (a -&gt; b -&gt; c) -&gt; b -&gt; a -&gt; c
+</span><span class="hs-identifier hs-var">flip</span></span><span> </span><span class="annot"><span class="annottext">State [a] (FNode a, a) -&gt; [a] -&gt; (FNode a, a)
+forall s a. State s a -&gt; s -&gt; a
+</span><span class="hs-identifier hs-var">evalState</span></span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679065916"><span class="hs-identifier hs-var">xs</span></a></span><span> </span><span class="annot"><span class="annottext">(State [a] (FNode a, a) -&gt; (FNode a, a))
+-&gt; (Int -&gt; State [a] (FNode a, a)) -&gt; Int -&gt; (FNode a, a)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; State [a] (FNode a, a)
+forall a. (Eq a, Num a) =&gt; a -&gt; State [a] (FNode a, a)
+</span><a href="#local-6989586621679065912"><span class="hs-identifier hs-var">go</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-74"></span><span>    </span><span id="local-6989586621679065911"><span class="annot"><span class="annottext">pop :: StateT [a] Identity a
+</span><a href="#local-6989586621679065911"><span class="hs-identifier hs-var hs-var">pop</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">([a] -&gt; (a, [a])) -&gt; StateT [a] Identity a
+forall s (m :: * -&gt; *) a. MonadState s m =&gt; (s -&gt; (a, s)) -&gt; m a
+</span><span class="hs-identifier hs-var">state</span></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; (a, [a])
+forall a. Monoid a =&gt; [a] -&gt; (a, [a])
+</span><a href="#local-6989586621679065909"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-75"></span><span>        </span><span id="local-6989586621679065909"><span class="annot"><span class="annottext">go :: [a] -&gt; (a, [a])
+</span><a href="#local-6989586621679065909"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>     </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span class="hs-special">,</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span>
+</span><span id="line-76"></span><span>        </span><span class="annot"><a href="#local-6989586621679065909"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679065908"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065908"><span class="hs-identifier hs-var">x</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679065907"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679065907"><span class="hs-identifier hs-var">xs</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065908"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">,</span><span>      </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679065907"><span class="hs-identifier hs-var">xs</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-77"></span><span>    </span><span id="local-6989586621679065912"><span class="annot"><span class="annottext">go :: a -&gt; State [a] (FNode a, a)
+</span><a href="#local-6989586621679065912"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">-</span><span class="hs-number">1</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(FNode a, a) -&gt; State [a] (FNode a, a)
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FNode a
+forall a. FNode a
+</span><a href="Fenwick.html#FTip"><span class="hs-identifier hs-var">FTip</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">a
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span class="hs-special">)</span><span>
+</span><span id="line-78"></span><span>    </span><span class="annot"><a href="#local-6989586621679065912"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679065906"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065906"><span class="hs-identifier hs-var">j</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-79"></span><span>        </span><span class="hs-special">(</span><span id="local-6989586621679065905"><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065905"><span class="hs-identifier hs-var">lt</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065904"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065904"><span class="hs-identifier hs-var">lx</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">a -&gt; State [a] (FNode a, a)
+</span><a href="#local-6989586621679065912"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065906"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
+</span><span id="line-80"></span><span>        </span><span id="local-6989586621679065903"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065903"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">StateT [a] Identity a
+</span><a href="#local-6989586621679065911"><span class="hs-identifier hs-var">pop</span></a></span><span>
+</span><span id="line-81"></span><span>        </span><span class="hs-special">(</span><span id="local-6989586621679065902"><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065902"><span class="hs-identifier hs-var">rt</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065901"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065901"><span class="hs-identifier hs-var">rx</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">a -&gt; State [a] (FNode a, a)
+</span><a href="#local-6989586621679065912"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065906"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
+</span><span id="line-82"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679065900"><span class="annot"><span class="annottext">x' :: a
+</span><a href="#local-6989586621679065900"><span class="hs-identifier hs-var hs-var">x'</span></a></span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065904"><span class="hs-identifier hs-var">lx</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065903"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-83"></span><span>            </span><span id="local-6989586621679065899"><span class="annot"><span class="annottext">x'' :: a
+</span><a href="#local-6989586621679065899"><span class="hs-identifier hs-var hs-var">x''</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065900"><span class="hs-identifier hs-var">x'</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065901"><span class="hs-identifier hs-var">rx</span></a></span><span>
+</span><span id="line-84"></span><span>            </span><span id="local-6989586621679065898"><span class="annot"><span class="annottext">n :: FNode a
+</span><a href="#local-6989586621679065898"><span class="hs-identifier hs-var hs-var">n</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; FNode a -&gt; FNode a -&gt; FNode a
+forall a. a -&gt; FNode a -&gt; FNode a -&gt; FNode a
+</span><a href="Fenwick.html#FBin"><span class="hs-identifier hs-var">FBin</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065900"><span class="hs-identifier hs-var">x'</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065905"><span class="hs-identifier hs-var">lt</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065902"><span class="hs-identifier hs-var">rt</span></a></span><span>
+</span><span id="line-85"></span><span>        </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065899"><span class="hs-identifier hs-var">x''</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; State [a] (FNode a, a) -&gt; State [a] (FNode a, a)
+</span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065898"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a -&gt; State [a] (FNode a, a) -&gt; State [a] (FNode a, a)
+</span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="annot"><span class="annottext">(FNode a, a) -&gt; State [a] (FNode a, a)
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065898"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065899"><span class="hs-identifier hs-var">x''</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-86"></span><span>
+</span><span id="line-87"></span><span class="hs-comment">-- | The bounds of the Fenwick tree. O(1).</span><span>
+</span><span id="line-88"></span><span id="local-6989586621679065897"><span class="annot"><a href="Fenwick.html#boundsF"><span class="hs-identifier hs-type">boundsF</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065897"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-89"></span><span id="boundsF"><span class="annot"><span class="annottext">boundsF :: FTree a -&gt; (Int, Int)
+</span><a href="Fenwick.html#boundsF"><span class="hs-identifier hs-var hs-var">boundsF</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679065896"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065896"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065895"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065895"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065896"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065895"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-90"></span><span>
+</span><span id="line-91"></span><span class="hs-comment">-- | mappends to the element at an index. O(log n).</span><span>
+</span><span id="line-92"></span><span id="local-6989586621679065976"><span class="annot"><a href="Fenwick.html#mappendF"><span class="hs-identifier hs-type">mappendF</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Misc.html#Commutative"><span class="hs-identifier hs-type">Commutative</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065976"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679065976"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065976"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065976"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-93"></span><span id="mappendF"><span class="annot"><span class="annottext">mappendF :: Int -&gt; a -&gt; FTree a -&gt; FTree a
+</span><a href="Fenwick.html#mappendF"><span class="hs-identifier hs-var hs-var">mappendF</span></a></span></span><span> </span><span id="local-6989586621679065894"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065894"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679065893"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065893"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span id="local-6989586621679065892"><span class="annot"><span class="annottext">lrh :: (Int, Int, Int)
+</span><a href="#local-6989586621679065892"><span class="hs-identifier hs-var">lrh</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span id="local-6989586621679065891"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065891"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065890"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065890"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065889"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065889"><span class="hs-identifier hs-var">ht</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679065888"><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065888"><span class="hs-identifier hs-var">rt</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-94"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065894"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065891"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065890"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065894"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; FTree a
+forall a. HasCallStack =&gt; String -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;mappendF: outside range&quot;</span></span><span>
+</span><span id="line-95"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span>      </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int, Int) -&gt; FNode a -&gt; FTree a
+forall a. (Int, Int, Int) -&gt; FNode a -&gt; FTree a
+</span><a href="Fenwick.html#FTree"><span class="hs-identifier hs-var">FTree</span></a></span><span> </span><span class="annot"><span class="annottext">(Int, Int, Int)
+</span><a href="#local-6989586621679065892"><span class="hs-identifier hs-var">lrh</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FNode a -&gt; Int -&gt; FNode a
+</span><a href="#local-6989586621679065885"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065888"><span class="hs-identifier hs-var">rt</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065889"><span class="hs-identifier hs-var">ht</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-96"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-97"></span><span>    </span><span id="local-6989586621679065884"><span class="annot"><span class="annottext">i' :: Int
+</span><a href="#local-6989586621679065884"><span class="hs-identifier hs-var hs-var">i'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065894"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065891"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span>
+</span><span id="line-98"></span><span>    </span><span id="local-6989586621679065883"><span class="annot"><span class="annottext">h' :: Int
+</span><a href="#local-6989586621679065883"><span class="hs-identifier hs-var hs-var">h'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int
+forall b. FiniteBits b =&gt; b -&gt; Int
+</span><span class="hs-identifier hs-var">countTrailingZeros</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065884"><span class="hs-identifier hs-var">i'</span></a></span><span>
+</span><span id="line-99"></span><span>    </span><span id="local-6989586621679065885"><span class="annot"><span class="annottext">go :: FNode a -&gt; Int -&gt; FNode a
+</span><a href="#local-6989586621679065885"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FBin"><span class="hs-identifier hs-type">FBin</span></a></span><span> </span><span id="local-6989586621679065881"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065881"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679065880"><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065880"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679065879"><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065879"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679065878"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065878"><span class="hs-identifier hs-var">h</span></a></span></span><span>
+</span><span id="line-100"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065878"><span class="hs-identifier hs-var">h</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065883"><span class="hs-identifier hs-var">h'</span></a></span><span>      </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; FNode a -&gt; FNode a -&gt; FNode a
+forall a. a -&gt; FNode a -&gt; FNode a -&gt; FNode a
+</span><a href="Fenwick.html#FBin"><span class="hs-identifier hs-var">FBin</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065881"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065893"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065880"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065879"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><span id="line-101"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Bits a =&gt; a -&gt; Int -&gt; Bool
+</span><span class="hs-identifier hs-var">testBit</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065884"><span class="hs-identifier hs-var">i'</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065878"><span class="hs-identifier hs-var">h</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; FNode a -&gt; FNode a -&gt; FNode a
+forall a. a -&gt; FNode a -&gt; FNode a -&gt; FNode a
+</span><a href="Fenwick.html#FBin"><span class="hs-identifier hs-var">FBin</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065881"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065880"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FNode a -&gt; Int -&gt; FNode a
+</span><a href="#local-6989586621679065885"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065879"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065878"><span class="hs-identifier hs-var">h</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-102"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; FNode a -&gt; FNode a -&gt; FNode a
+forall a. a -&gt; FNode a -&gt; FNode a -&gt; FNode a
+</span><a href="Fenwick.html#FBin"><span class="hs-identifier hs-var">FBin</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065881"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065893"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FNode a -&gt; Int -&gt; FNode a
+</span><a href="#local-6989586621679065885"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065880"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065878"><span class="hs-identifier hs-var">h</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065879"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><span id="line-103"></span><span>    </span><span class="annot"><a href="#local-6989586621679065885"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="Fenwick.html#FTip"><span class="hs-identifier hs-var">FTip</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; FNode a
+forall a. HasCallStack =&gt; String -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;unexpected&quot;</span></span><span>
+</span><span id="line-104"></span><span>
+</span><span id="line-105"></span><span class="hs-comment">-- | The result of folding the prefix upto the given index. Indices outside the tree range are allowed,</span><span>
+</span><span id="line-106"></span><span class="hs-comment">-- it is assumed elements there are mempty. O(log n).</span><span>
+</span><span id="line-107"></span><span id="local-6989586621679065980"><span class="annot"><a href="Fenwick.html#foldPrefixF"><span class="hs-identifier hs-type">foldPrefixF</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679065980"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065980"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679065980"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-108"></span><span id="foldPrefixF"><span class="annot"><span class="annottext">foldPrefixF :: Int -&gt; FTree a -&gt; a
+</span><a href="Fenwick.html#foldPrefixF"><span class="hs-identifier hs-var hs-var">foldPrefixF</span></a></span></span><span> </span><span id="local-6989586621679065876"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065876"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679065875"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065875"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065874"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065874"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065873"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065873"><span class="hs-identifier hs-var">ht</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679065872"><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065872"><span class="hs-identifier hs-var">rt</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065871"><span class="hs-identifier hs-var">i'</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">0</span></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">a
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">FNode a -&gt; Int -&gt; a -&gt; a
+forall a. Semigroup a =&gt; FNode a -&gt; Int -&gt; a -&gt; a
+</span><a href="#local-6989586621679065870"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065872"><span class="hs-identifier hs-var">rt</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065873"><span class="hs-identifier hs-var">ht</span></a></span><span> </span><span class="annot"><span class="annottext">a
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-109"></span><span>    </span><span id="local-6989586621679065871"><span class="annot"><span class="annottext">i' :: Int
+</span><a href="#local-6989586621679065871"><span class="hs-identifier hs-var hs-var">i'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Ord a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-identifier hs-var">max</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">0</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Ord a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-identifier hs-var">min</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065874"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065876"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065875"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
+</span><span id="line-110"></span><span>    </span><span id="local-6989586621679065867"><span class="annot"><span class="annottext">h' :: Int
+</span><a href="#local-6989586621679065867"><span class="hs-identifier hs-var hs-var">h'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int
+forall b. FiniteBits b =&gt; b -&gt; Int
+</span><span class="hs-identifier hs-var">countTrailingZeros</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065871"><span class="hs-identifier hs-var">i'</span></a></span><span>
+</span><span id="line-111"></span><span>    </span><span id="local-6989586621679065870"><span class="annot"><span class="annottext">go :: FNode a -&gt; Int -&gt; a -&gt; a
+</span><a href="#local-6989586621679065870"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FBin"><span class="hs-identifier hs-type">FBin</span></a></span><span> </span><span id="local-6989586621679065866"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065866"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679065865"><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065865"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679065864"><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065864"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679065863"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065863"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span id="local-6989586621679065862"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065862"><span class="hs-identifier hs-var">acc</span></a></span></span><span>
+</span><span id="line-112"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065863"><span class="hs-identifier hs-var">h</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065867"><span class="hs-identifier hs-var">h'</span></a></span><span>      </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065862"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065866"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-113"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Bits a =&gt; a -&gt; Int -&gt; Bool
+</span><span class="hs-identifier hs-var">testBit</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065871"><span class="hs-identifier hs-var">i'</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065863"><span class="hs-identifier hs-var">h</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FNode a -&gt; Int -&gt; a -&gt; a
+</span><a href="#local-6989586621679065870"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065864"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065863"><span class="hs-identifier hs-var">h</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(a -&gt; a) -&gt; a -&gt; a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$!</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065862"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065866"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-114"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FNode a -&gt; Int -&gt; a -&gt; a
+</span><a href="#local-6989586621679065870"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065865"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065863"><span class="hs-identifier hs-var">h</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065862"><span class="hs-identifier hs-var">acc</span></a></span><span>
+</span><span id="line-115"></span><span>    </span><span class="annot"><a href="#local-6989586621679065870"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="Fenwick.html#FTip"><span class="hs-identifier hs-var">FTip</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; a
+forall a. HasCallStack =&gt; String -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;unexpected&quot;</span></span><span>
+</span><span id="line-116"></span><span>
+</span><span id="line-117"></span><span class="hs-comment">-- | Folds the elements in the range (l, r). O(log n).</span><span>
+</span><span id="line-118"></span><span id="local-6989586621679065860"><span class="annot"><a href="Fenwick.html#foldRangeF"><span class="hs-identifier hs-type">foldRangeF</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Misc.html#Commutative"><span class="hs-identifier hs-type">Commutative</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065860"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Misc.html#Group"><span class="hs-identifier hs-type">Group</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065860"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065860"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679065860"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-119"></span><span id="foldRangeF"><span class="annot"><span class="annottext">foldRangeF :: Int -&gt; Int -&gt; FTree a -&gt; a
+</span><a href="Fenwick.html#foldRangeF"><span class="hs-identifier hs-var hs-var">foldRangeF</span></a></span></span><span> </span><span id="local-6989586621679065859"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065859"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679065858"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065858"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679065857"><span class="annot"><span class="annottext">FTree a
+</span><a href="#local-6989586621679065857"><span class="hs-identifier hs-var">ft</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; FTree a -&gt; a
+forall a. Monoid a =&gt; Int -&gt; FTree a -&gt; a
+</span><a href="Fenwick.html#foldPrefixF"><span class="hs-identifier hs-var">foldPrefixF</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065858"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">FTree a
+</span><a href="#local-6989586621679065857"><span class="hs-identifier hs-var">ft</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; a
+forall a. Group a =&gt; a -&gt; a
+</span><a href="Misc.html#invert"><span class="hs-identifier hs-var">invert</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; FTree a -&gt; a
+forall a. Monoid a =&gt; Int -&gt; FTree a -&gt; a
+</span><a href="Fenwick.html#foldPrefixF"><span class="hs-identifier hs-var">foldPrefixF</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065859"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">FTree a
+</span><a href="#local-6989586621679065857"><span class="hs-identifier hs-var">ft</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-120"></span><span>
+</span><span id="line-121"></span><span class="hs-comment">-- | mappends to all elements in the range (l, r). Can be used with foldPrefixF for point queries.</span><span>
+</span><span id="line-122"></span><span class="hs-comment">-- O(log n).</span><span>
+</span><span id="line-123"></span><span id="local-6989586621679065855"><span class="annot"><a href="Fenwick.html#mappendRangeF"><span class="hs-identifier hs-type">mappendRangeF</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Misc.html#Commutative"><span class="hs-identifier hs-type">Commutative</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065855"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Misc.html#Group"><span class="hs-identifier hs-type">Group</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065855"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679065855"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065855"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065855"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-124"></span><span id="mappendRangeF"><span class="annot"><span class="annottext">mappendRangeF :: Int -&gt; Int -&gt; a -&gt; FTree a -&gt; FTree a
+</span><a href="Fenwick.html#mappendRangeF"><span class="hs-identifier hs-var hs-var">mappendRangeF</span></a></span></span><span> </span><span id="local-6989586621679065854"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065854"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679065853"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065853"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679065852"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065852"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span id="local-6989586621679065851"><span class="annot"><span class="annottext">ft :: FTree a
+</span><a href="#local-6989586621679065851"><span class="hs-identifier hs-var">ft</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><span class="hs-identifier">_</span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065850"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065850"><span class="hs-identifier hs-var">r'</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FTree a
+</span><a href="#local-6989586621679065849"><span class="hs-identifier hs-var">ft''</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-125"></span><span>    </span><span id="local-6989586621679065848"><span class="annot"><span class="annottext">ft' :: FTree a
+</span><a href="#local-6989586621679065848"><span class="hs-identifier hs-var hs-var">ft'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; a -&gt; FTree a -&gt; FTree a
+forall a. Commutative a =&gt; Int -&gt; a -&gt; FTree a -&gt; FTree a
+</span><a href="Fenwick.html#mappendF"><span class="hs-identifier hs-var">mappendF</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065854"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065852"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">FTree a
+</span><a href="#local-6989586621679065851"><span class="hs-identifier hs-var">ft</span></a></span><span>
+</span><span id="line-126"></span><span>    </span><span id="local-6989586621679065849"><span class="annot"><span class="annottext">ft'' :: FTree a
+</span><a href="#local-6989586621679065849"><span class="hs-identifier hs-var hs-var">ft''</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065853"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065850"><span class="hs-identifier hs-var">r'</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">FTree a
+</span><a href="#local-6989586621679065848"><span class="hs-identifier hs-var">ft'</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">Int -&gt; a -&gt; FTree a -&gt; FTree a
+forall a. Commutative a =&gt; Int -&gt; a -&gt; FTree a -&gt; FTree a
+</span><a href="Fenwick.html#mappendF"><span class="hs-identifier hs-var">mappendF</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065853"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; a
+forall a. Group a =&gt; a -&gt; a
+</span><a href="Misc.html#invert"><span class="hs-identifier hs-var">invert</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065852"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">FTree a
+</span><a href="#local-6989586621679065848"><span class="hs-identifier hs-var">ft'</span></a></span><span>
+</span><span id="line-127"></span><span>
+</span><span id="line-128"></span><span class="hs-comment">-- | Binary searches for the shortest prefix such that the fold of all values in it satisfies the given</span><span>
+</span><span id="line-129"></span><span class="hs-comment">-- monotonic predicate. Returns the end index and the fold of the found prefix. O(log n).</span><span>
+</span><span id="line-130"></span><span id="local-6989586621679065847"><span class="annot"><a href="Fenwick.html#binSearchF"><span class="hs-identifier hs-type">binSearchF</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679065847"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679065847"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065847"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679065847"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-131"></span><span id="binSearchF"><span class="annot"><span class="annottext">binSearchF :: (a -&gt; Bool) -&gt; FTree a -&gt; Maybe (Int, a)
+</span><a href="Fenwick.html#binSearchF"><span class="hs-identifier hs-var hs-var">binSearchF</span></a></span></span><span> </span><span id="local-6989586621679065846"><span class="annot"><span class="annottext">a -&gt; Bool
+</span><a href="#local-6989586621679065846"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679065845"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065845"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-identifier">_</span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065844"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065844"><span class="hs-identifier hs-var">ht</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679065843"><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065843"><span class="hs-identifier hs-var">rt</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FNode a -&gt; Int -&gt; Int -&gt; a -&gt; Maybe (Int, a)
+forall t.
+(Num t, Bits t) =&gt;
+FNode a -&gt; Int -&gt; t -&gt; a -&gt; Maybe (t, a)
+</span><a href="#local-6989586621679065842"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065843"><span class="hs-identifier hs-var">rt</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065844"><span class="hs-identifier hs-var">ht</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065845"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">a
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-132"></span><span>    </span><span id="local-6989586621679065842"><span class="annot"><span class="annottext">go :: FNode a -&gt; Int -&gt; t -&gt; a -&gt; Maybe (t, a)
+</span><a href="#local-6989586621679065842"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="Fenwick.html#FTip"><span class="hs-identifier hs-var">FTip</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">t
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe (t, a)
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-133"></span><span>    </span><span class="annot"><a href="#local-6989586621679065842"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FBin"><span class="hs-identifier hs-type">FBin</span></a></span><span> </span><span id="local-6989586621679065841"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065841"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679065840"><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065840"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679065839"><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065839"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679065838"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065838"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span id="local-6989586621679065837"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679065837"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679065836"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065836"><span class="hs-identifier hs-var">acc</span></a></span></span><span>
+</span><span id="line-134"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a -&gt; Bool
+</span><a href="#local-6989586621679065846"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065835"><span class="hs-identifier hs-var">acc'</span></a></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679065834"><span class="hs-identifier hs-var">i'</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; Maybe (t, a) -&gt; Maybe (t, a)
+</span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="annot"><span class="annottext">FNode a -&gt; Int -&gt; t -&gt; a -&gt; Maybe (t, a)
+</span><a href="#local-6989586621679065842"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065840"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065838"><span class="hs-identifier hs-var">h</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679065837"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065836"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (t, a) -&gt; Maybe (t, a) -&gt; Maybe (t, a)
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><span class="hs-operator hs-var">&lt;|&gt;</span></span><span> </span><span class="annot"><span class="annottext">(t, a) -&gt; Maybe (t, a)
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679065834"><span class="hs-identifier hs-var">i'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065835"><span class="hs-identifier hs-var">acc'</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-135"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679065834"><span class="hs-identifier hs-var">i'</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; Maybe (t, a) -&gt; Maybe (t, a)
+</span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="annot"><span class="annottext">FNode a -&gt; Int -&gt; t -&gt; a -&gt; Maybe (t, a)
+</span><a href="#local-6989586621679065842"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065839"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065838"><span class="hs-identifier hs-var">h</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679065834"><span class="hs-identifier hs-var">i'</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065835"><span class="hs-identifier hs-var">acc'</span></a></span><span>
+</span><span id="line-136"></span><span>      </span><span class="hs-keyword">where</span><span>
+</span><span id="line-137"></span><span>        </span><span id="local-6989586621679065835"><span class="annot"><span class="annottext">acc' :: a
+</span><a href="#local-6989586621679065835"><span class="hs-identifier hs-var hs-var">acc'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065836"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065841"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-138"></span><span>        </span><span id="local-6989586621679065834"><span class="annot"><span class="annottext">i' :: t
+</span><a href="#local-6989586621679065834"><span class="hs-identifier hs-var hs-var">i'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679065837"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; t
+forall a. Bits a =&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">bit</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065838"><span class="hs-identifier hs-var">h</span></a></span><span>
+</span><span id="line-139"></span><span>
+</span><span id="line-140"></span><span class="hs-comment">-- | Converts to a list of prefix accumulated values. O(n).</span><span>
+</span><span id="line-141"></span><span id="local-6989586621679065831"><span class="annot"><a href="Fenwick.html#toScanl1F"><span class="hs-identifier hs-type">toScanl1F</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679065831"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065831"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679065831"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span></span><span>
+</span><span id="line-142"></span><span id="toScanl1F"><span class="annot"><span class="annottext">toScanl1F :: FTree a -&gt; [a]
+</span><a href="Fenwick.html#toScanl1F"><span class="hs-identifier hs-var hs-var">toScanl1F</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679065830"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065830"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065829"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065829"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679065828"><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065828"><span class="hs-identifier hs-var">rt</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; [a] -&gt; [a]
+forall a. Int -&gt; [a] -&gt; [a]
+</span><span class="hs-identifier hs-var">take</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065829"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065830"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([a] -&gt; [a]) -&gt; [a] -&gt; [a]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">FNode a -&gt; a -&gt; [a] -&gt; [a]
+forall t. Semigroup t =&gt; FNode t -&gt; t -&gt; [t] -&gt; [t]
+</span><a href="#local-6989586621679065826"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065828"><span class="hs-identifier hs-var">rt</span></a></span><span> </span><span class="annot"><span class="annottext">a
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-143"></span><span>    </span><span id="local-6989586621679065826"><span class="annot"><span class="annottext">go :: FNode t -&gt; t -&gt; [t] -&gt; [t]
+</span><a href="#local-6989586621679065826"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="annot"><span class="annottext">FNode t
+</span><a href="Fenwick.html#FTip"><span class="hs-identifier hs-var">FTip</span></a></span><span>         </span><span class="annot"><span class="annottext">t
+</span><span class="hs-identifier">_</span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[t] -&gt; [t]
+forall a. a -&gt; a
+</span><span class="hs-identifier hs-var">id</span></span><span>
+</span><span id="line-144"></span><span>    </span><span class="annot"><a href="#local-6989586621679065826"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FBin"><span class="hs-identifier hs-type">FBin</span></a></span><span> </span><span id="local-6989586621679065824"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679065824"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679065823"><span class="annot"><span class="annottext">FNode t
+</span><a href="#local-6989586621679065823"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679065822"><span class="annot"><span class="annottext">FNode t
+</span><a href="#local-6989586621679065822"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679065821"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679065821"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FNode t -&gt; t -&gt; [t] -&gt; [t]
+</span><a href="#local-6989586621679065826"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">FNode t
+</span><a href="#local-6989586621679065823"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679065821"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="annot"><span class="annottext">([t] -&gt; [t]) -&gt; ([t] -&gt; [t]) -&gt; [t] -&gt; [t]
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679065820"><span class="hs-identifier hs-var">acc'</span></a></span><span class="annot"><span class="annottext">t -&gt; [t] -&gt; [t]
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([t] -&gt; [t]) -&gt; ([t] -&gt; [t]) -&gt; [t] -&gt; [t]
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">FNode t -&gt; t -&gt; [t] -&gt; [t]
+</span><a href="#local-6989586621679065826"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">FNode t
+</span><a href="#local-6989586621679065822"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679065820"><span class="hs-identifier hs-var">acc'</span></a></span><span> </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679065820"><span class="annot"><span class="annottext">acc' :: t
+</span><a href="#local-6989586621679065820"><span class="hs-identifier hs-var hs-var">acc'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679065821"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679065824"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-145"></span><span>
+</span><span id="line-146"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-147"></span><span class="hs-comment">-- For tests</span><span>
+</span><span id="line-148"></span><span>
+</span><span id="line-149"></span><span class="hs-comment">-- Allows specialization across modules</span><span>
+</span><span id="line-150"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="Fenwick.html#fromListF"><span class="hs-pragma hs-type">fromListF</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-151"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="Fenwick.html#mappendF"><span class="hs-pragma hs-type">mappendF</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-152"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="Fenwick.html#foldPrefixF"><span class="hs-pragma hs-type">foldPrefixF</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-153"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="Fenwick.html#binSearchF"><span class="hs-pragma hs-type">binSearchF</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-154"></span><span>
+</span><span id="line-155"></span><span id="local-6989586621679065819"><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="#local-6989586621679065819"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065819"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-156"></span><span>    </span><span id="local-6989586621679065816"><span class="annot"><span class="annottext">rnf :: FTree a -&gt; ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FTree"><span class="hs-identifier hs-type">FTree</span></a></span><span> </span><span id="local-6989586621679065814"><span class="annot"><span class="annottext">(Int, Int, Int)
+</span><a href="#local-6989586621679065814"><span class="hs-identifier hs-var">lrh</span></a></span></span><span> </span><span id="local-6989586621679065813"><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065813"><span class="hs-identifier hs-var">rt</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int, Int) -&gt; ()
+forall a. NFData a =&gt; a -&gt; ()
+</span><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="annot"><span class="annottext">(Int, Int, Int)
+</span><a href="#local-6989586621679065814"><span class="hs-identifier hs-var">lrh</span></a></span><span> </span><span class="annot"><span class="annottext">() -&gt; () -&gt; ()
+</span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="annot"><span class="annottext">FNode a -&gt; ()
+forall a. NFData a =&gt; a -&gt; ()
+</span><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065813"><span class="hs-identifier hs-var">rt</span></a></span></span><span>
+</span><span id="line-157"></span><span>
+</span><span id="line-158"></span><span id="local-6989586621679065812"><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="#local-6989586621679065812"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FNode"><span class="hs-identifier hs-type">FNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679065812"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-159"></span><span>    </span><span id="local-6989586621679065810"><span class="annot"><span class="annottext">rnf :: FNode a -&gt; ()
+</span><a href="#local-6989586621679065810"><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></a></span></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="Fenwick.html#FTip"><span class="hs-identifier hs-var">FTip</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-160"></span><span>    </span><span class="annot"><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Fenwick.html#FBin"><span class="hs-identifier hs-type">FBin</span></a></span><span> </span><span id="local-6989586621679065809"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065809"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679065808"><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065808"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679065807"><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065807"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; ()
+forall a. NFData a =&gt; a -&gt; ()
+</span><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679065809"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">() -&gt; () -&gt; ()
+</span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="annot"><span class="annottext">FNode a -&gt; ()
+forall a. NFData a =&gt; a -&gt; ()
+</span><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065808"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">() -&gt; () -&gt; ()
+</span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="annot"><span class="annottext">FNode a -&gt; ()
+forall a. NFData a =&gt; a -&gt; ()
+</span><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="annot"><span class="annottext">FNode a
+</span><a href="#local-6989586621679065807"><span class="hs-identifier hs-var">r</span></a></span></span><span>
+</span><span id="line-161"></span></pre></body></html>

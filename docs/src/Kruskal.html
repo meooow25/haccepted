@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">{-|
+== Kruskal's algorithm
+
+An algorithm to find the minimum spanning forest of an edge-weighted graph.
+
+Sources
+
+* https://en.wikipedia.org/wiki/Kruskal%27s_algorithm
+* Joseph B. Kruskal, &quot;On the shortest spanning subtree of a graph and the traveling salesman
+  problem&quot;, 1956
+  https://www.ams.org/journals/proc/1956-007-01/S0002-9939-1956-0078686-7/
+
+-}</span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Kruskal</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.DeepSeq</span></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad</span></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.ST</span></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Array.ST</span></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Graph</span></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Ord</span></span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="DSU.html"><span class="hs-identifier">DSU</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="DSU.html#newD"><span class="hs-identifier">newD</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="DSU.html#unionD"><span class="hs-identifier">unionD</span></a></span><span> </span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Sort.html"><span class="hs-identifier">Sort</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Sort.html#sortBy"><span class="hs-identifier">sortBy</span></a></span><span> </span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">type</span><span> </span><span id="Weight"><span class="annot"><a href="Kruskal.html#Weight"><span class="hs-identifier hs-var">Weight</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">data</span><span> </span><span id="WEdge"><span class="annot"><a href="Kruskal.html#WEdge"><span class="hs-identifier hs-var">WEdge</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="WEdge"><span class="annot"><a href="Kruskal.html#WEdge"><span class="hs-identifier hs-var">WEdge</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="getU"><span class="annot"><span class="annottext">WEdge -&gt; Vertex
+</span><a href="Kruskal.html#getU"><span class="hs-identifier hs-var hs-var">getU</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span class="hs-special">,</span><span> </span><span id="getV"><span class="annot"><span class="annottext">WEdge -&gt; Vertex
+</span><a href="Kruskal.html#getV"><span class="hs-identifier hs-var hs-var">getV</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span class="hs-special">,</span><span> </span><span id="getW"><span class="annot"><span class="annottext">WEdge -&gt; Vertex
+</span><a href="Kruskal.html#getW"><span class="hs-identifier hs-var hs-var">getW</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Kruskal.html#Weight"><span class="hs-identifier hs-type">Weight</span></a></span><span> </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679067887"><span id="local-6989586621679067889"><span class="annot"><span class="annottext">WEdge -&gt; WEdge -&gt; Bool
+(WEdge -&gt; WEdge -&gt; Bool) -&gt; (WEdge -&gt; WEdge -&gt; Bool) -&gt; Eq WEdge
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: WEdge -&gt; WEdge -&gt; Bool
+$c/= :: WEdge -&gt; WEdge -&gt; Bool
+== :: WEdge -&gt; WEdge -&gt; Bool
+$c== :: WEdge -&gt; WEdge -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679067880"><span id="local-6989586621679067882"><span id="local-6989586621679067884"><span class="annot"><span class="annottext">Vertex -&gt; WEdge -&gt; ShowS
+[WEdge] -&gt; ShowS
+WEdge -&gt; String
+(Vertex -&gt; WEdge -&gt; ShowS)
+-&gt; (WEdge -&gt; String) -&gt; ([WEdge] -&gt; ShowS) -&gt; Show WEdge
+forall a.
+(Vertex -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [WEdge] -&gt; ShowS
+$cshowList :: [WEdge] -&gt; ShowS
+show :: WEdge -&gt; String
+$cshow :: WEdge -&gt; String
+showsPrec :: Vertex -&gt; WEdge -&gt; ShowS
+$cshowsPrec :: Vertex -&gt; WEdge -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="hs-comment">-- | Runs Kruskal's algorithm on the graph represented by the given list of edges. Returns the edges that</span><span>
+</span><span id="line-31"></span><span class="hs-comment">-- are part of a minimum spanning forest. Vertices should be non-negative. O(|V| + |E|log|E|).</span><span>
+</span><span id="line-32"></span><span class="annot"><a href="Kruskal.html#kruskal"><span class="hs-identifier hs-type">kruskal</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bounds</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Kruskal.html#WEdge"><span class="hs-identifier hs-type">WEdge</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Kruskal.html#WEdge"><span class="hs-identifier hs-type">WEdge</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-33"></span><span id="kruskal"><span class="annot"><span class="annottext">kruskal :: Bounds -&gt; [WEdge] -&gt; [WEdge]
+</span><a href="Kruskal.html#kruskal"><span class="hs-identifier hs-var hs-var">kruskal</span></a></span></span><span> </span><span id="local-6989586621679067877"><span class="annot"><span class="annottext">Bounds
+</span><a href="#local-6989586621679067877"><span class="hs-identifier hs-var">bnds</span></a></span></span><span> </span><span id="local-6989586621679067876"><span class="annot"><span class="annottext">[WEdge]
+</span><a href="#local-6989586621679067876"><span class="hs-identifier hs-var">es</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(forall s. ST s [WEdge]) -&gt; [WEdge]
+forall a. (forall s. ST s a) -&gt; a
+</span><span class="hs-identifier hs-var">runST</span></span><span> </span><span class="annot"><span class="annottext">((forall s. ST s [WEdge]) -&gt; [WEdge])
+-&gt; (forall s. ST s [WEdge]) -&gt; [WEdge]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-34"></span><span>    </span><span id="local-6989586621679067874"><span class="annot"><span class="annottext">STUArray s Vertex Vertex
+</span><a href="#local-6989586621679067874"><span class="hs-identifier hs-var">dsu</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span id="local-6989586621679067873"><span class="annot"><span class="annottext">Bounds -&gt; ST s (STUArray s Vertex Vertex)
+forall (a :: * -&gt; * -&gt; *) (m :: * -&gt; *).
+MArray a Vertex m =&gt;
+Bounds -&gt; m (a Vertex Vertex)
+</span><a href="DSU.html#newD"><span class="hs-identifier hs-var">newD</span></a></span><span> </span><span class="annot"><span class="annottext">Bounds
+</span><a href="#local-6989586621679067877"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ST</span></span><span> </span><span class="annot"><a href="#local-6989586621679067873"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">STUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679067873"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-35"></span><span>    </span><span class="annot"><span class="annottext">(WEdge -&gt; ST s Bool) -&gt; [WEdge] -&gt; ST s [WEdge]
+forall (m :: * -&gt; *) a.
+Applicative m =&gt;
+(a -&gt; m Bool) -&gt; [a] -&gt; m [a]
+</span><span class="hs-identifier hs-var">filterM</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">STUArray s Vertex Vertex -&gt; Vertex -&gt; Vertex -&gt; ST s Bool
+forall (a :: * -&gt; * -&gt; *) (m :: * -&gt; *).
+MArray a Vertex m =&gt;
+a Vertex Vertex -&gt; Vertex -&gt; Vertex -&gt; m Bool
+</span><a href="DSU.html#unionD"><span class="hs-identifier hs-var">unionD</span></a></span><span> </span><span class="annot"><span class="annottext">STUArray s Vertex Vertex
+</span><a href="#local-6989586621679067874"><span class="hs-identifier hs-var">dsu</span></a></span><span> </span><span class="annot"><span class="annottext">(Vertex -&gt; Vertex -&gt; ST s Bool)
+-&gt; (WEdge -&gt; Vertex) -&gt; WEdge -&gt; Vertex -&gt; ST s Bool
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">WEdge -&gt; Vertex
+</span><a href="Kruskal.html#getU"><span class="hs-identifier hs-var hs-var">getU</span></a></span><span> </span><span class="annot"><span class="annottext">(WEdge -&gt; Vertex -&gt; ST s Bool)
+-&gt; (WEdge -&gt; Vertex) -&gt; WEdge -&gt; ST s Bool
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;*&gt;</span></span><span> </span><span class="annot"><span class="annottext">WEdge -&gt; Vertex
+</span><a href="Kruskal.html#getV"><span class="hs-identifier hs-var hs-var">getV</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([WEdge] -&gt; ST s [WEdge]) -&gt; [WEdge] -&gt; ST s [WEdge]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(WEdge -&gt; WEdge -&gt; Ordering) -&gt; [WEdge] -&gt; [WEdge]
+forall e. (e -&gt; e -&gt; Ordering) -&gt; [e] -&gt; [e]
+</span><a href="Sort.html#sortBy"><span class="hs-identifier hs-var">sortBy</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(WEdge -&gt; Vertex) -&gt; WEdge -&gt; WEdge -&gt; Ordering
+forall a b. Ord a =&gt; (b -&gt; a) -&gt; b -&gt; b -&gt; Ordering
+</span><span class="hs-identifier hs-var">comparing</span></span><span> </span><span class="annot"><span class="annottext">WEdge -&gt; Vertex
+</span><a href="Kruskal.html#getW"><span class="hs-identifier hs-var hs-var">getW</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[WEdge]
+</span><a href="#local-6989586621679067876"><span class="hs-identifier hs-var">es</span></a></span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-38"></span><span class="hs-comment">-- For tests</span><span>
+</span><span id="line-39"></span><span>
+</span><span id="line-40"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="Kruskal.html#WEdge"><span class="hs-identifier hs-type">WEdge</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-41"></span><span>    </span><span id="local-6989586621679067867"><span class="annot"><span class="annottext">rnf :: WEdge -&gt; ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">WEdge -&gt; ()
+forall a. a -&gt; ()
+</span><span class="hs-identifier hs-var">rwhnf</span></span><span>
+</span><span id="line-42"></span></pre></body></html>

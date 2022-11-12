@@ -1,0 +1,322 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DeriveTraversable #-}</span><span>
+</span><span id="line-2"></span><span class="hs-comment">{-|
+== Utilities for working with edge-labeled/weighted graphs.
+
+There are useful definitions and algorithms in Data.Tree and Data.Graph but sadly these only deal
+with unlabeled graphs.
+Most definitions here mirror those in Data.Graph.
+
+-}</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">LabelledGraph</span><span>
+</span><span id="line-12"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="LabelledGraph.html#LEdge"><span class="hs-identifier">LEdge</span></a></span><span>
+</span><span id="line-13"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="LabelledGraph.html#LGraph"><span class="hs-identifier">LGraph</span></a></span><span>
+</span><span id="line-14"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="LabelledGraph.html#LTree"><span class="hs-identifier">LTree</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="LabelledGraph.html#buildLG"><span class="hs-identifier">buildLG</span></a></span><span>
+</span><span id="line-16"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="LabelledGraph.html#dfsLTree"><span class="hs-identifier">dfsLTree</span></a></span><span>
+</span><span id="line-17"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="LabelledGraph.html#lTreeToTree"><span class="hs-identifier">lTreeToTree</span></a></span><span>
+</span><span id="line-18"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Array</span></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Graph</span></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.DeepSeq</span></span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">type</span><span> </span><span id="LEdge"><span class="annot"><a href="LabelledGraph.html#LEdge"><span class="hs-identifier hs-var">LEdge</span></a></span></span><span> </span><span id="local-6989586621679064938"><span class="annot"><a href="#local-6989586621679064938"><span class="hs-identifier hs-type">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span class="hs-special">,</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679064938"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">type</span><span> </span><span id="LGraph"><span class="annot"><a href="LabelledGraph.html#LGraph"><span class="hs-identifier hs-var">LGraph</span></a></span></span><span> </span><span id="local-6989586621679064936"><span class="annot"><a href="#local-6989586621679064936"><span class="hs-identifier hs-type">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Array</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679064936"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-27"></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">data</span><span> </span><span id="LTree"><span class="annot"><a href="LabelledGraph.html#LTree"><span class="hs-identifier hs-var">LTree</span></a></span></span><span> </span><span id="local-6989586621679064967"><span class="annot"><a href="#local-6989586621679064967"><span class="hs-identifier hs-type">b</span></a></span></span><span> </span><span id="local-6989586621679064968"><span class="annot"><a href="#local-6989586621679064968"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LNode"><span class="annot"><a href="LabelledGraph.html#LNode"><span class="hs-identifier hs-var">LNode</span></a></span></span><span>
+</span><span id="line-29"></span><span>    </span><span class="hs-special">{</span><span> </span><span id="rootLabelL"><span class="annot"><span class="annottext">LTree b a -&gt; a
+</span><a href="LabelledGraph.html#rootLabelL"><span class="hs-identifier hs-var hs-var">rootLabelL</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679064968"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-30"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="subForestL"><span class="annot"><span class="annottext">LTree b a -&gt; [(b, LTree b a)]
+</span><a href="LabelledGraph.html#subForestL"><span class="hs-identifier hs-var hs-var">subForestL</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679064967"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="LabelledGraph.html#LTree"><span class="hs-identifier hs-type">LTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679064967"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679064968"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-31"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679064929"><span id="local-6989586621679064931"><span class="annot"><span class="annottext">LTree b a -&gt; LTree b a -&gt; Bool
+(LTree b a -&gt; LTree b a -&gt; Bool)
+-&gt; (LTree b a -&gt; LTree b a -&gt; Bool) -&gt; Eq (LTree b a)
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+forall b a. (Eq a, Eq b) =&gt; LTree b a -&gt; LTree b a -&gt; Bool
+/= :: LTree b a -&gt; LTree b a -&gt; Bool
+$c/= :: forall b a. (Eq a, Eq b) =&gt; LTree b a -&gt; LTree b a -&gt; Bool
+== :: LTree b a -&gt; LTree b a -&gt; Bool
+$c== :: forall b a. (Eq a, Eq b) =&gt; LTree b a -&gt; LTree b a -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679064922"><span id="local-6989586621679064924"><span id="local-6989586621679064926"><span class="annot"><span class="annottext">Int -&gt; LTree b a -&gt; ShowS
+[LTree b a] -&gt; ShowS
+LTree b a -&gt; String
+(Int -&gt; LTree b a -&gt; ShowS)
+-&gt; (LTree b a -&gt; String)
+-&gt; ([LTree b a] -&gt; ShowS)
+-&gt; Show (LTree b a)
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+forall b a. (Show a, Show b) =&gt; Int -&gt; LTree b a -&gt; ShowS
+forall b a. (Show a, Show b) =&gt; [LTree b a] -&gt; ShowS
+forall b a. (Show a, Show b) =&gt; LTree b a -&gt; String
+showList :: [LTree b a] -&gt; ShowS
+$cshowList :: forall b a. (Show a, Show b) =&gt; [LTree b a] -&gt; ShowS
+show :: LTree b a -&gt; String
+$cshow :: forall b a. (Show a, Show b) =&gt; LTree b a -&gt; String
+showsPrec :: Int -&gt; LTree b a -&gt; ShowS
+$cshowsPrec :: forall b a. (Show a, Show b) =&gt; Int -&gt; LTree b a -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679064917"><span id="local-6989586621679064919"><span class="annot"><span class="annottext">a -&gt; LTree b b -&gt; LTree b a
+(a -&gt; b) -&gt; LTree b a -&gt; LTree b b
+(forall a b. (a -&gt; b) -&gt; LTree b a -&gt; LTree b b)
+-&gt; (forall a b. a -&gt; LTree b b -&gt; LTree b a) -&gt; Functor (LTree b)
+forall a b. a -&gt; LTree b b -&gt; LTree b a
+forall a b. (a -&gt; b) -&gt; LTree b a -&gt; LTree b b
+forall b a b. a -&gt; LTree b b -&gt; LTree b a
+forall b a b. (a -&gt; b) -&gt; LTree b a -&gt; LTree b b
+forall (f :: * -&gt; *).
+(forall a b. (a -&gt; b) -&gt; f a -&gt; f b)
+-&gt; (forall a b. a -&gt; f b -&gt; f a) -&gt; Functor f
+&lt;$ :: a -&gt; LTree b b -&gt; LTree b a
+$c&lt;$ :: forall b a b. a -&gt; LTree b b -&gt; LTree b a
+fmap :: (a -&gt; b) -&gt; LTree b a -&gt; LTree b b
+$cfmap :: forall b a b. (a -&gt; b) -&gt; LTree b a -&gt; LTree b b
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Functor</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679064882"><span id="local-6989586621679064884"><span id="local-6989586621679064886"><span id="local-6989586621679064888"><span id="local-6989586621679064890"><span id="local-6989586621679064892"><span id="local-6989586621679064894"><span id="local-6989586621679064896"><span id="local-6989586621679064898"><span id="local-6989586621679064900"><span id="local-6989586621679064902"><span id="local-6989586621679064904"><span id="local-6989586621679064906"><span id="local-6989586621679064908"><span id="local-6989586621679064910"><span id="local-6989586621679064912"><span id="local-6989586621679064914"><span class="annot"><span class="annottext">LTree b a -&gt; Bool
+(a -&gt; m) -&gt; LTree b a -&gt; m
+(a -&gt; b -&gt; b) -&gt; b -&gt; LTree b a -&gt; b
+(forall m. Monoid m =&gt; LTree b m -&gt; m)
+-&gt; (forall m a. Monoid m =&gt; (a -&gt; m) -&gt; LTree b a -&gt; m)
+-&gt; (forall m a. Monoid m =&gt; (a -&gt; m) -&gt; LTree b a -&gt; m)
+-&gt; (forall a b. (a -&gt; b -&gt; b) -&gt; b -&gt; LTree b a -&gt; b)
+-&gt; (forall a b. (a -&gt; b -&gt; b) -&gt; b -&gt; LTree b a -&gt; b)
+-&gt; (forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; LTree b a -&gt; b)
+-&gt; (forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; LTree b a -&gt; b)
+-&gt; (forall a. (a -&gt; a -&gt; a) -&gt; LTree b a -&gt; a)
+-&gt; (forall a. (a -&gt; a -&gt; a) -&gt; LTree b a -&gt; a)
+-&gt; (forall a. LTree b a -&gt; [a])
+-&gt; (forall a. LTree b a -&gt; Bool)
+-&gt; (forall a. LTree b a -&gt; Int)
+-&gt; (forall a. Eq a =&gt; a -&gt; LTree b a -&gt; Bool)
+-&gt; (forall a. Ord a =&gt; LTree b a -&gt; a)
+-&gt; (forall a. Ord a =&gt; LTree b a -&gt; a)
+-&gt; (forall a. Num a =&gt; LTree b a -&gt; a)
+-&gt; (forall a. Num a =&gt; LTree b a -&gt; a)
+-&gt; Foldable (LTree b)
+forall a. Eq a =&gt; a -&gt; LTree b a -&gt; Bool
+forall a. Num a =&gt; LTree b a -&gt; a
+forall a. Ord a =&gt; LTree b a -&gt; a
+forall m. Monoid m =&gt; LTree b m -&gt; m
+forall a. LTree b a -&gt; Bool
+forall a. LTree b a -&gt; Int
+forall a. LTree b a -&gt; [a]
+forall a. (a -&gt; a -&gt; a) -&gt; LTree b a -&gt; a
+forall b a. Eq a =&gt; a -&gt; LTree b a -&gt; Bool
+forall b a. Num a =&gt; LTree b a -&gt; a
+forall b a. Ord a =&gt; LTree b a -&gt; a
+forall m a. Monoid m =&gt; (a -&gt; m) -&gt; LTree b a -&gt; m
+forall b m. Monoid m =&gt; LTree b m -&gt; m
+forall b a. LTree b a -&gt; Bool
+forall b a. LTree b a -&gt; Int
+forall b a. LTree b a -&gt; [a]
+forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; LTree b a -&gt; b
+forall a b. (a -&gt; b -&gt; b) -&gt; b -&gt; LTree b a -&gt; b
+forall b a. (a -&gt; a -&gt; a) -&gt; LTree b a -&gt; a
+forall b m a. Monoid m =&gt; (a -&gt; m) -&gt; LTree b a -&gt; m
+forall b b a. (b -&gt; a -&gt; b) -&gt; b -&gt; LTree b a -&gt; b
+forall b a b. (a -&gt; b -&gt; b) -&gt; b -&gt; LTree b a -&gt; b
+forall (t :: * -&gt; *).
+(forall m. Monoid m =&gt; t m -&gt; m)
+-&gt; (forall m a. Monoid m =&gt; (a -&gt; m) -&gt; t a -&gt; m)
+-&gt; (forall m a. Monoid m =&gt; (a -&gt; m) -&gt; t a -&gt; m)
+-&gt; (forall a b. (a -&gt; b -&gt; b) -&gt; b -&gt; t a -&gt; b)
+-&gt; (forall a b. (a -&gt; b -&gt; b) -&gt; b -&gt; t a -&gt; b)
+-&gt; (forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b)
+-&gt; (forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b)
+-&gt; (forall a. (a -&gt; a -&gt; a) -&gt; t a -&gt; a)
+-&gt; (forall a. (a -&gt; a -&gt; a) -&gt; t a -&gt; a)
+-&gt; (forall a. t a -&gt; [a])
+-&gt; (forall a. t a -&gt; Bool)
+-&gt; (forall a. t a -&gt; Int)
+-&gt; (forall a. Eq a =&gt; a -&gt; t a -&gt; Bool)
+-&gt; (forall a. Ord a =&gt; t a -&gt; a)
+-&gt; (forall a. Ord a =&gt; t a -&gt; a)
+-&gt; (forall a. Num a =&gt; t a -&gt; a)
+-&gt; (forall a. Num a =&gt; t a -&gt; a)
+-&gt; Foldable t
+product :: LTree b a -&gt; a
+$cproduct :: forall b a. Num a =&gt; LTree b a -&gt; a
+sum :: LTree b a -&gt; a
+$csum :: forall b a. Num a =&gt; LTree b a -&gt; a
+minimum :: LTree b a -&gt; a
+$cminimum :: forall b a. Ord a =&gt; LTree b a -&gt; a
+maximum :: LTree b a -&gt; a
+$cmaximum :: forall b a. Ord a =&gt; LTree b a -&gt; a
+elem :: a -&gt; LTree b a -&gt; Bool
+$celem :: forall b a. Eq a =&gt; a -&gt; LTree b a -&gt; Bool
+length :: LTree b a -&gt; Int
+$clength :: forall b a. LTree b a -&gt; Int
+null :: LTree b a -&gt; Bool
+$cnull :: forall b a. LTree b a -&gt; Bool
+toList :: LTree b a -&gt; [a]
+$ctoList :: forall b a. LTree b a -&gt; [a]
+foldl1 :: (a -&gt; a -&gt; a) -&gt; LTree b a -&gt; a
+$cfoldl1 :: forall b a. (a -&gt; a -&gt; a) -&gt; LTree b a -&gt; a
+foldr1 :: (a -&gt; a -&gt; a) -&gt; LTree b a -&gt; a
+$cfoldr1 :: forall b a. (a -&gt; a -&gt; a) -&gt; LTree b a -&gt; a
+foldl' :: (b -&gt; a -&gt; b) -&gt; b -&gt; LTree b a -&gt; b
+$cfoldl' :: forall b b a. (b -&gt; a -&gt; b) -&gt; b -&gt; LTree b a -&gt; b
+foldl :: (b -&gt; a -&gt; b) -&gt; b -&gt; LTree b a -&gt; b
+$cfoldl :: forall b b a. (b -&gt; a -&gt; b) -&gt; b -&gt; LTree b a -&gt; b
+foldr' :: (a -&gt; b -&gt; b) -&gt; b -&gt; LTree b a -&gt; b
+$cfoldr' :: forall b a b. (a -&gt; b -&gt; b) -&gt; b -&gt; LTree b a -&gt; b
+foldr :: (a -&gt; b -&gt; b) -&gt; b -&gt; LTree b a -&gt; b
+$cfoldr :: forall b a b. (a -&gt; b -&gt; b) -&gt; b -&gt; LTree b a -&gt; b
+foldMap' :: (a -&gt; m) -&gt; LTree b a -&gt; m
+$cfoldMap' :: forall b m a. Monoid m =&gt; (a -&gt; m) -&gt; LTree b a -&gt; m
+foldMap :: (a -&gt; m) -&gt; LTree b a -&gt; m
+$cfoldMap :: forall b m a. Monoid m =&gt; (a -&gt; m) -&gt; LTree b a -&gt; m
+fold :: LTree b m -&gt; m
+$cfold :: forall b m. Monoid m =&gt; LTree b m -&gt; m
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Foldable</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679064871"><span id="local-6989586621679064873"><span id="local-6989586621679064875"><span id="local-6989586621679064877"><span class="annot"><span class="annottext">Functor (LTree b)
+Foldable (LTree b)
+Functor (LTree b)
+-&gt; Foldable (LTree b)
+-&gt; (forall (f :: * -&gt; *) a b.
+    Applicative f =&gt;
+    (a -&gt; f b) -&gt; LTree b a -&gt; f (LTree b b))
+-&gt; (forall (f :: * -&gt; *) a.
+    Applicative f =&gt;
+    LTree b (f a) -&gt; f (LTree b a))
+-&gt; (forall (m :: * -&gt; *) a b.
+    Monad m =&gt;
+    (a -&gt; m b) -&gt; LTree b a -&gt; m (LTree b b))
+-&gt; (forall (m :: * -&gt; *) a.
+    Monad m =&gt;
+    LTree b (m a) -&gt; m (LTree b a))
+-&gt; Traversable (LTree b)
+(a -&gt; f b) -&gt; LTree b a -&gt; f (LTree b b)
+forall b. Functor (LTree b)
+forall b. Foldable (LTree b)
+forall b (m :: * -&gt; *) a. Monad m =&gt; LTree b (m a) -&gt; m (LTree b a)
+forall b (f :: * -&gt; *) a.
+Applicative f =&gt;
+LTree b (f a) -&gt; f (LTree b a)
+forall b (m :: * -&gt; *) a b.
+Monad m =&gt;
+(a -&gt; m b) -&gt; LTree b a -&gt; m (LTree b b)
+forall b (f :: * -&gt; *) a b.
+Applicative f =&gt;
+(a -&gt; f b) -&gt; LTree b a -&gt; f (LTree b b)
+forall (t :: * -&gt; *).
+Functor t
+-&gt; Foldable t
+-&gt; (forall (f :: * -&gt; *) a b.
+    Applicative f =&gt;
+    (a -&gt; f b) -&gt; t a -&gt; f (t b))
+-&gt; (forall (f :: * -&gt; *) a. Applicative f =&gt; t (f a) -&gt; f (t a))
+-&gt; (forall (m :: * -&gt; *) a b.
+    Monad m =&gt;
+    (a -&gt; m b) -&gt; t a -&gt; m (t b))
+-&gt; (forall (m :: * -&gt; *) a. Monad m =&gt; t (m a) -&gt; m (t a))
+-&gt; Traversable t
+forall (m :: * -&gt; *) a. Monad m =&gt; LTree b (m a) -&gt; m (LTree b a)
+forall (f :: * -&gt; *) a.
+Applicative f =&gt;
+LTree b (f a) -&gt; f (LTree b a)
+forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+(a -&gt; m b) -&gt; LTree b a -&gt; m (LTree b b)
+forall (f :: * -&gt; *) a b.
+Applicative f =&gt;
+(a -&gt; f b) -&gt; LTree b a -&gt; f (LTree b b)
+sequence :: LTree b (m a) -&gt; m (LTree b a)
+$csequence :: forall b (m :: * -&gt; *) a. Monad m =&gt; LTree b (m a) -&gt; m (LTree b a)
+mapM :: (a -&gt; m b) -&gt; LTree b a -&gt; m (LTree b b)
+$cmapM :: forall b (m :: * -&gt; *) a b.
+Monad m =&gt;
+(a -&gt; m b) -&gt; LTree b a -&gt; m (LTree b b)
+sequenceA :: LTree b (f a) -&gt; f (LTree b a)
+$csequenceA :: forall b (f :: * -&gt; *) a.
+Applicative f =&gt;
+LTree b (f a) -&gt; f (LTree b a)
+traverse :: (a -&gt; f b) -&gt; LTree b a -&gt; f (LTree b b)
+$ctraverse :: forall b (f :: * -&gt; *) a b.
+Applicative f =&gt;
+(a -&gt; f b) -&gt; LTree b a -&gt; f (LTree b b)
+$cp2Traversable :: forall b. Foldable (LTree b)
+$cp1Traversable :: forall b. Functor (LTree b)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Traversable</span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-32"></span><span>
+</span><span id="line-33"></span><span class="hs-comment">-- | Builds a LGraph from a list of LEdges. O(n + m) for bounds size n and m edges.</span><span>
+</span><span id="line-34"></span><span id="local-6989586621679064869"><span class="annot"><a href="LabelledGraph.html#buildLG"><span class="hs-identifier hs-type">buildLG</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bounds</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="LabelledGraph.html#LEdge"><span class="hs-identifier hs-type">LEdge</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679064869"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="LabelledGraph.html#LGraph"><span class="hs-identifier hs-type">LGraph</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679064869"><span class="hs-identifier hs-type">b</span></a></span></span><span>
+</span><span id="line-35"></span><span id="buildLG"><span class="annot"><span class="annottext">buildLG :: Bounds -&gt; [LEdge b] -&gt; LGraph b
+</span><a href="LabelledGraph.html#buildLG"><span class="hs-identifier hs-var hs-var">buildLG</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">([(b, Int)] -&gt; (b, Int) -&gt; [(b, Int)])
+-&gt; [(b, Int)] -&gt; Bounds -&gt; [LEdge b] -&gt; LGraph b
+forall i e a.
+Ix i =&gt;
+(e -&gt; a -&gt; e) -&gt; e -&gt; (i, i) -&gt; [(i, a)] -&gt; Array i e
+</span><span class="hs-identifier hs-var">accumArray</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">((b, Int) -&gt; [(b, Int)] -&gt; [(b, Int)])
+-&gt; [(b, Int)] -&gt; (b, Int) -&gt; [(b, Int)]
+forall a b c. (a -&gt; b -&gt; c) -&gt; b -&gt; a -&gt; c
+</span><span class="hs-identifier hs-var">flip</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">:</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="hs-comment">-- | For a LGraph that is known to be a tree, returns its LTree representation. O(n).</span><span>
+</span><span id="line-38"></span><span id="local-6989586621679064866"><span class="annot"><a href="LabelledGraph.html#dfsLTree"><span class="hs-identifier hs-type">dfsLTree</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="LabelledGraph.html#LGraph"><span class="hs-identifier hs-type">LGraph</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679064866"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="LabelledGraph.html#LTree"><span class="hs-identifier hs-type">LTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679064866"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span></span><span>
+</span><span id="line-39"></span><span id="dfsLTree"><span class="annot"><span class="annottext">dfsLTree :: LGraph b -&gt; Int -&gt; LTree b Int
+</span><a href="LabelledGraph.html#dfsLTree"><span class="hs-identifier hs-var hs-var">dfsLTree</span></a></span></span><span> </span><span id="local-6989586621679064865"><span class="annot"><span class="annottext">LGraph b
+</span><a href="#local-6989586621679064865"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679064864"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064864"><span class="hs-identifier hs-var">u</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; LTree b Int
+</span><a href="#local-6989586621679064863"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064864"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064864"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-40"></span><span>    </span><span id="local-6989586621679064863"><span class="annot"><span class="annottext">go :: Int -&gt; Int -&gt; LTree b Int
+</span><a href="#local-6989586621679064863"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679064862"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064862"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679064861"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064861"><span class="hs-identifier hs-var">u</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; [(b, LTree b Int)] -&gt; LTree b Int
+forall b a. a -&gt; [(b, LTree b a)] -&gt; LTree b a
+</span><a href="LabelledGraph.html#LNode"><span class="hs-identifier hs-var">LNode</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064861"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679064860"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; LTree b Int
+</span><a href="#local-6989586621679064863"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064861"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064859"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679064860"><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679064860"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679064859"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064859"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">LGraph b
+</span><a href="#local-6989586621679064865"><span class="hs-identifier hs-var">g</span></a></span><span class="annot"><span class="annottext">LGraph b -&gt; Int -&gt; [(b, Int)]
+forall i e. Ix i =&gt; Array i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064861"><span class="hs-identifier hs-var">u</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064859"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064862"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-41"></span><span>
+</span><span id="line-42"></span><span class="hs-comment">-- | Drops labels from an LTree. O(n).</span><span>
+</span><span id="line-43"></span><span id="local-6989586621679064953"><span id="local-6989586621679064954"><span class="annot"><a href="LabelledGraph.html#lTreeToTree"><span class="hs-identifier hs-type">lTreeToTree</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="LabelledGraph.html#LTree"><span class="hs-identifier hs-type">LTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679064954"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679064953"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tree</span></span><span> </span><span class="annot"><a href="#local-6989586621679064953"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-44"></span><span id="lTreeToTree"><span class="annot"><span class="annottext">lTreeToTree :: LTree b a -&gt; Tree a
+</span><a href="LabelledGraph.html#lTreeToTree"><span class="hs-identifier hs-var hs-var">lTreeToTree</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="LabelledGraph.html#LNode"><span class="hs-identifier hs-type">LNode</span></a></span><span> </span><span id="local-6989586621679064856"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679064856"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679064855"><span class="annot"><span class="annottext">[(b, LTree b a)]
+</span><a href="#local-6989586621679064855"><span class="hs-identifier hs-var">ts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; Forest a -&gt; Tree a
+forall a. a -&gt; Forest a -&gt; Tree a
+</span><span class="hs-identifier hs-var">Node</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679064856"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">(Forest a -&gt; Tree a) -&gt; Forest a -&gt; Tree a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">((b, LTree b a) -&gt; Tree a) -&gt; [(b, LTree b a)] -&gt; Forest a
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">LTree b a -&gt; Tree a
+forall b a. LTree b a -&gt; Tree a
+</span><a href="LabelledGraph.html#lTreeToTree"><span class="hs-identifier hs-var">lTreeToTree</span></a></span><span> </span><span class="annot"><span class="annottext">(LTree b a -&gt; Tree a)
+-&gt; ((b, LTree b a) -&gt; LTree b a) -&gt; (b, LTree b a) -&gt; Tree a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(b, LTree b a) -&gt; LTree b a
+forall a b. (a, b) -&gt; b
+</span><span class="hs-identifier hs-var">snd</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(b, LTree b a)]
+</span><a href="#local-6989586621679064855"><span class="hs-identifier hs-var">ts</span></a></span><span>
+</span><span id="line-45"></span><span>
+</span><span id="line-46"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-47"></span><span class="hs-comment">-- For tests</span><span>
+</span><span id="line-48"></span><span>
+</span><span id="line-49"></span><span id="local-6989586621679064851"><span id="local-6989586621679064852"><span class="hs-keyword">instance</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="#local-6989586621679064852"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="#local-6989586621679064851"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="LabelledGraph.html#LTree"><span class="hs-identifier hs-type">LTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679064851"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679064852"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-50"></span><span>    </span><span id="local-6989586621679064848"><span class="annot"><span class="annottext">rnf :: LTree b a -&gt; ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="LabelledGraph.html#LNode"><span class="hs-identifier hs-type">LNode</span></a></span><span> </span><span id="local-6989586621679064846"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679064846"><span class="hs-identifier hs-var">u</span></a></span></span><span> </span><span id="local-6989586621679064845"><span class="annot"><span class="annottext">[(b, LTree b a)]
+</span><a href="#local-6989586621679064845"><span class="hs-identifier hs-var">ts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; ()
+forall a. NFData a =&gt; a -&gt; ()
+</span><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679064846"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="annot"><span class="annottext">() -&gt; () -&gt; ()
+</span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="annot"><span class="annottext">[(b, LTree b a)] -&gt; ()
+forall a. NFData a =&gt; a -&gt; ()
+</span><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="annot"><span class="annottext">[(b, LTree b a)]
+</span><a href="#local-6989586621679064845"><span class="hs-identifier hs-var">ts</span></a></span></span></span><span>
+</span><span id="line-51"></span></pre></body></html>

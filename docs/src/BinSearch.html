@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">{-|
+== Standard binary search
+
+Source: https://en.wikipedia.org/wiki/Binary_search_algorithm#Procedure_for_finding_the_leftmost_element
+
+Implementation note:
+binSearch can be written in terms of binSearchM but is more much likely to be used so it is
+separate for ease of copying.
+
+The complexities below assume the predicate takes O(1) time, they should be scaled appropriately if
+not so.
+
+-}</span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">BinSearch</span><span>
+</span><span id="line-16"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="BinSearch.html#binSearch"><span class="hs-identifier">binSearch</span></a></span><span>
+</span><span id="line-17"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="BinSearch.html#binSearchA"><span class="hs-identifier">binSearchA</span></a></span><span>
+</span><span id="line-18"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="BinSearch.html#binSearchM"><span class="hs-identifier">binSearchM</span></a></span><span>
+</span><span id="line-19"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Array</span></span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span class="hs-comment">-- | Returns the first value in [l..h] which satisfies the predicate f, h + 1 otherwise.</span><span>
+</span><span id="line-24"></span><span class="hs-comment">-- Returns l if l &gt; h. l + h should not overflow. O(log (h - l + 1)).</span><span>
+</span><span id="line-25"></span><span id="local-6989586621679064566"><span class="annot"><a href="BinSearch.html#binSearch"><span class="hs-identifier hs-type">binSearch</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integral</span></span><span> </span><span class="annot"><a href="#local-6989586621679064566"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679064566"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679064566"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679064566"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679064566"><span class="hs-identifier hs-type">i</span></a></span></span><span>
+</span><span id="line-26"></span><span id="binSearch"><span class="annot"><span class="annottext">binSearch :: (i -&gt; Bool) -&gt; i -&gt; i -&gt; i
+</span><a href="BinSearch.html#binSearch"><span class="hs-identifier hs-var hs-var">binSearch</span></a></span></span><span> </span><span id="local-6989586621679064551"><span class="annot"><span class="annottext">i -&gt; Bool
+</span><a href="#local-6989586621679064551"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; i
+</span><a href="#local-6989586621679064550"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-27"></span><span>    </span><span id="local-6989586621679064550"><span class="annot"><span class="annottext">go :: i -&gt; i -&gt; i
+</span><a href="#local-6989586621679064550"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679064549"><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064549"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679064548"><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064548"><span class="hs-identifier hs-var">h</span></a></span></span><span>
+</span><span id="line-28"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064549"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;</span></span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064548"><span class="hs-identifier hs-var">h</span></a></span><span>     </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064549"><span class="hs-identifier hs-var">l</span></a></span><span>
+</span><span id="line-29"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">i -&gt; Bool
+</span><a href="#local-6989586621679064551"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064546"><span class="hs-identifier hs-var">m</span></a></span><span>       </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; i
+</span><a href="#local-6989586621679064550"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064549"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064546"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; i
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">i
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
+</span><span id="line-30"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; i
+</span><a href="#local-6989586621679064550"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064546"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; i
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">i
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064548"><span class="hs-identifier hs-var">h</span></a></span><span>
+</span><span id="line-31"></span><span>        </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679064546"><span class="annot"><span class="annottext">m :: i
+</span><a href="#local-6989586621679064546"><span class="hs-identifier hs-var hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064549"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; i
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064548"><span class="hs-identifier hs-var">h</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; i
+forall a. Integral a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">`div`</span></span><span> </span><span class="annot"><span class="annottext">i
+</span><span class="hs-number">2</span></span><span>
+</span><span id="line-32"></span><span>
+</span><span id="line-33"></span><span class="hs-comment">-- | binSearch on an Array. O(log n).</span><span>
+</span><span id="line-34"></span><span id="local-6989586621679064543"><span class="annot"><a href="BinSearch.html#binSearchA"><span class="hs-identifier hs-type">binSearchA</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679064543"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Array</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="#local-6989586621679064543"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span></span><span>
+</span><span id="line-35"></span><span id="binSearchA"><span class="annot"><span class="annottext">binSearchA :: (a -&gt; Bool) -&gt; Array Int a -&gt; Int
+</span><a href="BinSearch.html#binSearchA"><span class="hs-identifier hs-var hs-var">binSearchA</span></a></span></span><span> </span><span id="local-6989586621679064542"><span class="annot"><span class="annottext">a -&gt; Bool
+</span><a href="#local-6989586621679064542"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679064541"><span class="annot"><span class="annottext">Array Int a
+</span><a href="#local-6989586621679064541"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Bool) -&gt; Int -&gt; Int -&gt; Int
+forall i. Integral i =&gt; (i -&gt; Bool) -&gt; i -&gt; i -&gt; i
+</span><a href="BinSearch.html#binSearch"><span class="hs-identifier hs-var">binSearch</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Bool
+</span><a href="#local-6989586621679064542"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">(a -&gt; Bool) -&gt; (Int -&gt; a) -&gt; Int -&gt; Bool
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Array Int a
+</span><a href="#local-6989586621679064541"><span class="hs-identifier hs-var">a</span></a></span><span class="annot"><span class="annottext">Array Int a -&gt; Int -&gt; a
+forall i e. Ix i =&gt; Array i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064538"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064537"><span class="hs-identifier hs-var">h</span></a></span><span> </span><span class="hs-keyword">where</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679064538"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064538"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679064537"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679064537"><span class="hs-identifier hs-var">h</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Array Int a -&gt; (Int, Int)
+forall i e. Array i e -&gt; (i, i)
+</span><span class="hs-identifier hs-var">bounds</span></span><span> </span><span class="annot"><span class="annottext">Array Int a
+</span><a href="#local-6989586621679064541"><span class="hs-identifier hs-var">a</span></a></span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="hs-comment">-- | binSearch but the predicate returns a monad. O(log (h - l + 1)).</span><span>
+</span><span id="line-38"></span><span id="local-6989586621679064534"><span id="local-6989586621679064535"><span class="annot"><a href="BinSearch.html#binSearchM"><span class="hs-identifier hs-type">binSearchM</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Monad</span></span><span> </span><span class="annot"><a href="#local-6989586621679064535"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integral</span></span><span> </span><span class="annot"><a href="#local-6989586621679064534"><span class="hs-identifier hs-type">i</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679064534"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679064535"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679064534"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679064534"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679064535"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679064534"><span class="hs-identifier hs-type">i</span></a></span></span></span><span>
+</span><span id="line-39"></span><span id="binSearchM"><span class="annot"><span class="annottext">binSearchM :: (i -&gt; m Bool) -&gt; i -&gt; i -&gt; m i
+</span><a href="BinSearch.html#binSearchM"><span class="hs-identifier hs-var hs-var">binSearchM</span></a></span></span><span> </span><span id="local-6989586621679064533"><span class="annot"><span class="annottext">i -&gt; m Bool
+</span><a href="#local-6989586621679064533"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; m i
+</span><a href="#local-6989586621679064532"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-40"></span><span>    </span><span id="local-6989586621679064532"><span class="annot"><span class="annottext">go :: i -&gt; i -&gt; m i
+</span><a href="#local-6989586621679064532"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679064531"><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064531"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679064530"><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064530"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064531"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;</span></span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064530"><span class="hs-identifier hs-var">h</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">i -&gt; m i
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064531"><span class="hs-identifier hs-var">l</span></a></span><span>
+</span><span id="line-41"></span><span>    </span><span class="annot"><a href="#local-6989586621679064532"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679064529"><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064529"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679064528"><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064528"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-42"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679064527"><span class="annot"><span class="annottext">m :: i
+</span><a href="#local-6989586621679064527"><span class="hs-identifier hs-var hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064529"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; i
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064528"><span class="hs-identifier hs-var">h</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; i
+forall a. Integral a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">`div`</span></span><span> </span><span class="annot"><span class="annottext">i
+</span><span class="hs-number">2</span></span><span>
+</span><span id="line-43"></span><span>        </span><span id="local-6989586621679064526"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679064526"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">i -&gt; m Bool
+</span><a href="#local-6989586621679064533"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064527"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><span id="line-44"></span><span>        </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679064526"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; m i
+</span><a href="#local-6989586621679064532"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064529"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064527"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; i
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">i
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; m i
+</span><a href="#local-6989586621679064532"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064527"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; i
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">i
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679064528"><span class="hs-identifier hs-var">h</span></a></span><span>
+</span><span id="line-45"></span><span>
+</span><span id="line-46"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-47"></span><span class="hs-comment">-- For tests</span><span>
+</span><span id="line-48"></span><span>
+</span><span id="line-49"></span><span class="hs-comment">-- Allows specialization across modules</span><span>
+</span><span id="line-50"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="BinSearch.html#binSearch"><span class="hs-pragma hs-type">binSearch</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-51"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="BinSearch.html#binSearchA"><span class="hs-pragma hs-type">binSearchA</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-52"></span></pre></body></html>
