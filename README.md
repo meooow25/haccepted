@@ -1,6 +1,7 @@
 # haccepted
 ![Tests badge](https://github.com/meooow25/haccepted/actions/workflows/tests.yml/badge.svg)
-![Benchmarks badge](https://img.shields.io/badge/Benchmarks-not%20bad-green)
+<a href="/bench-out/bench-out.txt"><img src="https://img.shields.io/badge/Benchmarks-here-green" alt="Benchmarks badge"></a>
+<a href="https://meooow25.github.io/haccepted/"><img src="https://img.shields.io/badge/Documentation-here-5e5184" alt="Documentation badge"></a>
 
 Data structures and algorithms for competitive programming in Haskell
 
