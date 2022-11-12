@@ -4,6 +4,7 @@ import Control.Monad
 import Data.Bifunctor
 import Data.List
 import System.Environment
+import System.Exit
 import System.FilePath
 
 main :: IO ()
@@ -22,7 +23,7 @@ processFile name = do
     putStrLn $ "[RewriteSrcs] Processing: " ++ name
     s <- readFileStrict name
     case processSrc s of
-        Left er -> putStrLn $ "[RewriteSrcs] Error: " ++ name ++ ", " ++ er
+        Left er -> die $ "[RewriteSrcs] Error: " ++ name ++ ", " ++ er
         Right s' -> do
             writeFile name s'
             putStrLn $ "[RewriteSrcs] Done: " ++ name
