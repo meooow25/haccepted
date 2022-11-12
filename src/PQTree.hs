@@ -1,11 +1,14 @@
 {-|
-PQ-tree, a data structure for representing permutations
+PQ-tree
 
-An implementation of PQ-tree as described by Booth and Lueker, useful for solving the consecutive
-ones problem. The tree consists of three types of nodes, P, Q and leaf. Leaves are single elements.
-The frontier of the tree is the left to right order of leaves in the tree. A P-node is equivalent to
-another with its children permuted in any order. A Q-node is equivalent to one with its children
-reversed. The permutations represented by a tree are the frontiers of all equivalent trees.
+PQ-tree is a data structure for representing permutations. It's useful for solving the consecutive
+ones problem.
+
+This is an implementation of PQ-tree as described by Booth and Lueker. The tree consists of three
+types of nodes, P, Q and leaf. Leaves are single elements. The frontier of the tree is the left to
+right order of leaves in the tree. A P-node is equivalent to another with its children permuted in
+any order. A Q-node is equivalent to one with its children reversed. The permutations represented by
+a tree are the frontiers of all equivalent trees.
 
 The various reduction templates described in Booth and Lueker's paper are used, but the construction
 algorithm is not. This implementation is purely functional, hence it uses a simpler top-down

@@ -1,8 +1,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-|
-
-MInt
-Integer type for modular arithmetic, using fixed prime modulo.
+Modular arithmetic
 
 Implementation notes:
 * MInt is a newtype of Int, change to Int64 if running on 32-bit.
@@ -18,6 +16,9 @@ recip which takes O(log m) time.
 An instance of Enum exists for MInt. The enum is cyclic, it wraps to 0 after m-1.
 An instance of IArray UArray MInt exists. Instances of MArray (STUArray s) MInt (ST s) and
 MArray IOUArray MInt IO are also defined.
+
+MInt
+Integer type for modular arithmetic, using fixed prime modulo.
 
 mkMInt
 Int to MInt. The MInt constructor can be used directly if the value is known to be in [0.. m-1].

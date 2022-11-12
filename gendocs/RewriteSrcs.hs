@@ -51,7 +51,7 @@ processFile name = do
 -- 1. Split everything into lines
 -- 2. Split out the module documentation between {-| and -}.
 -- 3. Split the module doc and rest of the code into blocks by empty lines.
--- 4. Try to match each block from the module doc to a code block's function signature.
+-- 4. Try to match each block from the module doc to a code block's signature.
 -- 5. Move the block titled "Implementation notes:" to after the module doc.
 -- 6. Make the heading of the module doc h2.
 -- 7. Add a line before first bullets in the module doc (for Haddock to detect lists).
@@ -66,7 +66,7 @@ processSrc s = do
     (before, doc, rest) <- extractModuleDoc (lines s)
     let docs = splitOn (=="") doc
         xs = splitOn (=="") rest
-        (docs', xs') = placeAllFuncDoc docs xs
+        (docs', xs') = placeAllDocs docs xs
         (docs'', xs'') = case removeImplNotes docs' of
             Nothing -> (docs', xs')
             Just (implNotes, docs'') -> (docs'', [[""]] ++ [implNotes] ++ xs')
@@ -80,20 +80,30 @@ extractModuleDoc ls = do
     (doc, _, ls'') <- note ("missing " ++ close) $ splitOn1 (==close) ls'
     pure (before, doc, ls'')
 
-placeAllFuncDoc :: [[Line]] -> [[Line]] -> ([[Line]], [[Line]])
-placeAllFuncDoc [] xs = ([], xs)
-placeAllFuncDoc (doc:docs) xs = case placeFuncDoc doc xs of
-    Nothing  -> first (doc:) $ placeAllFuncDoc docs xs
-    Just xs' -> placeAllFuncDoc docs xs'
+placeAllDocs :: [[Line]] -> [[Line]] -> ([[Line]], [[Line]])
+placeAllDocs [] xs = ([], xs)
+placeAllDocs (doc:docs) xs = case placeDoc doc xs of
+    Nothing  -> first (doc:) $ placeAllDocs docs xs
+    Just xs' -> placeAllDocs docs xs'
 
-placeFuncDoc :: [Line] -> [[Line]] -> Maybe [[Line]]
-placeFuncDoc (funcName:doc) = replace1 f where
-    f x = makeHaddockComment doc ++ x <$ guard ((funcName ++ " ::") `isPrefixOf` head x)
-placeFuncDoc [] = error "placeFuncDoc: doc has no body"
+placeDoc :: [Line] -> [[Line]] -> Maybe [[Line]]
+placeDoc (name:doc) = replace1 f where
+    f x = makeHaddockComment doc ++ x <$ guard (head x `defines` name)
+placeDoc [] = error "placeDoc: doc has no body"
 
 open, close :: String
 open = "{-|"
 close = "-}"
+
+defines :: Line -> Line -> Bool
+defines _   []   = False
+defines sig name = or
+    [ (name ++ " ::") `isPrefixOf` sig
+    , ("data " ++ name) `isPrefixOf` sig
+    , ("newtype " ++ name) `isPrefixOf` sig
+    , ("class " ++ name) `isPrefixOf` sig
+    , "class" `isPrefixOf` sig && ("=> " ++ name) `isInfixOf` sig
+    ]
 
 makeHaddockComment :: [Line] -> [Line]
 makeHaddockComment = zipWith (++) ("-- | " : repeat "-- ")

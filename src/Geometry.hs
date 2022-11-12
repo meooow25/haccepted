@@ -1,5 +1,5 @@
 {-|
-Simple utilities for 2D geometry.
+Simple utilities for 2D geometry
 
 mag2
 The square of the magnitude of the vector.
