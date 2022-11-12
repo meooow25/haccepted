@@ -57,6 +57,6 @@ jobs:
             --message "$SOURCE_COMMIT"
 
       - name: Push to pages branch
-        if: steps.commit.outcome == success
+        if: steps.commit.outcome == 'success'
         working-directory: _docs
         run: git push
