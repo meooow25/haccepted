@@ -1,0 +1,50 @@
+name: Deploy Docs
+
+# Adapted from https://github.com/jekyll/minima/blob/master/.github/workflows/demo_site.yml
+
+on:
+  push:
+    branches:
+      - master
+      - gh-pages
+  workflow_dispatch:
+
+jobs:
+  deploy_demo_site:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Haskell
+        uses: haskell/actions/setup@v2
+        with:
+          ghc-version: '8.10.7'
+          enable-stack: true
+          stack-version: 'latest'
+
+      - name: Clone pages branch
+        run: |
+          REMOTE_BRANCH="${REMOTE_BRANCH:-gh-pages}"
+          REMOTE_REPO="https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
+
+          echo "Publishing to ${GITHUB_REPOSITORY} on branch ${REMOTE_BRANCH}"
+          rm -rf _docs/
+          git clone --depth=1 --branch="${REMOTE_BRANCH}" --single-branch --no-checkout "${REMOTE_REPO}" _docs/
+
+      - name: Generate docs
+        run: |
+          stack run rewrite-srcs src/*.hs
+          stack haddock --haddock-arguments "--odir=_docs/docs"
+
+      - name: Push to pages branch
+        run: |
+          SOURCE_COMMIT="$(git log -1 --pretty="%an: %B" "$GITHUB_SHA")"
+          cd _docs
+
+          git add --all
+          git -c user.name="${GITHUB_ACTOR}" -c user.email="${GITHUB_ACTOR}@users.noreply.github.com" \
+            commit --quiet \
+            --message "Deploy demo-site from ${GITHUB_SHA}" \
+            --message "$SOURCE_COMMIT"
+          git push
