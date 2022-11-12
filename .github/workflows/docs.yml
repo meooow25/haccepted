@@ -34,8 +34,8 @@ jobs:
 
       - name: Generate docs
         run: |
-          stack run rewrite-srcs src/*.hs
-          stack haddock --haddock-arguments "--odir=_docs/docs"
+          stack --system-ghc run rewrite-srcs src/*.hs
+          stack --system-ghc haddock --haddock-arguments "--odir=_docs/docs"
 
       - name: Link to Hackage
         # Make links to other libraries in html files to point to Hackage
