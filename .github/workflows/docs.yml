@@ -46,9 +46,9 @@ jobs:
       - name: Commit to pages branch
         id: commit
         continue-on-error: true
-        working-directory: _docs
         run: |
           SOURCE_COMMIT="$(git log -1 --pretty="%an: %B" "$GITHUB_SHA")"
+          cd _docs
 
           git add --all
           git -c user.name="${GITHUB_ACTOR}" -c user.email="${GITHUB_ACTOR}@users.noreply.github.com" \
