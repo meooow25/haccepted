@@ -30,7 +30,7 @@ jobs:
 
           echo "Publishing to ${GITHUB_REPOSITORY} on branch ${REMOTE_BRANCH}"
           rm -rf _docs/
-          git clone --depth=1 --branch="${REMOTE_BRANCH}" --single-branch --no-checkout "${REMOTE_REPO}" _docs/
+          git clone --depth=1 --branch="${REMOTE_BRANCH}" --single-branch "${REMOTE_REPO}" _docs/
 
       - name: Generate docs
         run: |
