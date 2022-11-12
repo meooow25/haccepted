@@ -1,4 +1,4 @@
-{-|
+{-
 Aho-Corasick algorithm
 
 The Aho-Corasick algorithm builds an automaton from a set of pattern strings, and then uses it to
