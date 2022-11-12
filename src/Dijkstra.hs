@@ -13,7 +13,7 @@ Sources:
   https://www-m3.ma.tum.de/foswiki/pub/MN0506/WebHome/dijkstra.pdf
 * Implementation is folklore
 
-Implementation notes
+Implementation notes:
 * dijkstra uses a Set as priority queue because there is no readily available priority queue
   structure in base.
 * dijkstraH uses a skew heap as priority queue. Why a skew heap? Because it is pretty fast and easy

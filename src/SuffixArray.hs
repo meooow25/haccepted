@@ -41,7 +41,8 @@ function into the string. Intended for large alphabets. O(n log n).
 -}
 
 module SuffixArray
-    ( buildSufA
+    ( Chr
+    , buildSufA
     , buildSufAL
     ) where
 

@@ -22,8 +22,8 @@ Runs the algorithm on the adjacency matrix of the graph given as a mutable array
 -}
 
 module FloydWarshall
-    ( Weight
-    , WEdge(..)
+    ( WEdge(..)
+    , Weight
     , floydWarshallFromEdges
     , floydWarshall
     ) where

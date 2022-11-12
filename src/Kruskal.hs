@@ -3,7 +3,7 @@ Kruskal's algorithm
 
 An algorithm to find the minimum spanning forest of an edge-weighted graph.
 
-Sources
+Sources:
 * https://en.wikipedia.org/wiki/Kruskal%27s_algorithm
 * Joseph B. Kruskal, "On the shortest spanning subtree of a graph and the traveling salesman
   problem", 1956
@@ -14,7 +14,11 @@ Runs Kruskal's algorithm on the graph represented by the given list of edges. Re
 are part of a minimum spanning forest. Vertices should be non-negative. O(|V| + |E|log|E|).
 -}
 
-module Kruskal where
+module Kruskal
+    ( WEdge(..)
+    , Weight
+    , kruskal
+    ) where
 
 import Control.DeepSeq
 import Control.Monad

@@ -1,11 +1,12 @@
 {-|
 Binary search
 
-Source: https://en.wikipedia.org/wiki/Binary_search_algorithm#Procedure_for_finding_the_leftmost_element
+Sources:
+* https://en.wikipedia.org/wiki/Binary_search_algorithm#Procedure_for_finding_the_leftmost_element
 
-Implementation note:
-binSearch can be written in terms of binSearchM but is more much likely to be used so it is
-separate for ease of copying.
+Implementation notes:
+* binSearch can be written in terms of binSearchM but is more much likely to be used so it is
+  separate for ease of copying.
 
 The complexities below assume the predicate takes O(1) time, they should be scaled appropriately if
 not so.
