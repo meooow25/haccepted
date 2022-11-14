@@ -1,5 +1,7 @@
 {-|
-Draws trees, primarily for debugging.
+Draw trees
+
+Primarily intended for debugging.
 
 draw
 Draws a tree. Like Data.Tree.drawTree but works with any type, can show edge labels and uses

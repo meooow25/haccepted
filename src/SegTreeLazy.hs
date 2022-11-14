@@ -11,8 +11,8 @@ Sources:
 * https://cp-algorithms.com/data_structures/segment_tree.html
 
 Implementation notes:
-See SegTree.hs because the structure is identical. The only difference is that each node holds an
-update here.
+* See SegTree.hs because the structure is identical. The only difference is that each node holds an
+  update here.
 
 LazySegTree u a is a segment tree on elements of type a and updates of type u. a and u must be
 monoids. An instance of Action u a must exist, which specifies a (right) monoid action of u on a.

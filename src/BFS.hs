@@ -2,7 +2,7 @@
 {-|
 Breadth first search
 
-Source:
+Sources:
 * https://en.wikipedia.org/wiki/Breadth-first_search
 
 bfs

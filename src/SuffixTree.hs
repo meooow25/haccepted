@@ -63,6 +63,7 @@ Draws a suffix tree. Can be used for debugging.
 module SuffixTree
     ( SufTNode(..)
     , SufTEdge(..)
+    , Chr
     , buildSufT
     , matchSufT
     , buildMatchSufT
