@@ -28,10 +28,11 @@ O(V^(1/2) E) for unit networks, such as in maximum bipartite matching.
 -}
 
 module Dinic
-    ( Flow
-    , FlowEdge(..)
+    ( FlowEdge(..)
     , FlowResult(..)
     , ToEdge(..)
+    , Flow
+    , EdgeIndex
     , dinic
     ) where
 
