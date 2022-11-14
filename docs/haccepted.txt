@@ -71,12 +71,12 @@ instance Control.DeepSeq.NFData a => Control.DeepSeq.NFData (AhoCorasick.ACNode 
 
 -- | <h2>Binary search</h2>
 --   
---   Source:
---   <a>https://en.wikipedia.org/wiki/Binary_search_algorithm#Procedure_for_finding_the_leftmost_element</a>
+--   Sources:
 --   
---   Implementation note: binSearch can be written in terms of binSearchM
---   but is more much likely to be used so it is separate for ease of
---   copying.
+--   <ul>
+--   
+--   <li><a>https://en.wikipedia.org/wiki/Binary_search_algorithm#Procedure_for_finding_the_leftmost_element</a></li>
+--   </ul>
 --   
 --   The complexities below assume the predicate takes O(1) time, they
 --   should be scaled appropriately if not so.
@@ -204,7 +204,7 @@ prefixFunc :: Eq a => Int -> (Int -> a) -> UArray Int Int
 prefixFuncBS :: ByteString -> UArray Int Int
 
 
--- | <h2>Utilities for working with edge-labeled/weighted graphs</h2>
+-- | <h2>Edge-labeled/weighted graphs</h2>
 --   
 --   There are useful definitions and algorithms in Data.Tree and
 --   Data.Graph but sadly these only deal with unlabeled graphs. Most
@@ -252,16 +252,6 @@ instance (Control.DeepSeq.NFData a, Control.DeepSeq.NFData b) => Control.DeepSeq
 --   graphs", 1959
 --   <a>https://www-m3.ma.tum.de/foswiki/pub/MN0506/WebHome/dijkstra.pdf</a></li>
 --   <li>Implementation is folklore</li>
---   </ul>
---   
---   Implementation notes
---   
---   <ul>
---   <li>dijkstra uses a Set as priority queue because there is no readily
---   available priority queue structure in base.</li>
---   <li>dijkstraH uses a skew heap as priority queue. Why a skew heap?
---   Because it is pretty fast and easy to implement. An in-place binary
---   heap would likely perform better, but hasn't been tested.</li>
 --   </ul>
 module Dijkstra
 
@@ -380,9 +370,9 @@ instance GHC.Num.Num a => Misc.Commutative (Data.Semigroup.Internal.Sum a)
 --   <a>https://dl.acm.org/doi/10.1145/367766.368168</a></li>
 --   </ul>
 module FloydWarshall
-type Weight = Int
 data WEdge
 WEdge :: !Vertex -> !Vertex -> !Weight -> WEdge
+type Weight = Int
 
 -- | Runs the algorithm on the graph represented by the given list of
 --   edges. There should be no negative cycles. O(|V|^3). Queries take
@@ -473,7 +463,6 @@ instance Control.DeepSeq.NFData a => Control.DeepSeq.NFData (Fenwick.FNode a)
 --   <a>https://github.com/atcoder/ac-library/blob/master/atcoder/maxflow.hpp</a></li>
 --   </ul>
 module Dinic
-type Flow = Int
 data FlowEdge
 FlowEdge :: !Vertex -> !Vertex -> !Flow -> FlowEdge
 [from_] :: FlowEdge -> !Vertex
@@ -488,6 +477,8 @@ data ToEdge
 ToEdge :: !Vertex -> !EdgeIndex -> ToEdge
 [to__] :: ToEdge -> !Vertex
 [edgeIndex_] :: ToEdge -> !EdgeIndex
+type Flow = Int
+type EdgeIndex = Int
 
 -- | Runs Dinic's algorithm on the graph made up of the given FlowEdges.
 --   Returns a FlowResult, describing a max flow configuration with 1. the
@@ -531,7 +522,7 @@ centroidDecomposeL :: LTree b a -> Tree (LTree b a)
 
 -- | <h2>Breadth first search</h2>
 --   
---   Source:
+--   Sources:
 --   
 --   <ul>
 --   <li><a>https://en.wikipedia.org/wiki/Breadth-first_search</a></li>
@@ -649,9 +640,6 @@ instance Control.DeepSeq.NFData PQTree.PQNode
 --   Prufer Codes", 2009
 --   <a>https://www.scirp.org/pdf/JSEA20090200006_93737200.pdf</a></li>
 --   </ul>
---   
---   Implementation note: The c array tracks the number of children of a
---   node.
 module Prufer
 
 -- | Convert a bidirected Graph to a Prufer sequence. The graph must be a
@@ -830,7 +818,7 @@ countingSortUA :: (IArray UArray e, forall s. MArray (STUArray s) e (ST s)) => I
 --   An algorithm to find the minimum spanning forest of an edge-weighted
 --   graph.
 --   
---   Sources
+--   Sources:
 --   
 --   <ul>
 --   <li><a>https://en.wikipedia.org/wiki/Kruskal%27s_algorithm</a></li>
@@ -839,12 +827,12 @@ countingSortUA :: (IArray UArray e, forall s. MArray (STUArray s) e (ST s)) => I
 --   <a>https://www.ams.org/journals/proc/1956-007-01/S0002-9939-1956-0078686-7/</a></li>
 --   </ul>
 module Kruskal
-type Weight = Int
 data WEdge
 WEdge :: !Vertex -> !Vertex -> !Weight -> WEdge
 [getU] :: WEdge -> !Vertex
 [getV] :: WEdge -> !Vertex
 [getW] :: WEdge -> !Weight
+type Weight = Int
 
 -- | Runs Kruskal's algorithm on the graph represented by the given list of
 --   edges. Returns the edges that are part of a minimum spanning forest.
@@ -905,9 +893,6 @@ querym1SP :: Monoid a => Int -> Int -> SparseTable a -> a
 --   
 --   <li><a>https://github.com/cheran-senthil/PyRival/blob/master/pyrival/graphs/lca.py</a></li>
 --   </ul>
---   
---   Implementation note: l - 1 is taken as a dummy root for a forest,
---   converting it to a tree to make things simpler.
 module LCA
 data LCA
 
@@ -955,6 +940,8 @@ instance Control.DeepSeq.NFData LCA.LCA
 --   <li><a>https://sites.google.com/site/indy256/algo/suffix_array</a></li>
 --   </ul>
 module SuffixArray
+type Chr = Int
+type SuffixId = Int
 
 -- | Builds a suffix array and LCP array. n is the length of the string. at
 --   is a 0-based indexing function into the string. Characters must be in
@@ -968,7 +955,9 @@ buildSufA :: Chr -> Int -> (Int -> Chr) -> (UArray Int SuffixId, UArray Int Int)
 buildSufAL :: Int -> (Int -> Chr) -> (UArray Int SuffixId, UArray Int Int)
 
 
--- | <h2>Draws trees, primarily for debugging.</h2>
+-- | <h2>Draw trees</h2>
+--   
+--   Primarily intended for debugging.
 module TreeDraw
 
 -- | Draws a tree. Like Data.Tree.drawTree but works with any type, can
@@ -1014,6 +1003,7 @@ data SufTNode a
 SufTNode :: !a -> !IntMap (SufTEdge a) -> SufTNode a
 data SufTEdge a
 SufTEdge :: !Int -> !Int -> !SufTNode a -> SufTEdge a
+type Chr = Int
 
 -- | Builds a suffix tree. n is the length of the string. at is a 0-based
 --   indexing function into the string. fromLeaf constructs a value from a
