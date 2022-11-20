@@ -1,43 +1,87 @@
 module SparseTableBench where
 
-import Data.Array
-import Data.Monoid
+import Data.Semigroup
 import Data.List
 
 import Criterion
 
-import SparseTable ( SparseTable, fromArraySP, fromListSP, query1SP, querySP )
+import SparseTable ( fromListSP, fromListISP, fromListUSP, fromListIUSP )
 import Util ( evalR, randInts, randSortedIntPairsR, sizedBench )
 
 benchmark :: Benchmark
 benchmark = bgroup "SparseTable"
-    [ -- Build a sparse table of size n from an array
-      bgroup "fromArraySP" $ map benchFromArraySP sizes
+    [ -- Build a sparse table of size n
+      bgroup "fromListSP Sum" $ map benchFromListSP sizes
 
-      -- Build a sparse table of size n from a list
-    , bgroup "fromListSP" $ map benchFromListSP sizes
-
-      -- n queries on a sparse table of size n
-    , bgroup "querySP" $ map (benchQuery querySP) sizes
+    , -- Build a sparse table of size n
+      bgroup "fromListISP Min" $ map benchFromListISP sizes
 
       -- n queries on a sparse table of size n
-    , bgroup "query1SP" $ map (benchQuery query1SP) sizes
+    , bgroup "queries SP Sum" $ map benchQuerySP sizes
+
+      -- n queries on a sparse table of size n (idempotent)
+    , bgroup "queries ISP Min" $ map benchQueryISP sizes
+
+      -- Build an unboxed sparse table of size n
+    , bgroup "fromListUSP (+)" $ map benchFromListUSP sizes
+
+      -- Build an unboxed sparse table of size n
+    , bgroup "fromListIUSP min" $ map benchFromListIUSP sizes
+
+      -- n queries on an unboxed sparse table of size n
+    , bgroup "queries USP (+)" $ map benchQueryUSP sizes
+
+      -- n queries on an unboxed sparse table of size n (idempotent)
+    , bgroup "queries IUSP min" $ map benchQueryIUSP sizes
     ]
 
 sizes :: [Int]
 sizes = [100, 10000, 500000]
 
-benchFromArraySP :: Int -> Benchmark
-benchFromArraySP n = sizedBench n gen $ nf fromArraySP where
-    gen = evalR $ listArray (1, n) . map Sum <$> randInts n
-
 benchFromListSP :: Int -> Benchmark
-benchFromListSP n = sizedBench n gen $ nf $ fromListSP (1, n) where
-    gen = evalR $ map Sum <$> randInts n
+benchFromListSP n = sizedBench n gen $ whnf go where
+    gen = map Sum $ evalR $ randInts n
+    go = forceTable . fromListSP (1, n)
 
-type QF = Int -> Int -> SparseTable (Sum Int) -> Sum Int
+benchFromListISP :: Int -> Benchmark
+benchFromListISP n = sizedBench n gen $ whnf go where
+    gen = map Min $ evalR $ randInts n
+    go = forceTable . fromListISP (1, n)
 
-benchQuery :: QF -> Int -> Benchmark
-benchQuery query n = sizedBench n gen $ \ ~(sp, qs) -> whnf (go sp) qs where
-    gen = evalR $ (,) <$> (fromListSP (1, n) . map Sum <$> randInts n) <*> randSortedIntPairsR (1, n) n
-    go sp qs = foldl' (\_ (l, r) -> query l r sp `seq` ()) () qs
+benchQuerySP :: Int -> Benchmark
+benchQuerySP n = sizedBench n gen $ \(qf, qs) -> whnf (go qf) qs where
+    gen = evalR $ (,) <$> (forceTable . fromListSP (1, n) . map Sum <$> randInts n)
+                      <*> randSortedIntPairsR (1, n) n
+    go qf = foldl' (\_ (l, r) -> qf l r `seq` ()) ()
+
+benchQueryISP :: Int -> Benchmark
+benchQueryISP n = sizedBench n gen $ \(qf, qs) -> whnf (go qf) qs where
+    gen = evalR $ (,) <$> (forceTable . fromListISP (1, n) . map Min <$> randInts n)
+                      <*> randSortedIntPairsR (1, n) n
+    go qf = foldl' (\_ (l, r) -> qf l r `seq` ()) ()
+
+benchFromListUSP :: Int -> Benchmark
+benchFromListUSP n = sizedBench n gen $ whnf go where
+    gen = evalR $ randInts n
+    go = forceTable . fromListUSP (+) (1, n)
+
+benchFromListIUSP :: Int -> Benchmark
+benchFromListIUSP n = sizedBench n gen $ whnf go where
+    gen = evalR $ randInts n
+    go = forceTable . fromListIUSP min (1, n)
+
+benchQueryUSP :: Int -> Benchmark
+benchQueryUSP n = sizedBench n gen $ \(qf, qs) -> whnf (go qf) qs where
+    gen = evalR $ (,) <$> (forceTable . fromListUSP (+) (1, n) <$> randInts n)
+                      <*> randSortedIntPairsR (1, n) n
+    go qf = foldl' (\_ (l, r) -> qf l r `seq` ()) ()
+
+benchQueryIUSP :: Int -> Benchmark
+benchQueryIUSP n = sizedBench n gen $ \(qf, qs) -> whnf (go qf) qs where
+    gen = evalR $ (,) <$> (forceTable . fromListIUSP min (1, n) <$> randInts n)
+                      <*> randSortedIntPairsR (1, n) n
+    go qf = foldl' (\_ (l, r) -> qf l r `seq` ()) ()
+
+-- Forces the array into existence, and it is built strictly so all values are in whnf.
+forceTable :: (Int -> Int -> a) -> (Int -> Int -> a)
+forceTable f = f 1 10 `seq` f
