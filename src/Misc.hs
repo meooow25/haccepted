@@ -48,6 +48,13 @@ Group
 A monoid where elements have inverses.
 a <> invert a = mempty
 invert a <> a = mempty
+
+Idempotent
+A semigroup where the elements are idempotent.
+a <> a = a
+
+bitLength
+Returns the number of bits required to represent the value.
 -}
 
 module Misc
@@ -64,13 +71,16 @@ module Misc
     , foldTree'
     , Commutative
     , Group(..)
+    , Idempotent
+    , bitLength
     ) where
 
 import Control.Monad
 import Data.Array.IArray
 import Data.Array.MArray
+import Data.Bits
 import Data.List
-import Data.Monoid
+import Data.Semigroup
 import Data.Tree
 
 pairs :: [a] -> [(a, a)]
@@ -133,3 +143,17 @@ instance Num a => Commutative (Sum a)
 instance Num a => Group (Sum a) where
     invert = negate
     {-# INLINE invert #-}
+
+class Semigroup a => Idempotent a
+
+instance Ord a => Idempotent (Max a)
+
+instance Ord a => Idempotent (Min a)
+
+instance Idempotent (First a)
+
+instance Idempotent (Last a)
+
+bitLength :: FiniteBits b => b -> Int
+bitLength x = finiteBitSize x - countLeadingZeros x
+{-# INLINE bitLength #-}

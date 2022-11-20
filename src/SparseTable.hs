@@ -1,92 +1,118 @@
+{-# LANGUAGE FlexibleContexts, QuantifiedConstraints #-}
 {-|
 Sparse table
 
-Structure for range queries
+Structure for fast static range fold queries. Useful when the elements do not form a group,
+otherwise prefix sums can be used.
 
 Sources:
 * https://cp-algorithms.com/data_structures/sparse-table.html
 * https://github.com/kth-competitive-programming/kactl/blob/main/content/data-structures/RMQ.h
 
-fromArraySP
-Construct a sparse table from an Array Int. O(n log n).
+Implementation notes:
+* Some array elements are undefined (because of newArray_), but that is fine because those elements
+  are never read.
+* I would love to put Semigroup/Idempotent constraints on fromListU functions but deriving IArray
+  and MArray instances for newtypes is an unfair amount of pain.
+
+Let n = r - l + 1 in all instances below.
 
 fromListSP
-Construct a sparse table from a list. O(n log n).
+Constructs a range fold function from a list. O(n log n) to construct the structure and O(log n)
+for each query.
 
-querySP
-Query a range [l, r]. O(log n), or more accurately O(popcount (r - l + 1)).
+fromListISP
+Constructs a range fold function from a list, when the semigroup is idempotent. O(n log n) to
+construct the structure and O(1) for each query.
 
-query1SP
-Query a range [l, r] when x <> x = x. O(1).
+fromListUSP
+Constructs a range fold function from a list. Uses an unboxed array. O(n log n) to construct the
+structure and O(log n) for each query.
 
-querymSP
-querySP but works on an empty range.
+fromListIUSP
+Constructs a range fold function from a list, when the semigroup is idempotent. Uses an unboxed
+array. O(n log n) to construct the structure and O(1) for each query.
 
-querym1SP
-query1SP but works on an empty range.
+buildSP
+Builds a sparse table. O(n log n). Prefer the fromList functions.
+
+foldSP
+Folds a range on a sparse table. O(log n). Prefer the fromList functions.
+
+foldISP
+Folds a range on a sparse table, when the semigroup is idempotent. O(1). Prefer the fromList
+functions.
 -}
 
 module SparseTable
-    ( SparseTable
-    , fromArraySP
-    , fromListSP
-    , querySP
-    , query1SP
-    , querymSP
-    , querym1SP
+    ( fromListSP
+    , fromListISP
+    , fromListUSP
+    , fromListIUSP
+    , buildSP
+    , foldSP
+    , foldISP
     ) where
 
-import Data.Array
+import Control.Monad
+import Control.Monad.ST
+import Data.Array.ST
+import Data.Array.Unboxed
 import Data.Bits
 
-import Misc ( fArray )
+import Misc ( Idempotent, bitLength )
 
-type SparseTable a = Array Int (Array Int a)
+fromListSP :: Semigroup e => (Int, Int) -> [e] -> Int -> Int -> e
+fromListSP bnds xs = foldSP (<>) $ runSTArray $ buildSP (<>) bnds xs
 
-fromArraySP :: Semigroup a => Array Int a -> SparseTable a
-fromArraySP a = if l > h + 1 then error "invalid range" else t where
-    (l, h) = bounds a
-    n = h - l + 1
-    k = finiteBitSize n - countLeadingZeros n - 1
-    t = fArray (0, k) f
-    f j | j == 0    = a
-        | otherwise = fArray (l, h - 2 * hf + 1) g
-        where hf = 1 `shiftL` (j - 1)
-              p = t!(j - 1)
-              g i = p!i <> p!(i + hf)
+fromListISP :: Idempotent e => (Int, Int) -> [e] -> Int -> Int -> e
+fromListISP bnds xs = foldISP (<>) $ runSTArray $ buildSP (<>) bnds xs
 
-fromListSP :: Semigroup a => (Int, Int) -> [a] -> SparseTable a
-fromListSP = (fromArraySP .) . listArray
+fromListUSP :: (IArray UArray e, forall s. MArray (STUArray s) e (ST s))
+            => (e -> e -> e) -> (Int, Int) -> [e] -> Int -> Int -> e
+fromListUSP op bnds xs = foldSP op $ runSTUArray $ buildSP op bnds xs
 
-querySP :: Semigroup a => Int -> Int -> SparseTable a -> a
-querySP l r _ | l > r = error "invalid range"
-querySP l r t = go l where
-    r' = r + 1
-    go l | l' == r'  = t!j!l
-         | otherwise = t!j!l <> go l'
-         where j = countTrailingZeros $ r' - l
-               l' = l + 1 `shiftL` j
+fromListIUSP :: (IArray UArray e, forall s. MArray (STUArray s) e (ST s))
+             => (e -> e -> e) -> (Int, Int) -> [e] -> Int -> Int -> e
+fromListIUSP op bnds xs = foldISP op $ runSTUArray $ buildSP op bnds xs
 
-query1SP :: Semigroup a => Int -> Int -> SparseTable a -> a
-query1SP l r _ | l > r = error "invalid range"
-query1SP l r t = t!k!l <> t!k!l' where
+buildSP :: MArray a e (ST s) => (e -> e -> e) -> (Int, Int) -> [e] -> ST s (a (Int, Int) e)
+buildSP _  (l, r) _ | l > r = error "buildSP: empty range"
+buildSP op (l, r) xs = do
+    t <- newArray_ ((0, l), (h, r))
+    forM_ (zip [l..r] xs) $ \(i, x) -> writeArray t (0, i) x
+    forM_ [1..h] $ \j -> do
+        let d = bit (j - 1)
+        forM_ [l..r-2*d+1] $ \i ->
+            op <$> readArray t (j-1, i) <*> readArray t (j-1, i+d) >>= (writeArray t (j, i) $!)
+    pure t
+  where
     n = r - l + 1
-    k = finiteBitSize n - countLeadingZeros n - 1
-    l' = r + 1 - 1 `shiftL` k
+    h = max 0 (bitLength n - 1)
+{-# INLINE buildSP #-}
 
-querymSP :: Monoid a => Int -> Int -> SparseTable a -> a
-querymSP l r t = if l == r + 1 then mempty else querySP l r t
+foldSP :: IArray a e => (e -> e -> e) -> a (Int, Int) e -> Int -> Int -> e
+foldSP op t = qry where
+    qry l r | l > r = error "foldSP: empty range"
+    qry l r = go (l + bit j) (t!(j, l)) where
+        j = countTrailingZeros (r - l + 1)
+        go l' acc | l' > r = acc
+        go l' acc = go (l' + bit j') $! op acc (t!(j', l')) where
+            j' = countTrailingZeros (r - l' + 1)
+{-# INLINE foldSP #-}
 
-querym1SP :: Monoid a => Int -> Int -> SparseTable a -> a
-querym1SP l r t = if l == r + 1 then mempty else query1SP l r t
-
--- TODO: querySP can be made tail recursive, if it's worth it
+foldISP :: IArray a e => (e -> e -> e) -> a (Int, Int) e -> Int -> Int -> e
+foldISP op t = qry where
+    qry l r | l > r = error "foldISP: empty range"
+    qry l r = op (t!(j, l)) (t!(j, r + 1 - bit j)) where
+        j = bitLength (r - l + 1) - 1
+{-# INLINE foldISP #-}
 
 --------------------------------------------------------------------------------
 -- For tests
 
 -- Allows specialization across modules
-{-# INLINABLE fromArraySP #-}
 {-# INLINABLE fromListSP #-}
-{-# INLINABLE querySP #-}
-{-# INLINABLE query1SP #-}
+{-# INLINABLE fromListISP #-}
+{-# INLINABLE fromListUSP #-}
+{-# INLINABLE fromListIUSP #-}
