@@ -1,62 +1,40 @@
 module SparseTableSpec where
 
-import Data.Array
-import Data.Bits
-import Data.Monoid
 import Data.Semigroup
 
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
-import SparseTable ( fromArraySP, fromListSP, query1SP, querySP )
+import SparseTable ( fromListSP, fromListISP, fromListUSP, fromListIUSP )
 import Util ( genSortedIntPair )
 
 spec :: Spec
 spec = do
-    let testFromArray gen = forAll gen $ \xa -> do
-            let st = fromArraySP xa
-            forAll (choose $ bounds st) $ \j ->
-                forAll (choose $ bounds $ st!j) $ \i ->
-                    st!j!i `shouldBe` naive xa i (i + 1 `shiftL` j - 1)
+    prop "fromListSP Sum"   $ testfl fromListSP Sum
+    prop "fromListSP Max"   $ testfl fromListSP Max
+    prop "fromListSP First" $ testfl fromListSP First
 
-        testFromList gen = forAll gen $ \xs -> do
-            let n = length xs
-                st = fromListSP (1, n) xs
-                xa = listArray (1, n) xs
-            forAll (choose $ bounds st) $ \j ->
-                forAll (choose $ bounds $ st!j) $ \i ->
-                    st!j!i `shouldBe` naive xa i (i + 1 `shiftL` j - 1)
+    prop "fromListISP Max"   $ testfl fromListISP Max
+    prop "fromListISP First" $ testfl fromListISP First
 
-        testQuery qf gen = forAll gen $ \xa -> do
-            let bnds = bounds xa
-                st = fromArraySP xa
-            forAll (genSortedIntPair bnds) $ \(i, j) ->
-                qf i j st `shouldBe` naive xa i j
+    prop "fromListUSP (+)"   $ testUfl fromListUSP (+)
+    prop "fromListUSP max"   $ testUfl fromListUSP max
+    prop "fromListUSP const" $ testUfl fromListUSP const
 
-    prop "fromArraySP sum" $ testFromArray $ genXa Sum
-    prop "fromArraySP max" $ testFromArray $ genXa Max
-
-    prop "fromListSP sum" $ testFromList $ genXs Sum
-    prop "fromListSP max" $ testFromList $ genXs Max
-
-    prop "querySP sum" $ testQuery querySP $ genXa Sum 
-    prop "querySP max" $ testQuery querySP $ genXa Max
-
-    prop "query1SP max" $ testQuery query1SP $ genXa Max 
-
+    prop "fromListIUSP max"   $ testUfl fromListIUSP max
+    prop "fromListIUSP const" $ testUfl fromListIUSP const
   where
-    naive xa l r = foldMap (xa!) [l..r]
+    testfl fl f = forAll gen $ \((l, r), xs, (i, j)) ->
+        fl (l, r) (map f xs) i j `shouldBe` naive (<>) (map f xs) (i - l) (j - l)
+    testUfl fl op = forAll gen $ \((l, r), xs, (i, j)) ->
+        fl op (l, r) xs i j `shouldBe` naive op xs (i - l) (j - l)
+    naive f xs i j = foldl1 f $ map (xs!!) [i..j]
 
-genXa :: (Int -> a) -> Gen (Array Int a)
-genXa f = do
-    xs <- arbitrary `suchThat` (not . null)
+gen :: Gen ((Int, Int), [Int], (Int, Int))
+gen = do
     l <- arbitrary
-    let n = length xs
-        xa = listArray (l, l + n - 1) $ map f xs
-    pure xa
-
-genXs :: (Int -> a) -> Gen [a]
-genXs f = do
     xs <- arbitrary `suchThat` (not . null)
-    pure $ map f xs
+    let r = l + length xs - 1
+    ij <- genSortedIntPair (l, r)
+    pure ((l, r), xs, ij)
