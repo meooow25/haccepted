@@ -79,6 +79,7 @@ fromListIUSP op bnds xs = foldISP op $ runSTUArray $ buildSP op bnds xs
 buildSP :: MArray a e (ST s) => (e -> e -> e) -> (Int, Int) -> [e] -> ST s (a (Int, Int) e)
 buildSP _  (l, r) _ | l > r = error "buildSP: empty range"
 buildSP op (l, r) xs = do
+    let h = bitLength (r - l + 1) - 1
     t <- newArray_ ((0, l), (h, r))
     forM_ (zip [l..r] xs) $ \(i, x) -> writeArray t (0, i) x
     forM_ [1..h] $ \j -> do
@@ -86,9 +87,6 @@ buildSP op (l, r) xs = do
         forM_ [l..r-2*d+1] $ \i ->
             op <$> readArray t (j-1, i) <*> readArray t (j-1, i+d) >>= (writeArray t (j, i) $!)
     pure t
-  where
-    n = r - l + 1
-    h = max 0 (bitLength n - 1)
 {-# INLINE buildSP #-}
 
 foldSP :: IArray a e => (e -> e -> e) -> a (Int, Int) e -> Int -> Int -> e
