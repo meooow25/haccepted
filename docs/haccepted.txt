@@ -351,6 +351,16 @@ class Semigroup a => Commutative a
 --   invert a &lt;&gt; a = mempty
 class Monoid a => Group a
 invert :: Group a => a -> a
+
+-- | A semigroup where the elements are idempotent. a &lt;&gt; a = a
+class Semigroup a => Idempotent a
+
+-- | Returns the number of bits required to represent the value.
+bitLength :: FiniteBits b => b -> Int
+instance GHC.Classes.Ord a => Misc.Idempotent (Data.Semigroup.Max a)
+instance GHC.Classes.Ord a => Misc.Idempotent (Data.Semigroup.Min a)
+instance Misc.Idempotent (Data.Semigroup.First a)
+instance Misc.Idempotent (Data.Semigroup.Last a)
 instance GHC.Num.Num a => Misc.Group (Data.Semigroup.Internal.Sum a)
 instance GHC.Num.Num a => Misc.Commutative (Data.Semigroup.Internal.Sum a)
 
@@ -845,7 +855,8 @@ instance Control.DeepSeq.NFData Kruskal.WEdge
 
 -- | <h2>Sparse table</h2>
 --   
---   Structure for range queries
+--   Structure for fast static range fold queries. Useful when the elements
+--   do not form a group, otherwise prefix sums can be used.
 --   
 --   Sources:
 --   
@@ -855,27 +866,38 @@ instance Control.DeepSeq.NFData Kruskal.WEdge
 --   
 --   <li><a>https://github.com/kth-competitive-programming/kactl/blob/main/content/data-structures/RMQ.h</a></li>
 --   </ul>
+--   
+--   Let n = r - l + 1 in all instances below.
 module SparseTable
-type SparseTable a = Array Int (Array Int a)
 
--- | Construct a sparse table from an Array Int. O(n log n).
-fromArraySP :: Semigroup a => Array Int a -> SparseTable a
+-- | Constructs a range fold function from a list. O(n log n) to construct
+--   the structure and O(log n) for each query.
+fromListSP :: Semigroup e => (Int, Int) -> [e] -> Int -> Int -> e
 
--- | Construct a sparse table from a list. O(n log n).
-fromListSP :: Semigroup a => (Int, Int) -> [a] -> SparseTable a
+-- | Constructs a range fold function from a list, when the semigroup is
+--   idempotent. O(n log n) to construct the structure and O(1) for each
+--   query.
+fromListISP :: Idempotent e => (Int, Int) -> [e] -> Int -> Int -> e
 
--- | Query a range [l, r]. O(log n), or more accurately O(popcount (r - l +
---   1)).
-querySP :: Semigroup a => Int -> Int -> SparseTable a -> a
+-- | Constructs a range fold function from a list. Uses an unboxed array.
+--   O(n log n) to construct the structure and O(log n) for each query.
+fromListUSP :: (IArray UArray e, forall s. MArray (STUArray s) e (ST s)) => (e -> e -> e) -> (Int, Int) -> [e] -> Int -> Int -> e
 
--- | Query a range [l, r] when x &lt;&gt; x = x. O(1).
-query1SP :: Semigroup a => Int -> Int -> SparseTable a -> a
+-- | Constructs a range fold function from a list, when the semigroup is
+--   idempotent. Uses an unboxed array. O(n log n) to construct the
+--   structure and O(1) for each query.
+fromListIUSP :: (IArray UArray e, forall s. MArray (STUArray s) e (ST s)) => (e -> e -> e) -> (Int, Int) -> [e] -> Int -> Int -> e
 
--- | querySP but works on an empty range.
-querymSP :: Monoid a => Int -> Int -> SparseTable a -> a
+-- | Builds a sparse table. O(n log n). Prefer the fromList functions.
+buildSP :: MArray a e (ST s) => (e -> e -> e) -> (Int, Int) -> [e] -> ST s (a (Int, Int) e)
 
--- | query1SP but works on an empty range.
-querym1SP :: Monoid a => Int -> Int -> SparseTable a -> a
+-- | Folds a range on a sparse table. O(log n). Prefer the fromList
+--   functions.
+foldSP :: IArray a e => (e -> e -> e) -> a (Int, Int) e -> Int -> Int -> e
+
+-- | Folds a range on a sparse table, when the semigroup is idempotent.
+--   O(1). Prefer the fromList functions.
+foldISP :: IArray a e => (e -> e -> e) -> a (Int, Int) e -> Int -> Int -> e
 
 
 -- | <h2>Lowest common ancestor queries on a tree</h2>
