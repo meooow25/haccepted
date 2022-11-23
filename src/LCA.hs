@@ -49,9 +49,9 @@ buildLCA (l, r) _ | l > r = error "buildLCA: empty range"
 buildLCA (l, r) t = LCA sp time itime where
     n = r - l + 1
     itime = listArray (1, n) $ toList t
-    time = array (l, r) $ zip (toList t) [1..]
+    time = array (l, r) [(x, i) | (i, x) <- assocs itime]
     euler = go t [] where
-        go (Node u ts) acc = foldr (\node acc -> time!u : go node acc) acc ts
+        go (Node u ts) = let x = time!u in x `seq` foldr ((.) . ((x:) .) . go) id ts
     sp = if n > 1 then runSTUArray $ buildSP min (1, n-1) euler else listArray ((1,1),(0,0)) []
 
 queryLCA :: Vertex -> Vertex -> LCA -> Vertex
