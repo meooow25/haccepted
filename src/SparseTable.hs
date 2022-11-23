@@ -63,18 +63,18 @@ import Data.Bits
 import Misc ( Idempotent, bitLength )
 
 fromListSP :: Semigroup e => (Int, Int) -> [e] -> Int -> Int -> e
-fromListSP bnds xs = foldSP (<>) $ runSTArray $ buildSP (<>) bnds xs
+fromListSP bnds xs = foldSP (<>) $! runSTArray $ buildSP (<>) bnds xs
 
 fromListISP :: Idempotent e => (Int, Int) -> [e] -> Int -> Int -> e
-fromListISP bnds xs = foldISP (<>) $ runSTArray $ buildSP (<>) bnds xs
+fromListISP bnds xs = foldISP (<>) $! runSTArray $ buildSP (<>) bnds xs
 
 fromListUSP :: (IArray UArray e, forall s. MArray (STUArray s) e (ST s))
             => (e -> e -> e) -> (Int, Int) -> [e] -> Int -> Int -> e
-fromListUSP op bnds xs = foldSP op $ runSTUArray $ buildSP op bnds xs
+fromListUSP op bnds xs = foldSP op $! runSTUArray $ buildSP op bnds xs
 
 fromListIUSP :: (IArray UArray e, forall s. MArray (STUArray s) e (ST s))
              => (e -> e -> e) -> (Int, Int) -> [e] -> Int -> Int -> e
-fromListIUSP op bnds xs = foldISP op $ runSTUArray $ buildSP op bnds xs
+fromListIUSP op bnds xs = foldISP op $! runSTUArray $ buildSP op bnds xs
 
 buildSP :: MArray a e (ST s) => (e -> e -> e) -> (Int, Int) -> [e] -> ST s (a (Int, Int) e)
 buildSP _  (l, r) _ | l > r = error "buildSP: empty range"
