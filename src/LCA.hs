@@ -35,43 +35,44 @@ module LCA
     ) where
 
 import Control.DeepSeq
+import Data.Array.ST
 import Data.Array.Unboxed
 import Data.Foldable
 import Data.Graph
-import Data.Semigroup
 
-import SparseTable ( fromListSP, query1SP, SparseTable )
+import SparseTable ( buildSP, foldISP )
 
-data LCA = LCA !(SparseTable (Min Int)) !(UArray Int Int) !(UArray Int Int) deriving Show
+data LCA = LCA !(UArray (Int, Int) Int) !(UArray Vertex Int) !(UArray Int Vertex) deriving Show
 
 buildLCA :: Bounds -> Tree Vertex -> LCA
-buildLCA (l, r) _ | l > r = error "empty range"
+buildLCA (l, r) _ | l > r = error "buildLCA: empty range"
 buildLCA (l, r) t = LCA sp time itime where
     n = r - l + 1
     itime = listArray (1, n) $ toList t
-    time = array (l, r) $ zip (toList t) [1..]
+    time = array (l, r) [(x, i) | (i, x) <- assocs itime]
     euler = go t [] where
-        go (Node u ts) acc = foldr (\node acc -> time!u : go node acc) acc ts
-    sp = fromListSP (1, n - 1) $ map Min euler
+        go (Node u ts) = let x = time!u in x `seq` foldr ((.) . ((x:) .) . go) id ts
+    sp = if n > 1 then runSTUArray $ buildSP min (1, n-1) euler else listArray ((1,1),(0,0)) []
 
 queryLCA :: Vertex -> Vertex -> LCA -> Vertex
-queryLCA u v (LCA sp time itime) = x where
-    (fu, fv) = (time!u, time!v)
+queryLCA u v (LCA sp time itime)
+    | u < l || r < u = error "queryLCA: invalid node"
+    | u == v         = u
+    | otherwise      = itime ! foldISP min sp (min fu fv) (max fu fv - 1)
+  where
     (l, r) = bounds time
-    x | u /= v         = itime ! getMin (query1SP (min fu fv) (max fu fv - 1) sp)
-      | u < l || r < u = error "invalid node"
-      | otherwise      = u
+    (fu, fv) = (time!u, time!v)
 
 build1LCA :: Bounds -> [Tree Vertex] -> LCA
 build1LCA (l, r) = buildLCA (l - 1, r) . Node (l - 1)
 
 query1LCA :: Vertex -> Vertex -> LCA -> Maybe Vertex
 query1LCA u v lca@(LCA _ time _) = if x == l then Nothing else Just x where
-    l = fst $ bounds time
+    (l, _) = bounds time
     x = queryLCA u v lca
 
 --------------------------------------------------------------------------------
 -- For tests
 
 instance NFData LCA where
-    rnf (LCA sp time itime) = time `seq` itime `seq` rnf sp
+    rnf = rwhnf

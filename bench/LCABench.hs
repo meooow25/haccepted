@@ -24,6 +24,6 @@ benchBuildLCA n = sizedBench n gen $ nf $ buildLCA (1, n) where
     gen = evalR $ randTree n
 
 benchQueryLCA :: Int -> Benchmark
-benchQueryLCA n = sizedBench n gen $ \ ~(lca, uvs) -> whnf (go lca) uvs where
+benchQueryLCA n = sizedBench n gen $ \(lca, uvs) -> whnf (go lca) uvs where
     gen = evalR $ (,) <$> (buildLCA (1, n) <$> randTree n) <*> randIntPairsR (1, n) n
-    go lca uvs = foldl' (\_ (u, v) -> queryLCA u v lca `seq` ()) () uvs
+    go lca = foldl' (\_ (u, v) -> queryLCA u v lca `seq` ()) ()
