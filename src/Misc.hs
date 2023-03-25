@@ -55,6 +55,24 @@ a <> a = a
 
 bitLength
 Returns the number of bits required to represent the value.
+
+odds
+The elements at odd positions of a list.
+
+evens
+The elements at even positions of a list.
+
+orM
+Short-circuiting monadic ||.
+
+andM
+Short-circuiting monadic &&.
+
+anyM
+Monadic version of any.
+
+allM
+Monadic version of all.
 -}
 
 module Misc
@@ -73,6 +91,12 @@ module Misc
     , Group(..)
     , Idempotent
     , bitLength
+    , odds
+    , evens
+    , orM
+    , andM
+    , anyM
+    , allM
     ) where
 
 import Control.Monad
@@ -84,7 +108,7 @@ import Data.Semigroup
 import Data.Tree
 
 pairs :: [a] -> [(a, a)]
-pairs xs = [(x, x') | (x:xs') <- tails xs, x' <- xs']
+pairs xs = [(x, y) | x:ys <- tails xs, y <- ys]
 
 fArray :: (IArray a e, Ix i) => (i, i) -> (i -> e) -> a i e
 fArray b f = listArray b (f <$> range b)
@@ -157,3 +181,24 @@ instance Idempotent (Last a)
 bitLength :: FiniteBits b => b -> Int
 bitLength x = finiteBitSize x - countLeadingZeros x
 {-# INLINE bitLength #-}
+
+odds :: [a] -> [a]
+odds (_:x:xs) = x : odds xs
+odds _        = []
+
+evens :: [a] -> [a]
+evens (x:_:xs) = x : evens xs
+evens [x]      = [x]
+evens []       = []
+
+orM :: Monad m => m Bool -> m Bool -> m Bool
+orM m1 m2 = m1 >>= \x -> if x then pure True else m2
+
+andM :: Monad m => m Bool -> m Bool -> m Bool
+andM m1 m2 = m1 >>= \x -> if x then m2 else pure False
+
+anyM :: (Monad m, Foldable f) => (a -> m Bool) -> f a -> m Bool
+anyM f = foldr (orM . f) (pure False)
+
+allM :: (Monad m, Foldable f) => (a -> m Bool) -> f a -> m Bool
+allM f = foldr (andM . f) (pure True)
