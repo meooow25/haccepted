@@ -354,6 +354,24 @@ class Semigroup a => Idempotent a
 
 -- | Returns the number of bits required to represent the value.
 bitLength :: FiniteBits b => b -> Int
+
+-- | The elements at odd positions of a list.
+odds :: [a] -> [a]
+
+-- | The elements at even positions of a list.
+evens :: [a] -> [a]
+
+-- | Short-circuiting monadic ||.
+orM :: Monad m => m Bool -> m Bool -> m Bool
+
+-- | Short-circuiting monadic &amp;&amp;.
+andM :: Monad m => m Bool -> m Bool -> m Bool
+
+-- | Monadic version of any.
+anyM :: (Monad m, Foldable f) => (a -> m Bool) -> f a -> m Bool
+
+-- | Monadic version of all.
+allM :: (Monad m, Foldable f) => (a -> m Bool) -> f a -> m Bool
 instance GHC.Classes.Ord a => Misc.Idempotent (Data.Semigroup.Max a)
 instance GHC.Classes.Ord a => Misc.Idempotent (Data.Semigroup.Min a)
 instance Misc.Idempotent (Data.Semigroup.First a)

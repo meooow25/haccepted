@@ -14,14 +14,14 @@
 </span><span id="line-14"></span><span>
 </span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.DeepSeq</span></span><span>
 </span><span id="line-16"></span><span>
-</span><span id="line-17"></span><span class="hs-keyword">data</span><span> </span><span id="V2"><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-var">V2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="V2"><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-var">V2</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679065299"><span id="local-6989586621679065301"><span class="annot"><span class="annottext">V2 -&gt; V2 -&gt; Bool
+</span><span id="line-17"></span><span class="hs-keyword">data</span><span> </span><span id="V2"><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-var">V2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="V2"><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-var">V2</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679065520"><span id="local-6989586621679065522"><span class="annot"><span class="annottext">V2 -&gt; V2 -&gt; Bool
 (V2 -&gt; V2 -&gt; Bool) -&gt; (V2 -&gt; V2 -&gt; Bool) -&gt; Eq V2
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 /= :: V2 -&gt; V2 -&gt; Bool
 $c/= :: V2 -&gt; V2 -&gt; Bool
 == :: V2 -&gt; V2 -&gt; Bool
 $c== :: V2 -&gt; V2 -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065283"><span id="local-6989586621679065285"><span id="local-6989586621679065287"><span id="local-6989586621679065289"><span id="local-6989586621679065291"><span id="local-6989586621679065293"><span id="local-6989586621679065295"><span class="annot"><span class="annottext">Eq V2
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065504"><span id="local-6989586621679065506"><span id="local-6989586621679065508"><span id="local-6989586621679065510"><span id="local-6989586621679065512"><span id="local-6989586621679065514"><span id="local-6989586621679065516"><span class="annot"><span class="annottext">Eq V2
 Eq V2
 -&gt; (V2 -&gt; V2 -&gt; Ordering)
 -&gt; (V2 -&gt; V2 -&gt; Bool)
@@ -59,7 +59,7 @@ $c&lt; :: V2 -&gt; V2 -&gt; Bool
 compare :: V2 -&gt; V2 -&gt; Ordering
 $ccompare :: V2 -&gt; V2 -&gt; Ordering
 $cp1Ord :: Eq V2
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065276"><span id="local-6989586621679065278"><span id="local-6989586621679065280"><span class="annot"><span class="annottext">Int -&gt; V2 -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679065497"><span id="local-6989586621679065499"><span id="local-6989586621679065501"><span class="annot"><span class="annottext">Int -&gt; V2 -&gt; ShowS
 [V2] -&gt; ShowS
 V2 -&gt; String
 (Int -&gt; V2 -&gt; ShowS)
@@ -74,53 +74,53 @@ showsPrec :: Int -&gt; V2 -&gt; ShowS
 $cshowsPrec :: Int -&gt; V2 -&gt; ShowS
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-18"></span><span>
-</span><span id="line-19"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679065270"><span class="annot"><span class="hs-identifier hs-type">Num</span></span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-20"></span><span>    </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065265"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065265"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679065264"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065264"><span class="hs-identifier hs-var">y1</span></a></span></span><span> </span><span id="local-6989586621679065263"><span class="annot"><span class="annottext">+ :: V2 -&gt; V2 -&gt; V2
-</span><span class="hs-operator hs-var hs-var hs-var hs-var">+</span></span></span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065261"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065261"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span id="local-6989586621679065260"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065260"><span class="hs-identifier hs-var">y2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; V2
+</span><span id="line-19"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679065491"><span class="annot"><span class="hs-identifier hs-type">Num</span></span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065486"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065486"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679065485"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065485"><span class="hs-identifier hs-var">y1</span></a></span></span><span> </span><span id="local-6989586621679065484"><span class="annot"><span class="annottext">+ :: V2 -&gt; V2 -&gt; V2
+</span><span class="hs-operator hs-var hs-var hs-var hs-var">+</span></span></span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065482"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065482"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span id="local-6989586621679065481"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065481"><span class="hs-identifier hs-var">y2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; V2
 </span><a href="Geometry.html#V2"><span class="hs-identifier hs-var">V2</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065265"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679065486"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065261"><span class="hs-identifier hs-var">x2</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065264"><span class="hs-identifier hs-var">y1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679065482"><span class="hs-identifier hs-var">x2</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065485"><span class="hs-identifier hs-var">y1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065260"><span class="hs-identifier hs-var">y2</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-21"></span><span>    </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065259"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065259"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679065258"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065258"><span class="hs-identifier hs-var">y1</span></a></span></span><span> </span><span id="local-6989586621679065257"><span class="annot"><span class="annottext">- :: V2 -&gt; V2 -&gt; V2
-</span><span class="hs-glyph hs-var hs-var hs-var hs-var">-</span></span></span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065256"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065256"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span id="local-6989586621679065255"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065255"><span class="hs-identifier hs-var">y2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; V2
+</span><a href="#local-6989586621679065481"><span class="hs-identifier hs-var">y2</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span>    </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065480"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065480"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679065479"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065479"><span class="hs-identifier hs-var">y1</span></a></span></span><span> </span><span id="local-6989586621679065478"><span class="annot"><span class="annottext">- :: V2 -&gt; V2 -&gt; V2
+</span><span class="hs-glyph hs-var hs-var hs-var hs-var">-</span></span></span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065477"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065477"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span id="local-6989586621679065476"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065476"><span class="hs-identifier hs-var">y2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; V2
 </span><a href="Geometry.html#V2"><span class="hs-identifier hs-var">V2</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065259"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679065480"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065256"><span class="hs-identifier hs-var">x2</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065258"><span class="hs-identifier hs-var">y1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679065477"><span class="hs-identifier hs-var">x2</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065479"><span class="hs-identifier hs-var">y1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065255"><span class="hs-identifier hs-var">y2</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-22"></span><span>    </span><span id="local-6989586621679065254"><span class="annot"><span class="annottext">* :: V2 -&gt; V2 -&gt; V2
+</span><a href="#local-6989586621679065476"><span class="hs-identifier hs-var">y2</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span>    </span><span id="local-6989586621679065475"><span class="annot"><span class="annottext">* :: V2 -&gt; V2 -&gt; V2
 </span><span class="hs-operator hs-var hs-var hs-var hs-var">(*)</span></span></span><span>         </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; V2 -&gt; V2 -&gt; V2
 forall a. HasCallStack =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;(*) @V2: unsupported&quot;</span></span><span>
-</span><span id="line-23"></span><span>    </span><span id="local-6989586621679065251"><span class="annot"><span class="annottext">abs :: V2 -&gt; V2
+</span><span id="line-23"></span><span>    </span><span id="local-6989586621679065472"><span class="annot"><span class="annottext">abs :: V2 -&gt; V2
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">abs</span></span></span><span>         </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; V2 -&gt; V2
 forall a. HasCallStack =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;abs @V2: unsupported&quot;</span></span><span>
-</span><span id="line-24"></span><span>    </span><span id="local-6989586621679065249"><span class="annot"><span class="annottext">signum :: V2 -&gt; V2
+</span><span id="line-24"></span><span>    </span><span id="local-6989586621679065470"><span class="annot"><span class="annottext">signum :: V2 -&gt; V2
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">signum</span></span></span><span>      </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; V2 -&gt; V2
 forall a. HasCallStack =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;signum @V2: unsupported&quot;</span></span><span>
-</span><span id="line-25"></span><span>    </span><span id="local-6989586621679065247"><span class="annot"><span class="annottext">fromInteger :: Integer -&gt; V2
+</span><span id="line-25"></span><span>    </span><span id="local-6989586621679065468"><span class="annot"><span class="annottext">fromInteger :: Integer -&gt; V2
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromInteger</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Integer -&gt; V2
 forall a. HasCallStack =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">String
@@ -129,90 +129,90 @@ forall a. HasCallStack =&gt; String -&gt; a
 </span><span id="line-27"></span><span class="hs-comment">-- | The square of the magnitude of the vector.</span><span>
 </span><span id="line-28"></span><span class="annot"><a href="Geometry.html#mag2"><span class="hs-identifier hs-type">mag2</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
 </span><span id="line-29"></span><span id="mag2"><span class="annot"><span class="annottext">mag2 :: V2 -&gt; Int
-</span><a href="Geometry.html#mag2"><span class="hs-identifier hs-var hs-var">mag2</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065246"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065246"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679065245"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065245"><span class="hs-identifier hs-var">y</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065246"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="Geometry.html#mag2"><span class="hs-identifier hs-var hs-var">mag2</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065467"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065467"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679065466"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065466"><span class="hs-identifier hs-var">y</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065467"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065246"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679065467"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065245"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679065466"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065245"><span class="hs-identifier hs-var">y</span></a></span><span>
+</span><a href="#local-6989586621679065466"><span class="hs-identifier hs-var">y</span></a></span><span>
 </span><span id="line-30"></span><span>
 </span><span id="line-31"></span><span class="hs-comment">-- | The square of the distance between two vectors.</span><span>
 </span><span id="line-32"></span><span class="annot"><a href="Geometry.html#dist2"><span class="hs-identifier hs-type">dist2</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
 </span><span id="line-33"></span><span id="dist2"><span class="annot"><span class="annottext">dist2 :: V2 -&gt; V2 -&gt; Int
-</span><a href="Geometry.html#dist2"><span class="hs-identifier hs-var hs-var">dist2</span></a></span></span><span> </span><span id="local-6989586621679065244"><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679065244"><span class="hs-identifier hs-var">p1</span></a></span></span><span> </span><span id="local-6989586621679065243"><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679065243"><span class="hs-identifier hs-var">p2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">V2 -&gt; Int
+</span><a href="Geometry.html#dist2"><span class="hs-identifier hs-var hs-var">dist2</span></a></span></span><span> </span><span id="local-6989586621679065465"><span class="annot"><span class="annottext">V2
+</span><a href="#local-6989586621679065465"><span class="hs-identifier hs-var">p1</span></a></span></span><span> </span><span id="local-6989586621679065464"><span class="annot"><span class="annottext">V2
+</span><a href="#local-6989586621679065464"><span class="hs-identifier hs-var">p2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">V2 -&gt; Int
 </span><a href="Geometry.html#mag2"><span class="hs-identifier hs-var">mag2</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679065244"><span class="hs-identifier hs-var">p1</span></a></span><span> </span><span class="annot"><span class="annottext">V2 -&gt; V2 -&gt; V2
+</span><a href="#local-6989586621679065465"><span class="hs-identifier hs-var">p1</span></a></span><span> </span><span class="annot"><span class="annottext">V2 -&gt; V2 -&gt; V2
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679065243"><span class="hs-identifier hs-var">p2</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679065464"><span class="hs-identifier hs-var">p2</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-34"></span><span>
 </span><span id="line-35"></span><span class="hs-comment">-- | Dot product of two vectors.</span><span>
 </span><span id="line-36"></span><span class="annot"><a href="Geometry.html#dot"><span class="hs-identifier hs-type">dot</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
 </span><span id="line-37"></span><span id="dot"><span class="annot"><span class="annottext">dot :: V2 -&gt; V2 -&gt; Int
-</span><a href="Geometry.html#dot"><span class="hs-identifier hs-var hs-var">dot</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065242"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065242"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679065241"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065241"><span class="hs-identifier hs-var">y1</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065240"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065240"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span id="local-6989586621679065239"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065239"><span class="hs-identifier hs-var">y2</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065242"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="Geometry.html#dot"><span class="hs-identifier hs-var hs-var">dot</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065463"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065463"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679065462"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065462"><span class="hs-identifier hs-var">y1</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065461"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065461"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span id="local-6989586621679065460"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065460"><span class="hs-identifier hs-var">y2</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065463"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065240"><span class="hs-identifier hs-var">x2</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679065461"><span class="hs-identifier hs-var">x2</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065241"><span class="hs-identifier hs-var">y1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679065462"><span class="hs-identifier hs-var">y1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065239"><span class="hs-identifier hs-var">y2</span></a></span><span>
+</span><a href="#local-6989586621679065460"><span class="hs-identifier hs-var">y2</span></a></span><span>
 </span><span id="line-38"></span><span>
 </span><span id="line-39"></span><span class="hs-comment">-- | Cross product of two vectors.</span><span>
 </span><span id="line-40"></span><span class="annot"><a href="Geometry.html#cross"><span class="hs-identifier hs-type">cross</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
 </span><span id="line-41"></span><span id="cross"><span class="annot"><span class="annottext">cross :: V2 -&gt; V2 -&gt; Int
-</span><a href="Geometry.html#cross"><span class="hs-identifier hs-var hs-var">cross</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065238"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065238"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679065237"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065237"><span class="hs-identifier hs-var">y1</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065236"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065236"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span id="local-6989586621679065235"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065235"><span class="hs-identifier hs-var">y2</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065238"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="Geometry.html#cross"><span class="hs-identifier hs-var hs-var">cross</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065459"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065459"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679065458"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065458"><span class="hs-identifier hs-var">y1</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span id="local-6989586621679065457"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065457"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span id="local-6989586621679065456"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065456"><span class="hs-identifier hs-var">y2</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679065459"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065235"><span class="hs-identifier hs-var">y2</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679065456"><span class="hs-identifier hs-var">y2</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065236"><span class="hs-identifier hs-var">x2</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679065457"><span class="hs-identifier hs-var">x2</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679065237"><span class="hs-identifier hs-var">y1</span></a></span><span>
+</span><a href="#local-6989586621679065458"><span class="hs-identifier hs-var">y1</span></a></span><span>
 </span><span id="line-42"></span><span>
 </span><span id="line-43"></span><span class="hs-comment">-- | The turn going from p1 to p2 to p3. Returns an Ordering representing left, no turn, or right.</span><span>
 </span><span id="line-44"></span><span class="hs-comment">-- Mnemonic: LT stands for &quot;left turn&quot;.</span><span>
 </span><span id="line-45"></span><span class="annot"><a href="Geometry.html#turn"><span class="hs-identifier hs-type">turn</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ordering</span></span><span>
 </span><span id="line-46"></span><span id="turn"><span class="annot"><span class="annottext">turn :: V2 -&gt; V2 -&gt; V2 -&gt; Ordering
-</span><a href="Geometry.html#turn"><span class="hs-identifier hs-var hs-var">turn</span></a></span></span><span> </span><span id="local-6989586621679065234"><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679065234"><span class="hs-identifier hs-var">p1</span></a></span></span><span> </span><span id="local-6989586621679065233"><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679065233"><span class="hs-identifier hs-var">p2</span></a></span></span><span> </span><span id="local-6989586621679065232"><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679065232"><span class="hs-identifier hs-var">p3</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Ordering
+</span><a href="Geometry.html#turn"><span class="hs-identifier hs-var hs-var">turn</span></a></span></span><span> </span><span id="local-6989586621679065455"><span class="annot"><span class="annottext">V2
+</span><a href="#local-6989586621679065455"><span class="hs-identifier hs-var">p1</span></a></span></span><span> </span><span id="local-6989586621679065454"><span class="annot"><span class="annottext">V2
+</span><a href="#local-6989586621679065454"><span class="hs-identifier hs-var">p2</span></a></span></span><span> </span><span id="local-6989586621679065453"><span class="annot"><span class="annottext">V2
+</span><a href="#local-6989586621679065453"><span class="hs-identifier hs-var">p3</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Ordering
 forall a. Ord a =&gt; a -&gt; a -&gt; Ordering
 </span><span class="hs-identifier hs-var">compare</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">V2 -&gt; V2 -&gt; Int
 </span><a href="Geometry.html#cross"><span class="hs-identifier hs-var">cross</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679065233"><span class="hs-identifier hs-var">p2</span></a></span><span> </span><span class="annot"><span class="annottext">V2 -&gt; V2 -&gt; V2
+</span><a href="#local-6989586621679065454"><span class="hs-identifier hs-var">p2</span></a></span><span> </span><span class="annot"><span class="annottext">V2 -&gt; V2 -&gt; V2
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679065234"><span class="hs-identifier hs-var">p1</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679065232"><span class="hs-identifier hs-var">p3</span></a></span><span> </span><span class="annot"><span class="annottext">V2 -&gt; V2 -&gt; V2
+</span><a href="#local-6989586621679065455"><span class="hs-identifier hs-var">p1</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">V2
+</span><a href="#local-6989586621679065453"><span class="hs-identifier hs-var">p3</span></a></span><span> </span><span class="annot"><span class="annottext">V2 -&gt; V2 -&gt; V2
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679065234"><span class="hs-identifier hs-var">p1</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679065455"><span class="hs-identifier hs-var">p1</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-47"></span><span>
 </span><span id="line-48"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="Geometry.html#mag2"><span class="hs-pragma hs-type">mag2</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-49"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="Geometry.html#dist2"><span class="hs-pragma hs-type">dist2</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
@@ -221,7 +221,7 @@ forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span id="line-52"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="Geometry.html#turn"><span class="hs-pragma hs-type">turn</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-53"></span><span>
 </span><span id="line-54"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-55"></span><span>    </span><span id="local-6989586621679065228"><span class="annot"><span class="annottext">rnf :: V2 -&gt; ()
+</span><span id="line-55"></span><span>    </span><span id="local-6989586621679065449"><span class="annot"><span class="annottext">rnf :: V2 -&gt; ()
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">V2 -&gt; ()
 forall a. a -&gt; ()
 </span><span class="hs-identifier hs-var">rwhnf</span></span><span>
