@@ -279,15 +279,12 @@ module MInt
 -- | Integer type for modular arithmetic, using fixed prime modulo.
 newtype MInt
 MInt :: Int -> MInt
-[toInt] :: MInt -> Int
-
--- | Int to MInt. The MInt constructor can be used directly if the value is
---   known to be in [0.. m-1]. O(1).
-mkMInt :: Int -> MInt
+[unMInt] :: MInt -> Int
 
 -- | Reciprocal of an MInt. O(log m).
 inv :: MInt -> MInt
 instance GHC.Show.Show MInt.MInt
+instance GHC.Classes.Ord MInt.MInt
 instance GHC.Classes.Eq MInt.MInt
 instance GHC.Num.Num MInt.MInt
 instance GHC.Real.Fractional MInt.MInt
