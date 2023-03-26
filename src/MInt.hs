@@ -20,17 +20,12 @@ MArray IOUArray MInt IO are also defined.
 MInt
 Integer type for modular arithmetic, using fixed prime modulo.
 
-mkMInt
-Int to MInt. The MInt constructor can be used directly if the value is known to be in [0.. m-1].
-O(1).
-
 inv
 Reciprocal of an MInt. O(log m).
 -}
 
 module MInt
     ( MInt(..)
-    , mkMInt
     , inv
     ) where
 
@@ -41,33 +36,30 @@ import Data.Coerce
 import Data.Ratio
 import Unsafe.Coerce
 
-m :: Int
-m = 1000000007
+mm :: Int
+mm = 1000000007
 -- m = 998244353
 
-newtype MInt = MInt { toInt :: Int } deriving (Eq, Show)
-
-mkMInt :: Int -> MInt
-mkMInt = MInt . (`mod` m)
+newtype MInt = MInt { unMInt :: Int } deriving (Eq, Ord, Show)
 
 instance Num MInt where
-    MInt a + MInt b = MInt $ let c = a + b in if c >= m then c - m else c
-    MInt a - MInt b = MInt $ let c = a - b in if c < 0 then c + m else c
-    MInt a * MInt b = MInt $ a * b `mod` m
+    MInt a + MInt b = MInt $ let c = a + b in if c >= mm then c - mm else c
+    MInt a - MInt b = MInt $ let c = a - b in if c < 0 then c + mm else c
+    MInt a * MInt b = MInt $ a * b `mod` mm
     abs             = id
-    signum          = MInt . signum . toInt
-    fromInteger     = MInt . fromInteger . (`mod` fromIntegral m)
+    signum          = MInt . signum . unMInt
+    fromInteger     = MInt . fromInteger . (`mod` fromIntegral mm)
 
 inv :: MInt -> MInt
-inv = (^(m - 2))
+inv = (^(mm - 2))
 
 instance Fractional MInt where
-    recip          = (^(m - 2))
+    recip          = (^(mm - 2))
     fromRational r = fromIntegral (numerator r) / fromIntegral (denominator r)
 
 instance Enum MInt where
     toEnum                 = fromIntegral
-    fromEnum               = toInt
+    fromEnum               = unMInt
     enumFromTo x y         = takeWhile (/= y + 1) [x..]
     enumFromThenTo x1 x2 y = takeWhile (/= y + 1) [x1, x2 ..]
 
