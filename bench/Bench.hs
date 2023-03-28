@@ -13,6 +13,7 @@ import qualified FloydWarshallBench
 import qualified KMPBench
 import qualified KruskalBench
 import qualified LCABench
+import qualified MathBench
 import qualified MoBench
 import qualified PQTreeBench
 import qualified PruferBench
@@ -40,6 +41,7 @@ main = defaultMain
     , KMPBench.benchmark
     , KruskalBench.benchmark
     , LCABench.benchmark
+    , MathBench.benchmark
     , MoBench.benchmark
     , PQTreeBench.benchmark
     , PruferBench.benchmark
