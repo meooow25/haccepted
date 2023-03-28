@@ -11,10 +11,12 @@ spec :: Spec
 spec = do
     describe "egcd2" $ do
         testEgcd2 @Int "Int"
+        testEgcd2 @(Large Int) "Large Int"
         testEgcd2 @Integer "Integer"
         testEgcd2 @Word "Word"
     describe "egcd" $ do
         testEgcd @Int "Int"
+        testEgcd @(Large Int) "Large Int"
         testEgcd @Integer "Integer"
         testEgcd @Word "Word"
   where
