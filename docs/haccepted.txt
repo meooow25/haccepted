@@ -294,6 +294,27 @@ instance Data.Array.Base.MArray (Data.Array.Base.STUArray s) MInt.MInt (GHC.ST.S
 instance Data.Array.Base.MArray Data.Array.IO.Internals.IOUArray MInt.MInt GHC.Types.IO
 
 
+-- | <h2>Math</h2>
+--   
+--   Sources:
+--   
+--   <ul>
+--   
+--   <li><a>https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm</a></li>
+--   </ul>
+module Math
+
+-- | Returns (g, s) where g = gcd(a, b); as + bt = g. O(log min(a, b)).
+--   Also see note for egcd2.
+egcd :: Integral i => i -> i -> (i, i)
+
+-- | Returns (g, s, t) where g = gcd(a, b); as + bt = g. O(log min(a, b)).
+--   Note: If the inputs are negative the returned gcd may be negative. abs
+--   the inputs or sign flip the outputs if this is undesirable. The
+--   complexity assumes operations quotRem, (-), (*), (==0) all take O(1).
+egcd2 :: Integral i => i -> i -> (i, i, i)
+
+
 -- | <h2>Miscellaneous functions/recipes</h2>
 module Misc
 
