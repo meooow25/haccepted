@@ -2,6 +2,9 @@
 {-|
 Modular arithmetic
 
+MInt is a newtype of Int for arithmetic modulo a known fixed prime.
+For a more general type see Mod.hs.
+
 Implementation notes:
 * MInt is a newtype of Int, change to Int64 if running on 32-bit.
 * Regarding unsafeCoerce (trust me it's safe!), type roles for unboxed arrays are nominal (and not
@@ -18,22 +21,25 @@ An instance of IArray UArray MInt exists. Instances of MArray (STUArray s) MInt 
 MArray IOUArray MInt IO are also defined.
 
 MInt
-Integer type for modular arithmetic, using fixed prime modulo.
+Int type for arithmetic modulo a fixed prime mm.
 
-inv
-Reciprocal of an MInt. O(log m).
+mm
+The prime modulus.
 -}
 
 module MInt
     ( MInt(..)
-    , inv
+    , mm
     ) where
 
+import Control.DeepSeq
+import Data.Ratio
+
+-- Imports for unboxed array support
 import Control.Monad.ST
 import Data.Array.Base
 import Data.Array.IO
 import Data.Coerce
-import Data.Ratio
 import Unsafe.Coerce
 
 mm :: Int
@@ -49,9 +55,6 @@ instance Num MInt where
     abs             = id
     signum          = MInt . signum . unMInt
     fromInteger     = MInt . fromInteger . (`mod` fromIntegral mm)
-
-inv :: MInt -> MInt
-inv = (^(mm - 2))
 
 instance Fractional MInt where
     recip          = (^(mm - 2))
@@ -110,3 +113,9 @@ instance MArray IOUArray MInt IO where
     newArray_                = fmap coerceIOIM . newArray_
     unsafeRead arr i         = coerce <$> unsafeRead (coerceIOMI arr) i
     unsafeWrite arr i e      = unsafeWrite (coerceIOMI arr) i (coerce e)
+
+--------------------------------------------------------------------------------
+-- For tests
+
+instance NFData MInt where
+    rnf = rwhnf
