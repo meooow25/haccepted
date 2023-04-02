@@ -101,6 +101,7 @@ defines sig name = or
     [ (name ++ " ::") `isPrefixOf` sig
     , ("data " ++ name) `isPrefixOf` sig
     , ("newtype " ++ name) `isPrefixOf` sig
+    , ("type " ++ name) `isPrefixOf` sig
     , ("class " ++ name) `isPrefixOf` sig
     , "class" `isPrefixOf` sig && ("=> " ++ name) `isInfixOf` sig
     ]
