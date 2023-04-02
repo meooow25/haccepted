@@ -59,6 +59,7 @@ import Math ( egcd )
 newtype Mod (m :: Nat) i = Mod { unMod :: i } deriving (Eq, Ord, Show)
 
 type M7 = Mod 1000000007 Int
+
 type M3 = Mod 998244353 Int
 
 instance (KnownNat m, Integral i) => Num (Mod m i) where
