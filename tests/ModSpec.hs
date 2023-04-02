@@ -107,11 +107,11 @@ data Expr
 
 genExpr :: Gen Integer -> [Expr -> Expr -> Expr] -> Gen Expr
 genExpr genInteger ops = sized $ \n -> choose (1, max 1 n) >>= go where
-    go x | x <= 0 = error "genExpr: size <= 0"
+    go sz | sz <= 0 = error "genExpr: size <= 0"
     go 1 = Lit <$> genInteger
-    go x = do
-        lx <- choose (1, x-1)
-        elements ops <*> go lx <*> go (x - lx)
+    go sz = do
+        lsz <- choose (1, sz-1)
+        elements ops <*> go lsz <*> go (sz - lsz)
 
 evalExpr :: (Eq a, Fractional a) => Expr -> Maybe a
 evalExpr = \case
@@ -125,7 +125,7 @@ evalExpr = \case
         (x' / y') <$ guard (y' /= 0)
 
 doesNotDivide :: Integral i => i -> i -> Bool
-doesNotDivide x y = mod y x /= 0
+x `doesNotDivide` y = mod y x /= 0
 
 isPrime :: Integral i => i -> Bool
 isPrime x = x >= 2 && all (`doesNotDivide` x) (takeWhile (\y -> y*y <= x) [2..])
