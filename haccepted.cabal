@@ -35,6 +35,7 @@ library
       MInt
       Misc
       Mo
+      Mod
       PQTree
       Prufer
       SegTree
@@ -114,7 +115,9 @@ test-suite test-all
       KruskalSpec
       LCASpec
       MathSpec
+      MIntSpec
       MiscSpec
+      ModSpec
       MoSpec
       PQTreeSpec
       PruferSpec
@@ -162,7 +165,9 @@ benchmark bench-all
       KruskalBench
       LCABench
       MathBench
+      MIntBench
       MoBench
+      ModBench
       PQTreeBench
       PruferBench
       SegTreeBench

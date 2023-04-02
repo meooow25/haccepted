@@ -14,7 +14,9 @@ import qualified KMPBench
 import qualified KruskalBench
 import qualified LCABench
 import qualified MathBench
+import qualified MIntBench
 import qualified MoBench
+import qualified ModBench
 import qualified PQTreeBench
 import qualified PruferBench
 import qualified SegTreeBench
@@ -42,7 +44,9 @@ main = defaultMain
     , KruskalBench.benchmark
     , LCABench.benchmark
     , MathBench.benchmark
+    , MIntBench.benchmark
     , MoBench.benchmark
+    , ModBench.benchmark
     , PQTreeBench.benchmark
     , PruferBench.benchmark
     , SegTreeBench.benchmark
