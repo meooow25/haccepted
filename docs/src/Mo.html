@@ -32,7 +32,7 @@ Sources:
 </span><span id="line-32"></span><span class="hs-keyword">data</span><span> </span><span id="MoQuery"><span class="annot"><a href="Mo.html#MoQuery"><span class="hs-identifier hs-var">MoQuery</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="MoQuery"><span class="annot"><a href="Mo.html#MoQuery"><span class="hs-identifier hs-var">MoQuery</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="ql_"><span class="annot"><span class="annottext">MoQuery -&gt; Int
 </span><a href="Mo.html#ql_"><span class="hs-identifier hs-var hs-var">ql_</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span id="qr_"><span class="annot"><span class="annottext">MoQuery -&gt; Int
 </span><a href="Mo.html#qr_"><span class="hs-identifier hs-var hs-var">qr_</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span id="qtag_"><span class="annot"><span class="annottext">MoQuery -&gt; Int
-</span><a href="Mo.html#qtag_"><span class="hs-identifier hs-var hs-var">qtag_</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Mo.html#Tag"><span class="hs-identifier hs-type">Tag</span></a></span><span> </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679067773"><span id="local-6989586621679067775"><span id="local-6989586621679067777"><span class="annot"><span class="annottext">Int -&gt; MoQuery -&gt; ShowS
+</span><a href="Mo.html#qtag_"><span class="hs-identifier hs-var hs-var">qtag_</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Mo.html#Tag"><span class="hs-identifier hs-type">Tag</span></a></span><span> </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679069635"><span id="local-6989586621679069637"><span id="local-6989586621679069639"><span class="annot"><span class="annottext">Int -&gt; MoQuery -&gt; ShowS
 [MoQuery] -&gt; ShowS
 MoQuery -&gt; String
 (Int -&gt; MoQuery -&gt; ShowS)
@@ -49,7 +49,7 @@ $cshowsPrec :: Int -&gt; MoQuery -&gt; ShowS
 </span><span id="line-33"></span><span>
 </span><span id="line-34"></span><span class="hs-comment">-- | Run Mo's algorithm given the block size, state update and answer functions, and queries. See above</span><span>
 </span><span id="line-35"></span><span class="hs-comment">-- for time complexity.</span><span>
-</span><span id="line-36"></span><span id="local-6989586621679067770"><span id="local-6989586621679067771"><span class="annot"><a href="Mo.html#runMo"><span class="hs-identifier hs-type">runMo</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monad</span></span><span> </span><span class="annot"><a href="#local-6989586621679067771"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679067771"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679067771"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679067771"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067770"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Mo.html#MoQuery"><span class="hs-identifier hs-type">MoQuery</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679067771"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="Mo.html#Tag"><span class="hs-identifier hs-type">Tag</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679067770"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span></span></span><span>
+</span><span id="line-36"></span><span id="local-6989586621679069632"><span id="local-6989586621679069633"><span class="annot"><a href="Mo.html#runMo"><span class="hs-identifier hs-type">runMo</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monad</span></span><span> </span><span class="annot"><a href="#local-6989586621679069633"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679069633"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679069633"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679069633"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679069632"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Mo.html#MoQuery"><span class="hs-identifier hs-type">MoQuery</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679069633"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="Mo.html#Tag"><span class="hs-identifier hs-type">Tag</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679069632"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span></span></span><span>
 </span><span id="line-37"></span><span id="runMo"><span class="annot"><span class="annottext">runMo :: Int
 -&gt; (Int -&gt; m ())
 -&gt; (Int -&gt; m ())
@@ -63,154 +63,154 @@ $cshowsPrec :: Int -&gt; MoQuery -&gt; ShowS
 </span><span class="hs-identifier">_</span></span><span>   </span><span class="hs-special">[</span><span class="hs-special">]</span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[(Int, a)] -&gt; m [(Int, a)]
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
-</span><span id="line-38"></span><span class="annot"><a href="Mo.html#runMo"><span class="hs-identifier hs-var">runMo</span></a></span><span> </span><span id="local-6989586621679067769"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067769"><span class="hs-identifier hs-var">bsize</span></a></span></span><span> </span><span id="local-6989586621679067768"><span class="annot"><span class="annottext">Int -&gt; m ()
-</span><a href="#local-6989586621679067768"><span class="hs-identifier hs-var">add</span></a></span></span><span> </span><span id="local-6989586621679067767"><span class="annot"><span class="annottext">Int -&gt; m ()
-</span><a href="#local-6989586621679067767"><span class="hs-identifier hs-var">rem</span></a></span></span><span> </span><span id="local-6989586621679067766"><span class="annot"><span class="annottext">m a
-</span><a href="#local-6989586621679067766"><span class="hs-identifier hs-var">ans</span></a></span></span><span> </span><span id="local-6989586621679067765"><span class="annot"><span class="annottext">[MoQuery]
-</span><a href="#local-6989586621679067765"><span class="hs-identifier hs-var">qrys</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[MoQuery] -&gt; Int -&gt; Int -&gt; [(Int, a)] -&gt; m [(Int, a)]
-</span><a href="#local-6989586621679067764"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[MoQuery]
-</span><a href="#local-6989586621679067763"><span class="hs-identifier hs-var">qrys'</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067762"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067762"><span class="hs-identifier hs-var">start</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><span id="line-38"></span><span class="annot"><a href="Mo.html#runMo"><span class="hs-identifier hs-var">runMo</span></a></span><span> </span><span id="local-6989586621679069631"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069631"><span class="hs-identifier hs-var">bsize</span></a></span></span><span> </span><span id="local-6989586621679069630"><span class="annot"><span class="annottext">Int -&gt; m ()
+</span><a href="#local-6989586621679069630"><span class="hs-identifier hs-var">add</span></a></span></span><span> </span><span id="local-6989586621679069629"><span class="annot"><span class="annottext">Int -&gt; m ()
+</span><a href="#local-6989586621679069629"><span class="hs-identifier hs-var">rem</span></a></span></span><span> </span><span id="local-6989586621679069628"><span class="annot"><span class="annottext">m a
+</span><a href="#local-6989586621679069628"><span class="hs-identifier hs-var">ans</span></a></span></span><span> </span><span id="local-6989586621679069627"><span class="annot"><span class="annottext">[MoQuery]
+</span><a href="#local-6989586621679069627"><span class="hs-identifier hs-var">qrys</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[MoQuery] -&gt; Int -&gt; Int -&gt; [(Int, a)] -&gt; m [(Int, a)]
+</span><a href="#local-6989586621679069626"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[MoQuery]
+</span><a href="#local-6989586621679069625"><span class="hs-identifier hs-var">qrys'</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069624"><span class="hs-identifier hs-var">start</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069624"><span class="hs-identifier hs-var">start</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-39"></span><span>    </span><span id="local-6989586621679067761"><span class="annot"><span class="annottext">cmp :: MoQuery -&gt; MoQuery -&gt; Ordering
-</span><a href="#local-6989586621679067761"><span class="hs-identifier hs-var hs-var">cmp</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Mo.html#MoQuery"><span class="hs-identifier hs-type">MoQuery</span></a></span><span> </span><span id="local-6989586621679067760"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067760"><span class="hs-identifier hs-var">l1</span></a></span></span><span> </span><span id="local-6989586621679067759"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067759"><span class="hs-identifier hs-var">r1</span></a></span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Mo.html#MoQuery"><span class="hs-identifier hs-type">MoQuery</span></a></span><span> </span><span id="local-6989586621679067758"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067758"><span class="hs-identifier hs-var">l2</span></a></span></span><span> </span><span id="local-6989586621679067757"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067757"><span class="hs-identifier hs-var">r2</span></a></span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span id="line-39"></span><span>    </span><span id="local-6989586621679069623"><span class="annot"><span class="annottext">cmp :: MoQuery -&gt; MoQuery -&gt; Ordering
+</span><a href="#local-6989586621679069623"><span class="hs-identifier hs-var hs-var">cmp</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Mo.html#MoQuery"><span class="hs-identifier hs-type">MoQuery</span></a></span><span> </span><span id="local-6989586621679069622"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069622"><span class="hs-identifier hs-var">l1</span></a></span></span><span> </span><span id="local-6989586621679069621"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069621"><span class="hs-identifier hs-var">r1</span></a></span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Mo.html#MoQuery"><span class="hs-identifier hs-type">MoQuery</span></a></span><span> </span><span id="local-6989586621679069620"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069620"><span class="hs-identifier hs-var">l2</span></a></span></span><span> </span><span id="local-6989586621679069619"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069619"><span class="hs-identifier hs-var">r2</span></a></span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Ordering
 forall a. Ord a =&gt; a -&gt; a -&gt; Ordering
 </span><span class="hs-identifier hs-var">compare</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067755"><span class="hs-identifier hs-var">b1</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067754"><span class="hs-identifier hs-var">b2</span></a></span><span> </span><span class="annot"><span class="annottext">Ordering -&gt; Ordering -&gt; Ordering
+</span><a href="#local-6989586621679069617"><span class="hs-identifier hs-var">b1</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069616"><span class="hs-identifier hs-var">b2</span></a></span><span> </span><span class="annot"><span class="annottext">Ordering -&gt; Ordering -&gt; Ordering
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Ordering
-</span><a href="#local-6989586621679067753"><span class="hs-identifier hs-var">rc</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-40"></span><span>        </span><span class="hs-special">(</span><span id="local-6989586621679067755"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067755"><span class="hs-identifier hs-var">b1</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679067754"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067754"><span class="hs-identifier hs-var">b2</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067760"><span class="hs-identifier hs-var">l1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679069615"><span class="hs-identifier hs-var">rc</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-40"></span><span>        </span><span class="hs-special">(</span><span id="local-6989586621679069617"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069617"><span class="hs-identifier hs-var">b1</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679069616"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069616"><span class="hs-identifier hs-var">b2</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069622"><span class="hs-identifier hs-var">l1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Integral a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">`div`</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067769"><span class="hs-identifier hs-var">bsize</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067758"><span class="hs-identifier hs-var">l2</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679069631"><span class="hs-identifier hs-var">bsize</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069620"><span class="hs-identifier hs-var">l2</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Integral a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">`div`</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067769"><span class="hs-identifier hs-var">bsize</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-41"></span><span>        </span><span id="local-6989586621679067753"><span class="annot"><span class="annottext">rc :: Ordering
-</span><a href="#local-6989586621679067753"><span class="hs-identifier hs-var hs-var">rc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Bool
+</span><a href="#local-6989586621679069631"><span class="hs-identifier hs-var">bsize</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span>        </span><span id="local-6989586621679069615"><span class="annot"><span class="annottext">rc :: Ordering
+</span><a href="#local-6989586621679069615"><span class="hs-identifier hs-var hs-var">rc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Bool
 forall a. Integral a =&gt; a -&gt; Bool
 </span><span class="hs-identifier hs-var">even</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067755"><span class="hs-identifier hs-var">b1</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Ordering
+</span><a href="#local-6989586621679069617"><span class="hs-identifier hs-var">b1</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Ordering
 forall a. Ord a =&gt; a -&gt; a -&gt; Ordering
 </span><span class="hs-identifier hs-var">compare</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067759"><span class="hs-identifier hs-var">r1</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067757"><span class="hs-identifier hs-var">r2</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Ordering
+</span><a href="#local-6989586621679069621"><span class="hs-identifier hs-var">r1</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069619"><span class="hs-identifier hs-var">r2</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Ordering
 forall a. Ord a =&gt; a -&gt; a -&gt; Ordering
 </span><span class="hs-identifier hs-var">compare</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067757"><span class="hs-identifier hs-var">r2</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067759"><span class="hs-identifier hs-var">r1</span></a></span><span>
-</span><span id="line-42"></span><span>    </span><span id="local-6989586621679067763"><span class="annot"><span class="annottext">qrys' :: [MoQuery]
-</span><a href="#local-6989586621679067763"><span class="hs-identifier hs-var hs-var">qrys'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(MoQuery -&gt; MoQuery -&gt; Ordering) -&gt; [MoQuery] -&gt; [MoQuery]
+</span><a href="#local-6989586621679069619"><span class="hs-identifier hs-var">r2</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069621"><span class="hs-identifier hs-var">r1</span></a></span><span>
+</span><span id="line-42"></span><span>    </span><span id="local-6989586621679069625"><span class="annot"><span class="annottext">qrys' :: [MoQuery]
+</span><a href="#local-6989586621679069625"><span class="hs-identifier hs-var hs-var">qrys'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(MoQuery -&gt; MoQuery -&gt; Ordering) -&gt; [MoQuery] -&gt; [MoQuery]
 forall a. (a -&gt; a -&gt; Ordering) -&gt; [a] -&gt; [a]
 </span><span class="hs-identifier hs-var">sortBy</span></span><span> </span><span class="annot"><span class="annottext">MoQuery -&gt; MoQuery -&gt; Ordering
-</span><a href="#local-6989586621679067761"><span class="hs-identifier hs-var">cmp</span></a></span><span> </span><span class="annot"><span class="annottext">[MoQuery]
-</span><a href="#local-6989586621679067765"><span class="hs-identifier hs-var">qrys</span></a></span><span>
-</span><span id="line-43"></span><span>    </span><span class="annot"><a href="Mo.html#MoQuery"><span class="hs-identifier hs-type">MoQuery</span></a></span><span> </span><span id="local-6989586621679067762"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067762"><span class="hs-identifier hs-var">start</span></a></span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069623"><span class="hs-identifier hs-var">cmp</span></a></span><span> </span><span class="annot"><span class="annottext">[MoQuery]
+</span><a href="#local-6989586621679069627"><span class="hs-identifier hs-var">qrys</span></a></span><span>
+</span><span id="line-43"></span><span>    </span><span class="annot"><a href="Mo.html#MoQuery"><span class="hs-identifier hs-type">MoQuery</span></a></span><span> </span><span id="local-6989586621679069624"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069624"><span class="hs-identifier hs-var">start</span></a></span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[MoQuery] -&gt; MoQuery
 forall a. [a] -&gt; a
 </span><span class="hs-identifier hs-var">head</span></span><span> </span><span class="annot"><span class="annottext">[MoQuery]
-</span><a href="#local-6989586621679067763"><span class="hs-identifier hs-var">qrys'</span></a></span><span>
-</span><span id="line-44"></span><span>    </span><span id="local-6989586621679067764"><span class="annot"><span class="annottext">go :: [MoQuery] -&gt; Int -&gt; Int -&gt; [(Int, a)] -&gt; m [(Int, a)]
-</span><a href="#local-6989586621679067764"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069625"><span class="hs-identifier hs-var">qrys'</span></a></span><span>
+</span><span id="line-44"></span><span>    </span><span id="local-6989586621679069626"><span class="annot"><span class="annottext">go :: [MoQuery] -&gt; Int -&gt; Int -&gt; [(Int, a)] -&gt; m [(Int, a)]
+</span><a href="#local-6989586621679069626"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679067748"><span class="annot"><span class="annottext">[(Int, a)]
-</span><a href="#local-6989586621679067748"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[(Int, a)] -&gt; m [(Int, a)]
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679069610"><span class="annot"><span class="annottext">[(Int, a)]
+</span><a href="#local-6989586621679069610"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[(Int, a)] -&gt; m [(Int, a)]
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">[(Int, a)]
-</span><a href="#local-6989586621679067748"><span class="hs-identifier hs-var">acc</span></a></span><span>
-</span><span id="line-45"></span><span>    </span><span class="annot"><a href="#local-6989586621679067764"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="annot"><a href="Mo.html#MoQuery"><span class="hs-identifier hs-type">MoQuery</span></a></span><span> </span><span id="local-6989586621679067747"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067747"><span class="hs-identifier hs-var">ql</span></a></span></span><span> </span><span id="local-6989586621679067746"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067746"><span class="hs-identifier hs-var">qr</span></a></span></span><span> </span><span id="local-6989586621679067745"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067745"><span class="hs-identifier hs-var">qtag</span></a></span></span><span class="hs-special">)</span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679067744"><span class="annot"><span class="annottext">[MoQuery]
-</span><a href="#local-6989586621679067744"><span class="hs-identifier hs-var">qrys</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679067743"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067743"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679067742"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067742"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679067741"><span class="annot"><span class="annottext">[(Int, a)]
-</span><a href="#local-6989586621679067741"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="#local-6989586621679069610"><span class="hs-identifier hs-var">acc</span></a></span><span>
+</span><span id="line-45"></span><span>    </span><span class="annot"><a href="#local-6989586621679069626"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="annot"><a href="Mo.html#MoQuery"><span class="hs-identifier hs-type">MoQuery</span></a></span><span> </span><span id="local-6989586621679069609"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069609"><span class="hs-identifier hs-var">ql</span></a></span></span><span> </span><span id="local-6989586621679069608"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069608"><span class="hs-identifier hs-var">qr</span></a></span></span><span> </span><span id="local-6989586621679069607"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069607"><span class="hs-identifier hs-var">qtag</span></a></span></span><span class="hs-special">)</span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679069606"><span class="annot"><span class="annottext">[MoQuery]
+</span><a href="#local-6989586621679069606"><span class="hs-identifier hs-var">qrys</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679069605"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069605"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679069604"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069604"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679069603"><span class="annot"><span class="annottext">[(Int, a)]
+</span><a href="#local-6989586621679069603"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-46"></span><span>        </span><span class="annot"><span class="annottext">(Int -&gt; m ()) -&gt; [Int] -&gt; m ()
 forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
 (Foldable t, Monad m) =&gt;
 (a -&gt; m b) -&gt; t a -&gt; m ()
 </span><span class="hs-identifier hs-var">mapM_</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; m ()
-</span><a href="#local-6989586621679067768"><span class="hs-identifier hs-var">add</span></a></span><span> </span><span class="annot"><span class="annottext">([Int] -&gt; m ()) -&gt; [Int] -&gt; m ()
+</span><a href="#local-6989586621679069630"><span class="hs-identifier hs-var">add</span></a></span><span> </span><span class="annot"><span class="annottext">([Int] -&gt; m ()) -&gt; [Int] -&gt; m ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067743"><span class="hs-identifier hs-var">l</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679069605"><span class="hs-identifier hs-var">l</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067743"><span class="hs-identifier hs-var">l</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679069605"><span class="hs-identifier hs-var">l</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">2</span></span><span> </span><span class="hs-glyph">..</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067747"><span class="hs-identifier hs-var">ql</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; [Int] -&gt; [Int]
+</span><a href="#local-6989586621679069609"><span class="hs-identifier hs-var">ql</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; [Int] -&gt; [Int]
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067742"><span class="hs-identifier hs-var">r</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679069604"><span class="hs-identifier hs-var">r</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span> </span><span class="hs-glyph">..</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067746"><span class="hs-identifier hs-var">qr</span></a></span><span class="hs-special">]</span><span>
+</span><a href="#local-6989586621679069608"><span class="hs-identifier hs-var">qr</span></a></span><span class="hs-special">]</span><span>
 </span><span id="line-47"></span><span>        </span><span class="annot"><span class="annottext">(Int -&gt; m ()) -&gt; [Int] -&gt; m ()
 forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
 (Foldable t, Monad m) =&gt;
 (a -&gt; m b) -&gt; t a -&gt; m ()
 </span><span class="hs-identifier hs-var">mapM_</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; m ()
-</span><a href="#local-6989586621679067767"><span class="hs-identifier hs-var">rem</span></a></span><span> </span><span class="annot"><span class="annottext">([Int] -&gt; m ()) -&gt; [Int] -&gt; m ()
+</span><a href="#local-6989586621679069629"><span class="hs-identifier hs-var">rem</span></a></span><span> </span><span class="annot"><span class="annottext">([Int] -&gt; m ()) -&gt; [Int] -&gt; m ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067743"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="hs-glyph">..</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067747"><span class="hs-identifier hs-var">ql</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679069605"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="hs-glyph">..</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069609"><span class="hs-identifier hs-var">ql</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; [Int] -&gt; [Int]
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067742"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067742"><span class="hs-identifier hs-var">r</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679069604"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069604"><span class="hs-identifier hs-var">r</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span> </span><span class="hs-glyph">..</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067746"><span class="hs-identifier hs-var">qr</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679069608"><span class="hs-identifier hs-var">qr</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">]</span><span>
-</span><span id="line-48"></span><span>        </span><span id="local-6989586621679067738"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679067738"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">m a
-</span><a href="#local-6989586621679067766"><span class="hs-identifier hs-var">ans</span></a></span><span>
+</span><span id="line-48"></span><span>        </span><span id="local-6989586621679069600"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679069600"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">m a
+</span><a href="#local-6989586621679069628"><span class="hs-identifier hs-var">ans</span></a></span><span>
 </span><span id="line-49"></span><span>        </span><span class="annot"><span class="annottext">[MoQuery] -&gt; Int -&gt; Int -&gt; [(Int, a)] -&gt; m [(Int, a)]
-</span><a href="#local-6989586621679067764"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[MoQuery]
-</span><a href="#local-6989586621679067744"><span class="hs-identifier hs-var">qrys</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067747"><span class="hs-identifier hs-var">ql</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067746"><span class="hs-identifier hs-var">qr</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067745"><span class="hs-identifier hs-var">qtag</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679067738"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span class="annot"><span class="annottext">(Int, a) -&gt; [(Int, a)] -&gt; [(Int, a)]
+</span><a href="#local-6989586621679069626"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[MoQuery]
+</span><a href="#local-6989586621679069606"><span class="hs-identifier hs-var">qrys</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069609"><span class="hs-identifier hs-var">ql</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069608"><span class="hs-identifier hs-var">qr</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069607"><span class="hs-identifier hs-var">qtag</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679069600"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span class="annot"><span class="annottext">(Int, a) -&gt; [(Int, a)] -&gt; [(Int, a)]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span class="annot"><span class="annottext">[(Int, a)]
-</span><a href="#local-6989586621679067741"><span class="hs-identifier hs-var">acc</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679069603"><span class="hs-identifier hs-var">acc</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-50"></span><span>
 </span><span id="line-51"></span><span class="hs-comment">-- | Square root of an Int, rounded to an Int. O(1).</span><span>
 </span><span id="line-52"></span><span class="annot"><a href="Mo.html#sqrtSize"><span class="hs-identifier hs-type">sqrtSize</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
 </span><span id="line-53"></span><span id="sqrtSize"><span class="annot"><span class="annottext">sqrtSize :: Int -&gt; Int
-</span><a href="Mo.html#sqrtSize"><span class="hs-identifier hs-var hs-var">sqrtSize</span></a></span></span><span> </span><span id="local-6989586621679067737"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067737"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Double -&gt; Int
+</span><a href="Mo.html#sqrtSize"><span class="hs-identifier hs-var hs-var">sqrtSize</span></a></span></span><span> </span><span id="local-6989586621679069599"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679069599"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Double -&gt; Int
 forall a b. (RealFrac a, Integral b) =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">round</span></span><span> </span><span class="annot"><span class="annottext">(Double -&gt; Int) -&gt; Double -&gt; Int
 forall a b. (a -&gt; b) -&gt; a -&gt; b
@@ -219,7 +219,7 @@ forall a. Floating a =&gt; a -&gt; a
 </span><span class="hs-identifier hs-var">sqrt</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Double
 forall a b. (Integral a, Num b) =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679067737"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679069599"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span class="hs-special">)</span><span>
 </span><span id="line-54"></span><span>
 </span><span id="line-55"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-56"></span><span class="hs-comment">-- For tests</span><span>
@@ -228,7 +228,7 @@ forall a b. (Integral a, Num b) =&gt; a -&gt; b
 </span><span id="line-59"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="Mo.html#runMo"><span class="hs-pragma hs-type">runMo</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-60"></span><span>
 </span><span id="line-61"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="Mo.html#MoQuery"><span class="hs-identifier hs-type">MoQuery</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-62"></span><span>    </span><span id="local-6989586621679067732"><span class="annot"><span class="annottext">rnf :: MoQuery -&gt; ()
+</span><span id="line-62"></span><span>    </span><span id="local-6989586621679069594"><span class="annot"><span class="annottext">rnf :: MoQuery -&gt; ()
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MoQuery -&gt; ()
 forall a. a -&gt; ()
 </span><span class="hs-identifier hs-var">rwhnf</span></span><span>
