@@ -643,17 +643,17 @@ instance Control.DeepSeq.NFData Mo.MoQuery
 --   exists for MInt. The enum is cyclic, it wraps to 0 after m-1. An
 --   instance of IArray UArray MInt exists. Instances of MArray (STUArray
 --   s) MInt (ST s) and MArray IOUArray MInt IO are also defined.
---   
---   M7 Commonly used modulus.
---   
---   M3 Commonly used modulus.
 module Mod
 
 -- | Type for modular arithmetic modulo m with underlying type i.
 newtype Mod (m :: Nat) i
 Mod :: i -> Mod (m :: Nat) i
 [unMod] :: Mod (m :: Nat) i -> i
+
+-- | Commonly used modulus.
 type M7 = Mod 1000000007 Int
+
+-- | Commonly used modulus.
 type M3 = Mod 998244353 Int
 
 -- | The multiplicative inverse modulo m. It exists if and only if the
