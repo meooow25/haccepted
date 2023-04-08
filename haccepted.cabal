@@ -102,6 +102,7 @@ test-suite test-all
   main-is: Spec.hs
   other-modules:
       AhoCorasickSpec
+      ArbitraryInstances
       BFSSpec
       BinSearchSpec
       CentroidDecompSpec
