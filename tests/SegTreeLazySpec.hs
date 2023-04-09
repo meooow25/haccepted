@@ -11,7 +11,6 @@ import Test.QuickCheck
 
 import SegTreeLazy
     ( LazySegTree
-    , Action(..)
     , adjustLST
     , boundsLST
     , foldRangeLST
@@ -20,6 +19,7 @@ import SegTreeLazy
     , updateRangeLST
     )
 import SegTreeSpec ( pointUpds, rangeQry )
+import Misc ( Action(..) )
 import Util ( genSortedIntPair )
 
 spec :: Spec

@@ -9,13 +9,13 @@ import Criterion
 
 import SegTreeLazy
     ( LazySegTree
-    , Action(..)
     , adjustLST
     , emptyLST
     , foldRangeLST
     , fromListLST
     , updateRangeLST
     )
+import Misc ( Action(..) )
 import Util ( evalR, randInts, randIntsR, randSortedIntPairsR, sizedBench )
 
 benchmark :: Benchmark

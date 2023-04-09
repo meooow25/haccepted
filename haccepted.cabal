@@ -42,6 +42,7 @@ library
       Prufer
       SegTree
       SegTreeLazy
+      SegTreeLazyMut
       Sort
       SparseTable
       SuffixArray

@@ -14,13 +14,10 @@ Implementation notes:
 * See SegTree.hs because the structure is identical. The only difference is that each node holds an
   update here.
 
-LazySegTree u a is a segment tree on elements of type a and updates of type u. a and u must be
-monoids. An instance of Action u a must exist, which specifies a (right) monoid action of u on a.
-The following laws hold for a monoid action:
-* (x `act` u1) `act` u2 = x `act` (u1 <> u2)
-* x `act` mempty = x
-The segment tree requires an additional law:
-* (x1 <> x2) `act` u = (x1 `act` u) <> (x2 `act` u)
+LazySegTree u a is a segment tree on elements of type a and updates of type u. The instance of
+Action u a determines the behavior of the tree. In addition to Action's laws, the segment tree
+requires
+(x1 <> x2) `act` u = (x1 `act` u) <> (x2 `act` u)
 
 The complexities below assume <> for u, <> for a and act all take O(1) time.
 Let n = r - l + 1 in all instances below.
@@ -52,7 +49,6 @@ LazySegTree u cannot be Foldable because of the Action constraint :(
 
 module SegTreeLazy
     ( LazySegTree
-    , Action(..)
     , emptyLST
     , fromListLST
     , boundsLST
@@ -66,11 +62,10 @@ import Control.DeepSeq
 import Control.Monad.State
 import Data.Bits
 
+import Misc ( Action(..) )
+
 data LazySegTree u a = LazySegTree !(Int, Int, Int) !(LSegNode u a) deriving Show
 data LSegNode u a = LSLeaf !a | LSBin !a !u !(LSegNode u a) !(LSegNode u a) deriving Show
-
-class (Monoid u, Monoid a) => Action u a where
-    act :: a -> u -> a
 
 buildLST :: Action u a => (Int, Int) -> (Int -> LSegNode u a) -> LazySegTree u a
 buildLST (l, r) f

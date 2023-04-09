@@ -1,3 +1,4 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-|
 Miscellaneous functions/recipes
 
@@ -53,6 +54,11 @@ Idempotent
 A semigroup where the elements are idempotent.
 a <> a = a
 
+Action
+A right monoid action of u on a.
+(x `act` u1) `act` u2 = x `act` (u1 <> u2)
+x `act` mempty = x
+
 bitLength
 Returns the number of bits required to represent the value.
 
@@ -90,6 +96,7 @@ module Misc
     , Commutative
     , Group(..)
     , Idempotent
+    , Action(..)
     , bitLength
     , odds
     , evens
@@ -174,6 +181,9 @@ instance Ord a => Idempotent (Min a)
 instance Idempotent (First a)
 
 instance Idempotent (Last a)
+
+class (Monoid u, Monoid a) => Action u a where
+    act :: a -> u -> a
 
 bitLength :: FiniteBits b => b -> Int
 bitLength x = finiteBitSize x - countLeadingZeros x
