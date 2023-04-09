@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE BangPatterns #-}</span><span>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE AllowAmbiguousTypes, BangPatterns, ScopedTypeVariables #-}</span><span>
 </span><span id="line-2"></span><span class="hs-comment">{-|
 == Math
 
@@ -11,103 +11,268 @@ Sources:
 </span><span id="line-11"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Math</span><span>
 </span><span id="line-12"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Math.html#egcd"><span class="hs-identifier">egcd</span></a></span><span>
 </span><span id="line-13"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Math.html#egcd2"><span class="hs-identifier">egcd2</span></a></span><span>
-</span><span id="line-14"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-15"></span><span>
-</span><span id="line-16"></span><span class="hs-comment">-- | Returns (g, s) where g = gcd(a, b); as + bt = g. O(log min(a, b)). Also see note for egcd2.</span><span>
-</span><span id="line-17"></span><span id="local-6989586621679068504"><span class="annot"><a href="Math.html#egcd"><span class="hs-identifier hs-type">egcd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integral</span></span><span> </span><span class="annot"><a href="#local-6989586621679068504"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068504"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068504"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679068504"><span class="hs-identifier hs-type">i</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679068504"><span class="hs-identifier hs-type">i</span></a></span><span class="hs-special">)</span></span><span>
-</span><span id="line-18"></span><span id="egcd"><span class="annot"><span class="annottext">egcd :: i -&gt; i -&gt; (i, i)
+</span><span id="line-14"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Math.html#mkInvFactorials"><span class="hs-identifier">mkInvFactorials</span></a></span><span>
+</span><span id="line-15"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Math.html#mkFactorials"><span class="hs-identifier">mkFactorials</span></a></span><span>
+</span><span id="line-16"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Math.html#mkBinom"><span class="hs-identifier">mkBinom</span></a></span><span>
+</span><span id="line-17"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Array.Unboxed</span></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.List</span></span><span>
+</span><span id="line-21"></span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- | Returns (g, s) where g = gcd(a, b); as + bt = g. O(log min(a, b)). Also see note for egcd2.</span><span>
+</span><span id="line-23"></span><span id="local-6989586621679068813"><span class="annot"><a href="Math.html#egcd"><span class="hs-identifier hs-type">egcd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integral</span></span><span> </span><span class="annot"><a href="#local-6989586621679068813"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068813"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068813"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679068813"><span class="hs-identifier hs-type">i</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679068813"><span class="hs-identifier hs-type">i</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-24"></span><span id="egcd"><span class="annot"><span class="annottext">egcd :: i -&gt; i -&gt; (i, i)
 </span><a href="Math.html#egcd"><span class="hs-identifier hs-var hs-var">egcd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; i -&gt; i -&gt; (i, i)
 forall t. Integral t =&gt; t -&gt; t -&gt; t -&gt; t -&gt; (t, t)
-</span><a href="#local-6989586621679068503"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679068812"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">i
 </span><span class="hs-number">1</span></span><span> </span><span class="annot"><span class="annottext">i
 </span><span class="hs-number">0</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-19"></span><span>    </span><span id="local-6989586621679068503"><span class="annot"><span class="annottext">go :: t -&gt; t -&gt; t -&gt; t -&gt; (t, t)
-</span><a href="#local-6989586621679068503"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679068502"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068502"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="annottext">t
-</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679068501"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068501"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="annot"><span class="annottext">t
+</span><span id="line-25"></span><span>    </span><span id="local-6989586621679068812"><span class="annot"><span class="annottext">go :: t -&gt; t -&gt; t -&gt; t -&gt; (t, t)
+</span><a href="#local-6989586621679068812"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679068811"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068811"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="annottext">t
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679068810"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068810"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="annot"><span class="annottext">t
 </span><span class="hs-number">0</span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068501"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068502"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-20"></span><span>    </span><span class="annot"><a href="#local-6989586621679068503"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679068500"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068500"><span class="hs-identifier hs-var">s</span></a></span></span><span>  </span><span id="local-6989586621679068499"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068499"><span class="hs-identifier hs-var">s'</span></a></span></span><span> </span><span id="local-6989586621679068498"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068498"><span class="hs-identifier hs-var">r</span></a></span></span><span>  </span><span id="local-6989586621679068497"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068497"><span class="hs-identifier hs-var">r'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679068496"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068496"><span class="hs-identifier hs-var">q</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068495"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068495"><span class="hs-identifier hs-var">r''</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; (t, t)
+</span><a href="#local-6989586621679068810"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068811"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span>    </span><span class="annot"><a href="#local-6989586621679068812"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679068809"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068809"><span class="hs-identifier hs-var">s</span></a></span></span><span>  </span><span id="local-6989586621679068808"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068808"><span class="hs-identifier hs-var">s'</span></a></span></span><span> </span><span id="local-6989586621679068807"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068807"><span class="hs-identifier hs-var">r</span></a></span></span><span>  </span><span id="local-6989586621679068806"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068806"><span class="hs-identifier hs-var">r'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679068805"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068805"><span class="hs-identifier hs-var">q</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068804"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068804"><span class="hs-identifier hs-var">r''</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; (t, t)
 forall a. Integral a =&gt; a -&gt; a -&gt; (a, a)
 </span><span class="hs-identifier hs-var">quotRem</span></span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068498"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068497"><span class="hs-identifier hs-var">r'</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t -&gt; t -&gt; (t, t)
-</span><a href="#local-6989586621679068503"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068499"><span class="hs-identifier hs-var">s'</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068500"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
+</span><a href="#local-6989586621679068807"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068806"><span class="hs-identifier hs-var">r'</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t -&gt; t -&gt; (t, t)
+</span><a href="#local-6989586621679068812"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068808"><span class="hs-identifier hs-var">s'</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068809"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068496"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
+</span><a href="#local-6989586621679068805"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068499"><span class="hs-identifier hs-var">s'</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068497"><span class="hs-identifier hs-var">r'</span></a></span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068495"><span class="hs-identifier hs-var">r''</span></a></span><span>
-</span><span id="line-21"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Math.html#egcd"><span class="hs-pragma hs-type">egcd</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
-</span><span id="line-22"></span><span>
-</span><span id="line-23"></span><span class="hs-comment">-- | Returns (g, s, t) where g = gcd(a, b); as + bt = g. O(log min(a, b)).</span><span>
-</span><span id="line-24"></span><span class="hs-comment">-- Note: If the inputs are negative the returned gcd may be negative. abs the inputs or sign flip the</span><span>
-</span><span id="line-25"></span><span class="hs-comment">-- outputs if this is undesirable. The complexity assumes operations quotRem, (-), (*), (==0) all</span><span>
-</span><span id="line-26"></span><span class="hs-comment">-- take O(1).</span><span>
-</span><span id="line-27"></span><span id="local-6989586621679068492"><span class="annot"><a href="Math.html#egcd2"><span class="hs-identifier hs-type">egcd2</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integral</span></span><span> </span><span class="annot"><a href="#local-6989586621679068492"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068492"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068492"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679068492"><span class="hs-identifier hs-type">i</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679068492"><span class="hs-identifier hs-type">i</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679068492"><span class="hs-identifier hs-type">i</span></a></span><span class="hs-special">)</span></span><span>
-</span><span id="line-28"></span><span id="egcd2"><span class="annot"><span class="annottext">egcd2 :: i -&gt; i -&gt; (i, i, i)
+</span><a href="#local-6989586621679068808"><span class="hs-identifier hs-var">s'</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068806"><span class="hs-identifier hs-var">r'</span></a></span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068804"><span class="hs-identifier hs-var">r''</span></a></span><span>
+</span><span id="line-27"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Math.html#egcd"><span class="hs-pragma hs-type">egcd</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span class="hs-comment">-- | Returns (g, s, t) where g = gcd(a, b); as + bt = g. O(log min(a, b)).</span><span>
+</span><span id="line-30"></span><span class="hs-comment">-- Note: If the inputs are negative the returned gcd may be negative. abs the inputs or sign flip the</span><span>
+</span><span id="line-31"></span><span class="hs-comment">-- outputs if this is undesirable. The complexity assumes operations quotRem, (-), (*), (==0) all</span><span>
+</span><span id="line-32"></span><span class="hs-comment">-- take O(1).</span><span>
+</span><span id="line-33"></span><span id="local-6989586621679068801"><span class="annot"><a href="Math.html#egcd2"><span class="hs-identifier hs-type">egcd2</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integral</span></span><span> </span><span class="annot"><a href="#local-6989586621679068801"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068801"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068801"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679068801"><span class="hs-identifier hs-type">i</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679068801"><span class="hs-identifier hs-type">i</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679068801"><span class="hs-identifier hs-type">i</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-34"></span><span id="egcd2"><span class="annot"><span class="annottext">egcd2 :: i -&gt; i -&gt; (i, i, i)
 </span><a href="Math.html#egcd2"><span class="hs-identifier hs-var hs-var">egcd2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">i -&gt; i -&gt; i -&gt; i -&gt; i -&gt; i -&gt; (i, i, i)
 forall t. Integral t =&gt; t -&gt; t -&gt; t -&gt; t -&gt; t -&gt; t -&gt; (t, t, t)
-</span><a href="#local-6989586621679068491"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">i
+</span><a href="#local-6989586621679068800"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">i
 </span><span class="hs-number">1</span></span><span> </span><span class="annot"><span class="annottext">i
 </span><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">i
 </span><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">i
 </span><span class="hs-number">1</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-29"></span><span>    </span><span id="local-6989586621679068491"><span class="annot"><span class="annottext">go :: t -&gt; t -&gt; t -&gt; t -&gt; t -&gt; t -&gt; (t, t, t)
-</span><a href="#local-6989586621679068491"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679068490"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068490"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="annottext">t
-</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679068489"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068489"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="annottext">t
-</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679068488"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068488"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="annot"><span class="annottext">t
+</span><span id="line-35"></span><span>    </span><span id="local-6989586621679068800"><span class="annot"><span class="annottext">go :: t -&gt; t -&gt; t -&gt; t -&gt; t -&gt; t -&gt; (t, t, t)
+</span><a href="#local-6989586621679068800"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679068799"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068799"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="annottext">t
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679068798"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068798"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="annottext">t
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679068797"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068797"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="annot"><span class="annottext">t
 </span><span class="hs-number">0</span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068488"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068490"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068489"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-30"></span><span>    </span><span class="annot"><a href="#local-6989586621679068491"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679068487"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068487"><span class="hs-identifier hs-var">s</span></a></span></span><span>  </span><span id="local-6989586621679068486"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068486"><span class="hs-identifier hs-var">s'</span></a></span></span><span> </span><span id="local-6989586621679068485"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068485"><span class="hs-identifier hs-var">t</span></a></span></span><span>  </span><span id="local-6989586621679068484"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068484"><span class="hs-identifier hs-var">t'</span></a></span></span><span> </span><span id="local-6989586621679068483"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068483"><span class="hs-identifier hs-var">r</span></a></span></span><span>  </span><span id="local-6989586621679068482"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068482"><span class="hs-identifier hs-var">r'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679068481"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068481"><span class="hs-identifier hs-var">q</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068480"><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068480"><span class="hs-identifier hs-var">r''</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; (t, t)
+</span><a href="#local-6989586621679068797"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068799"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068798"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-36"></span><span>    </span><span class="annot"><a href="#local-6989586621679068800"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679068796"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068796"><span class="hs-identifier hs-var">s</span></a></span></span><span>  </span><span id="local-6989586621679068795"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068795"><span class="hs-identifier hs-var">s'</span></a></span></span><span> </span><span id="local-6989586621679068794"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068794"><span class="hs-identifier hs-var">t</span></a></span></span><span>  </span><span id="local-6989586621679068793"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068793"><span class="hs-identifier hs-var">t'</span></a></span></span><span> </span><span id="local-6989586621679068792"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068792"><span class="hs-identifier hs-var">r</span></a></span></span><span>  </span><span id="local-6989586621679068791"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068791"><span class="hs-identifier hs-var">r'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679068790"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068790"><span class="hs-identifier hs-var">q</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068789"><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068789"><span class="hs-identifier hs-var">r''</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; (t, t)
 forall a. Integral a =&gt; a -&gt; a -&gt; (a, a)
 </span><span class="hs-identifier hs-var">quotRem</span></span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068483"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068482"><span class="hs-identifier hs-var">r'</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t -&gt; t -&gt; t -&gt; t -&gt; (t, t, t)
-</span><a href="#local-6989586621679068491"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068486"><span class="hs-identifier hs-var">s'</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068487"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
+</span><a href="#local-6989586621679068792"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068791"><span class="hs-identifier hs-var">r'</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t -&gt; t -&gt; t -&gt; t -&gt; (t, t, t)
+</span><a href="#local-6989586621679068800"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068795"><span class="hs-identifier hs-var">s'</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068796"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068481"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
+</span><a href="#local-6989586621679068790"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068486"><span class="hs-identifier hs-var">s'</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068484"><span class="hs-identifier hs-var">t'</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068485"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
+</span><a href="#local-6989586621679068795"><span class="hs-identifier hs-var">s'</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068793"><span class="hs-identifier hs-var">t'</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068794"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068481"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
+</span><a href="#local-6989586621679068790"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="annottext">t -&gt; t -&gt; t
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068484"><span class="hs-identifier hs-var">t'</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068482"><span class="hs-identifier hs-var">r'</span></a></span><span> </span><span class="annot"><span class="annottext">t
-</span><a href="#local-6989586621679068480"><span class="hs-identifier hs-var">r''</span></a></span><span>
-</span><span id="line-31"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Math.html#egcd2"><span class="hs-pragma hs-type">egcd2</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
-</span><span id="line-32"></span></pre></body></html>
+</span><a href="#local-6989586621679068793"><span class="hs-identifier hs-var">t'</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068791"><span class="hs-identifier hs-var">r'</span></a></span><span> </span><span class="annot"><span class="annottext">t
+</span><a href="#local-6989586621679068789"><span class="hs-identifier hs-var">r''</span></a></span><span>
+</span><span id="line-37"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Math.html#egcd2"><span class="hs-pragma hs-type">egcd2</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-38"></span><span>
+</span><span id="line-39"></span><span class="hs-comment">-- | Calculate factorials for 0..n. O(n).</span><span>
+</span><span id="line-40"></span><span id="local-6989586621679068828"><span id="local-6989586621679068829"><span class="annot"><a href="Math.html#mkFactorials"><span class="hs-identifier hs-type">mkFactorials</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">IArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068829"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068828"><span class="hs-identifier hs-type">e</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Num</span></span><span> </span><span class="annot"><a href="#local-6989586621679068828"><span class="hs-identifier hs-type">e</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068829"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="#local-6989586621679068828"><span class="hs-identifier hs-type">e</span></a></span></span></span><span>
+</span><span id="line-41"></span><span id="mkFactorials"><span class="annot"><span class="annottext">mkFactorials :: Int -&gt; a Int e
+</span><a href="Math.html#mkFactorials"><span class="hs-identifier hs-var hs-var">mkFactorials</span></a></span></span><span> </span><span id="local-6989586621679068788"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068788"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int) -&gt; [e] -&gt; a Int e
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+(i, i) -&gt; [e] -&gt; a i e
+</span><span class="hs-identifier hs-var">listArray</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">0</span></span><span class="hs-special">,</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068788"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([e] -&gt; a Int e) -&gt; [e] -&gt; a Int e
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(e -&gt; e -&gt; e) -&gt; e -&gt; [e] -&gt; [e]
+forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">scanl'</span></span><span> </span><span class="annot"><span class="annottext">e -&gt; e -&gt; e
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(*)</span></span><span> </span><span class="annot"><span class="annottext">e
+</span><span class="hs-number">1</span></span><span> </span><span class="annot"><span class="annottext">([e] -&gt; [e]) -&gt; [e] -&gt; [e]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; e) -&gt; [Int] -&gt; [e]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; e
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span class="hs-glyph">..</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068788"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-42"></span><span>
+</span><span id="line-43"></span><span class="hs-comment">-- | Given 1/(n!) calculcate inverse factorials for 0..n. O(n).</span><span>
+</span><span id="line-44"></span><span id="local-6989586621679068826"><span id="local-6989586621679068827"><span class="annot"><a href="Math.html#mkInvFactorials"><span class="hs-identifier hs-type">mkInvFactorials</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">IArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068827"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068826"><span class="hs-identifier hs-type">e</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Num</span></span><span> </span><span class="annot"><a href="#local-6989586621679068826"><span class="hs-identifier hs-type">e</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068826"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068827"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="#local-6989586621679068826"><span class="hs-identifier hs-type">e</span></a></span></span></span><span>
+</span><span id="line-45"></span><span id="mkInvFactorials"><span class="annot"><span class="annottext">mkInvFactorials :: Int -&gt; e -&gt; a Int e
+</span><a href="Math.html#mkInvFactorials"><span class="hs-identifier hs-var hs-var">mkInvFactorials</span></a></span></span><span> </span><span id="local-6989586621679068785"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068785"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span id="local-6989586621679068784"><span class="annot"><span class="annottext">e
+</span><a href="#local-6989586621679068784"><span class="hs-identifier hs-var">invfacn</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-46"></span><span>    </span><span class="annot"><span class="annottext">(Int, Int) -&gt; [(Int, e)] -&gt; a Int e
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+(i, i) -&gt; [(i, e)] -&gt; a i e
+</span><span class="hs-identifier hs-var">array</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">0</span></span><span class="hs-special">,</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068785"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([(Int, e)] -&gt; a Int e) -&gt; [(Int, e)] -&gt; a Int e
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; [e] -&gt; [(Int, e)]
+forall a b. [a] -&gt; [b] -&gt; [(a, b)]
+</span><span class="hs-identifier hs-var">zip</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068785"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068785"><span class="hs-identifier hs-var">n</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span> </span><span class="hs-glyph">..</span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">0</span></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">([e] -&gt; [(Int, e)]) -&gt; [e] -&gt; [(Int, e)]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(e -&gt; e -&gt; e) -&gt; e -&gt; [e] -&gt; [e]
+forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">scanl'</span></span><span> </span><span class="annot"><span class="annottext">e -&gt; e -&gt; e
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(*)</span></span><span> </span><span class="annot"><span class="annottext">e
+</span><a href="#local-6989586621679068784"><span class="hs-identifier hs-var">invfacn</span></a></span><span> </span><span class="annot"><span class="annottext">([e] -&gt; [e]) -&gt; [e] -&gt; [e]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; e) -&gt; [Int] -&gt; [e]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; e
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068785"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068785"><span class="hs-identifier hs-var">n</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span> </span><span class="hs-glyph">..</span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span class="hs-special">]</span><span>
+</span><span id="line-47"></span><span>
+</span><span id="line-48"></span><span class="hs-comment">-- | Given the maximum value of n, calculate binomial coefficients for n, k. Apply partially for multiple</span><span>
+</span><span id="line-49"></span><span class="hs-comment">-- queries. O(maxn) to set up, O(1) per query.</span><span>
+</span><span id="line-50"></span><span class="annot"><a href="Math.html#mkBinom"><span class="hs-identifier hs-type">mkBinom</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679068782"><span class="annot"><a href="#local-6989586621679068782"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span id="local-6989586621679068781"><span class="annot"><a href="#local-6989586621679068781"><span class="hs-identifier hs-type">e</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">IArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068782"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068781"><span class="hs-identifier hs-type">e</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Fractional</span></span><span> </span><span class="annot"><a href="#local-6989586621679068781"><span class="hs-identifier hs-type">e</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068781"><span class="hs-identifier hs-type">e</span></a></span><span>
+</span><span id="line-51"></span><span id="mkBinom"><span class="annot"><span class="annottext">mkBinom :: Int -&gt; Int -&gt; Int -&gt; e
+</span><a href="Math.html#mkBinom"><span class="hs-identifier hs-var hs-var">mkBinom</span></a></span></span><span> </span><span id="local-6989586621679068780"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068780"><span class="hs-identifier hs-var">mxn</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a Int e -&gt; a Int e -&gt; Int -&gt; Int -&gt; e
+forall (a :: * -&gt; * -&gt; *) e.
+(IArray a e, Num e) =&gt;
+a Int e -&gt; a Int e -&gt; Int -&gt; Int -&gt; e
+</span><a href="Math.html#mkBinom_"><span class="hs-identifier hs-var">mkBinom_</span></a></span><span> </span><span class="annot"><span class="annottext">a Int e
+</span><a href="#local-6989586621679068778"><span class="hs-identifier hs-var">fac</span></a></span><span> </span><span class="annot"><span class="annottext">a Int e
+</span><a href="#local-6989586621679068777"><span class="hs-identifier hs-var">ifac</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><a href="#local-6989586621679068778"><span class="hs-identifier hs-type">fac</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679068777"><span class="hs-identifier hs-type">ifac</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679068782"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="#local-6989586621679068781"><span class="hs-identifier hs-type">e</span></a></span><span>
+</span><span id="line-53"></span><span>    </span><span id="local-6989586621679068778"><span class="annot"><span class="annottext">fac :: a Int e
+</span><a href="#local-6989586621679068778"><span class="hs-identifier hs-var hs-var">fac</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; a Int e
+forall (a :: * -&gt; * -&gt; *) e. (IArray a e, Num e) =&gt; Int -&gt; a Int e
+</span><a href="Math.html#mkFactorials"><span class="hs-identifier hs-var">mkFactorials</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068780"><span class="hs-identifier hs-var">mxn</span></a></span><span>
+</span><span id="line-54"></span><span>    </span><span id="local-6989586621679068777"><span class="annot"><span class="annottext">ifac :: a Int e
+</span><a href="#local-6989586621679068777"><span class="hs-identifier hs-var hs-var">ifac</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; e -&gt; a Int e
+forall (a :: * -&gt; * -&gt; *) e.
+(IArray a e, Num e) =&gt;
+Int -&gt; e -&gt; a Int e
+</span><a href="Math.html#mkInvFactorials"><span class="hs-identifier hs-var">mkInvFactorials</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068780"><span class="hs-identifier hs-var">mxn</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">e -&gt; e
+forall a. Fractional a =&gt; a -&gt; a
+</span><span class="hs-identifier hs-var">recip</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a Int e
+</span><a href="#local-6989586621679068778"><span class="hs-identifier hs-var">fac</span></a></span><span class="annot"><span class="annottext">a Int e -&gt; Int -&gt; e
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068780"><span class="hs-identifier hs-var">mxn</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-55"></span><span>
+</span><span id="line-56"></span><span id="local-6989586621679068830"><span id="local-6989586621679068831"><span class="annot"><a href="Math.html#mkBinom_"><span class="hs-identifier hs-type">mkBinom_</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">IArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068831"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068830"><span class="hs-identifier hs-type">e</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Num</span></span><span> </span><span class="annot"><a href="#local-6989586621679068830"><span class="hs-identifier hs-type">e</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068831"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="#local-6989586621679068830"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068831"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="#local-6989586621679068830"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068830"><span class="hs-identifier hs-type">e</span></a></span></span></span><span>
+</span><span id="line-57"></span><span id="mkBinom_"><span class="annot"><span class="annottext">mkBinom_ :: a Int e -&gt; a Int e -&gt; Int -&gt; Int -&gt; e
+</span><a href="Math.html#mkBinom_"><span class="hs-identifier hs-var hs-var">mkBinom_</span></a></span></span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679068774"><span class="annot"><span class="annottext">a Int e
+</span><a href="#local-6989586621679068774"><span class="hs-identifier hs-var">fac</span></a></span></span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679068773"><span class="annot"><span class="annottext">a Int e
+</span><a href="#local-6989586621679068773"><span class="hs-identifier hs-var">ifac</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; e
+</span><a href="#local-6989586621679068772"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-58"></span><span>    </span><span id="local-6989586621679068772"><span class="annot"><span class="annottext">go :: Int -&gt; Int -&gt; e
+</span><a href="#local-6989586621679068772"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679068771"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068771"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span id="local-6989586621679068770"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068770"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068770"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068771"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068770"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">e
+</span><span class="hs-number">0</span></span><span>
+</span><span id="line-59"></span><span>    </span><span class="annot"><a href="#local-6989586621679068772"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679068767"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068767"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span id="local-6989586621679068766"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068766"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a Int e
+</span><a href="#local-6989586621679068774"><span class="hs-identifier hs-var">fac</span></a></span><span class="annot"><span class="annottext">a Int e -&gt; Int -&gt; e
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068767"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">e -&gt; e -&gt; e
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">a Int e
+</span><a href="#local-6989586621679068773"><span class="hs-identifier hs-var">ifac</span></a></span><span class="annot"><span class="annottext">a Int e -&gt; Int -&gt; e
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068766"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">e -&gt; e -&gt; e
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">a Int e
+</span><a href="#local-6989586621679068773"><span class="hs-identifier hs-var">ifac</span></a></span><span class="annot"><span class="annottext">a Int e -&gt; Int -&gt; e
+forall (a :: * -&gt; * -&gt; *) e i.
+(IArray a e, Ix i) =&gt;
+a i e -&gt; i -&gt; e
+</span><span class="hs-glyph hs-var">!</span></span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068767"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679068766"><span class="hs-identifier hs-var">k</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-60"></span><span>
+</span><span id="line-61"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-62"></span><span class="hs-comment">-- For tests</span><span>
+</span><span id="line-63"></span><span>
+</span><span id="line-64"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="Math.html#mkFactorials"><span class="hs-pragma hs-type">mkFactorials</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-65"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="Math.html#mkInvFactorials"><span class="hs-pragma hs-type">mkInvFactorials</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-66"></span></pre></body></html>

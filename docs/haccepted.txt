@@ -318,6 +318,17 @@ egcd :: Integral i => i -> i -> (i, i)
 --   complexity assumes operations quotRem, (-), (*), (==0) all take O(1).
 egcd2 :: Integral i => i -> i -> (i, i, i)
 
+-- | Given 1/(n!) calculcate inverse factorials for 0..n. O(n).
+mkInvFactorials :: (IArray a e, Num e) => Int -> e -> a Int e
+
+-- | Calculate factorials for 0..n. O(n).
+mkFactorials :: (IArray a e, Num e) => Int -> a Int e
+
+-- | Given the maximum value of n, calculate binomial coefficients for n,
+--   k. Apply partially for multiple queries. O(maxn) to set up, O(1) per
+--   query.
+mkBinom :: forall a e. (IArray a e, Fractional e) => Int -> Int -> Int -> e
+
 
 -- | <h2>Miscellaneous functions/recipes</h2>
 module Misc
