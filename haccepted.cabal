@@ -104,6 +104,7 @@ test-suite test-all
   other-modules:
       AhoCorasickSpec
       ArbitraryInstances
+      ArrayTests
       BFSSpec
       BinSearchSpec
       CentroidDecompSpec
