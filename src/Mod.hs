@@ -1,5 +1,5 @@
-{-# LANGUAGE ConstraintKinds, DataKinds, FlexibleInstances, KindSignatures, ScopedTypeVariables #-}
-{-# LANGUAGE FlexibleContexts, MultiParamTypeClasses #-}
+{-# LANGUAGE ConstraintKinds, DataKinds, FlexibleInstances, KindSignatures, MultiParamTypeClasses,
+             ScopedTypeVariables #-}
 {-|
 Modular arithmetic
 
@@ -12,14 +12,10 @@ with a word type or using (*) with a large enough mod that (m-1)^2 oveflows.
 
 This is a very general type, for something simpler see MInt.hs.
 
-Implementation notes:
-* See note about unboxed array support in MInt.hs.
-
 Instances of Eq, Num, Fractional exist for Mod m i. All the usual operations take O(1) time, except
 for recip which takes O(log n) time. This assumes Integral i methods take O(1) time.
 An instance of Enum exists for MInt. The enum is cyclic, it wraps to 0 after m-1.
-An instance of IArray UArray MInt exists. Instances of MArray (STUArray s) MInt (ST s) and
-MArray IOUArray MInt IO are also defined.
+Unboxed array support is available via Unbox.
 
 Mod
 Type for modular arithmetic modulo m with underlying type i.
@@ -47,14 +43,8 @@ import Data.Proxy
 import Data.Ratio
 import GHC.TypeNats ( KnownNat, Nat, natVal )
 
--- Imports for unboxed array support
-import Data.Array.Base
-import Data.Array.IO
-import Data.Coerce
-import Control.Monad.ST
-import Unsafe.Coerce
-
 import Math ( egcd )
+import Unbox ( Unbox )
 
 newtype Mod (m :: Nat) i = Mod { unMod :: i } deriving (Eq, Ord, Show)
 
@@ -92,53 +82,7 @@ instance (KnownNat m, Integral i) => Enum (Mod m i) where
     enumFromTo x y         = takeWhile (/= y + 1) [x..]
     enumFromThenTo x1 x2 y = takeWhile (/= y + 1) [x1, x2 ..]
 
---------------------------------------------------------------------------------
--- Unboxed array support
-
-coerceUIM :: UArray i e -> UArray i (Mod m e)
-coerceUIM = unsafeCoerce
-
-coerceUMI :: UArray i (Mod m e) -> UArray i e
-coerceUMI = unsafeCoerce
-
-instance IArray UArray e => IArray UArray (Mod m e) where
-    bounds                = bounds . coerceUMI
-    numElements           = numElements . coerceUMI
-    unsafeArray lu ies    = coerceUIM $ unsafeArray lu (coerce ies)
-    unsafeAt arr i        = coerce $ unsafeAt (coerceUMI arr) i
-    unsafeReplace arr ies = coerceUIM $ unsafeReplace (coerceUMI arr) (coerce ies)
-    unsafeAccum f arr ies = coerceUIM $ unsafeAccum (coerce f) (coerceUMI arr) ies
-    unsafeAccumArray f initialValue lu ies
-                          = coerceUIM $ unsafeAccumArray (coerce f) (coerce initialValue) lu ies
-
-coerceSTIM :: STUArray s i e -> STUArray s i (Mod m e)
-coerceSTIM = unsafeCoerce
-
-coerceSTMI :: STUArray s i (Mod m e) -> STUArray s i e
-coerceSTMI = unsafeCoerce
-
-instance MArray (STUArray s) e (ST s) => MArray (STUArray s) (Mod m e) (ST s) where
-    getBounds           = getBounds . coerceSTMI
-    getNumElements      = getNumElements . coerceSTMI
-    unsafeNewArray_     = fmap coerceSTIM . unsafeNewArray_
-    newArray_           = fmap coerceSTIM . newArray_
-    unsafeRead arr i    = coerce <$> unsafeRead (coerceSTMI arr) i
-    unsafeWrite arr i e = unsafeWrite (coerceSTMI arr) i (coerce e)
-
-coerceIOIM :: IOUArray i e -> IOUArray i (Mod m e)
-coerceIOIM = unsafeCoerce
-
-coerceIOMI :: IOUArray i (Mod m e) -> IOUArray i e
-coerceIOMI = unsafeCoerce
-
-instance MArray IOUArray e IO => MArray IOUArray (Mod m e) IO where
-    getBounds                = getBounds . coerceIOMI
-    getNumElements           = getNumElements . coerceIOMI
-    newArray lu initialValue = coerceIOIM <$> newArray lu (coerce initialValue)
-    unsafeNewArray_          = fmap coerceIOIM . unsafeNewArray_
-    newArray_                = fmap coerceIOIM . newArray_
-    unsafeRead arr i         = coerce <$> unsafeRead (coerceIOMI arr) i
-    unsafeWrite arr i e      = unsafeWrite (coerceIOMI arr) i (coerce e)
+instance Unbox (Mod m i) i
 
 --------------------------------------------------------------------------------
 -- For tests

@@ -46,6 +46,7 @@ library
       SuffixTree
       TreeDraw
       TwoSat
+      Unbox
       ZFunc
   other-modules:
       Paths_haccepted
@@ -129,6 +130,7 @@ test-suite test-all
       SuffixArraySpec
       SuffixTreeSpec
       TwoSatSpec
+      UnboxSpec
       Util
       ZFuncSpec
       Paths_haccepted
