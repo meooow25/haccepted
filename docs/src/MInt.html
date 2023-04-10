@@ -8,54 +8,42 @@ For a more general type see Mod.hs.
 Instances of Eq, Num, Fractional exist for MInt. All the usual operations take O(1) time, except for
 recip which takes O(log m) time.
 An instance of Enum exists for MInt. The enum is cyclic, it wraps to 0 after m-1.
-An instance of IArray UArray MInt exists. Instances of MArray (STUArray s) MInt (ST s) and
-MArray IOUArray MInt IO are also defined.
+Unboxed array support is available via Unbox.
 
 -}</span><span>
-</span><span id="line-15"></span><span>
-</span><span id="line-16"></span><span class="hs-comment">{-
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-comment">{-
 Implementation notes:
 * MInt is a newtype of Int, change to Int64 if running on 32-bit.
-* Regarding unsafeCoerce (trust me it's safe!), type roles for unboxed arrays are nominal (and not
-  representational), so trying to derive unboxed arrays for MInt does not work (see
-  https://gitlab.haskell.org/ghc/ghc/-/issues/9220). As I see it my options are
-    a. spill more guts out of Array.Base and Array.IO to copy-paste everything an Int array does
-    b. use unsafeCoerce
-  I would love to hear of a better way.
 -}</span><span>
-</span><span id="line-26"></span><span>
-</span><span id="line-27"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">MInt</span><span>
-</span><span id="line-28"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier">MInt</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
-</span><span id="line-29"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="MInt.html#mm"><span class="hs-identifier">mm</span></a></span><span>
-</span><span id="line-30"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-31"></span><span>
-</span><span id="line-32"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.DeepSeq</span></span><span>
-</span><span id="line-33"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Ratio</span></span><span>
-</span><span id="line-34"></span><span>
-</span><span id="line-35"></span><span class="hs-comment">-- Imports for unboxed array support</span><span>
-</span><span id="line-36"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.ST</span></span><span>
-</span><span id="line-37"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Array.Base</span></span><span>
-</span><span id="line-38"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Array.IO</span></span><span>
-</span><span id="line-39"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Coerce</span></span><span>
-</span><span id="line-40"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Unsafe.Coerce</span></span><span>
-</span><span id="line-41"></span><span>
-</span><span id="line-42"></span><span class="hs-comment">-- | The prime modulus.</span><span>
-</span><span id="line-43"></span><span class="annot"><a href="MInt.html#mm"><span class="hs-identifier hs-type">mm</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
-</span><span id="line-44"></span><span id="mm"><span class="annot"><span class="annottext">mm :: Int
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">MInt</span><span>
+</span><span id="line-21"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier">MInt</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="MInt.html#mm"><span class="hs-identifier">mm</span></a></span><span>
+</span><span id="line-23"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-24"></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.DeepSeq</span></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Ratio</span></span><span>
+</span><span id="line-27"></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Unbox.html"><span class="hs-identifier">Unbox</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Unbox.html#Unbox"><span class="hs-identifier">Unbox</span></a></span><span> </span><span class="hs-special">)</span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="hs-comment">-- | The prime modulus.</span><span>
+</span><span id="line-31"></span><span class="annot"><a href="MInt.html#mm"><span class="hs-identifier hs-type">mm</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-32"></span><span id="mm"><span class="annot"><span class="annottext">mm :: Int
 </span><a href="MInt.html#mm"><span class="hs-identifier hs-var hs-var">mm</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1000000007</span></span><span>
-</span><span id="line-45"></span><span class="hs-comment">-- m = 998244353</span><span>
-</span><span id="line-46"></span><span>
-</span><span id="line-47"></span><span class="hs-comment">-- | Int type for arithmetic modulo a fixed prime mm.</span><span>
-</span><span id="line-48"></span><span class="hs-keyword">newtype</span><span> </span><span id="MInt"><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="MInt"><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="unMInt"><span class="annot"><span class="annottext">MInt -&gt; Int
-</span><a href="MInt.html#unMInt"><span class="hs-identifier hs-var hs-var">unMInt</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679068656"><span id="local-6989586621679068658"><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; Bool
+</span><span id="line-33"></span><span class="hs-comment">-- m = 998244353</span><span>
+</span><span id="line-34"></span><span>
+</span><span id="line-35"></span><span class="hs-comment">-- | Int type for arithmetic modulo a fixed prime mm.</span><span>
+</span><span id="line-36"></span><span class="hs-keyword">newtype</span><span> </span><span id="MInt"><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="MInt"><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="unMInt"><span class="annot"><span class="annottext">MInt -&gt; Int
+</span><a href="MInt.html#unMInt"><span class="hs-identifier hs-var hs-var">unMInt</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679071635"><span id="local-6989586621679071637"><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; Bool
 (MInt -&gt; MInt -&gt; Bool) -&gt; (MInt -&gt; MInt -&gt; Bool) -&gt; Eq MInt
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 /= :: MInt -&gt; MInt -&gt; Bool
 $c/= :: MInt -&gt; MInt -&gt; Bool
 == :: MInt -&gt; MInt -&gt; Bool
 $c== :: MInt -&gt; MInt -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068640"><span id="local-6989586621679068642"><span id="local-6989586621679068644"><span id="local-6989586621679068646"><span id="local-6989586621679068648"><span id="local-6989586621679068650"><span id="local-6989586621679068652"><span class="annot"><span class="annottext">Eq MInt
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679071619"><span id="local-6989586621679071621"><span id="local-6989586621679071623"><span id="local-6989586621679071625"><span id="local-6989586621679071627"><span id="local-6989586621679071629"><span id="local-6989586621679071631"><span class="annot"><span class="annottext">Eq MInt
 Eq MInt
 -&gt; (MInt -&gt; MInt -&gt; Ordering)
 -&gt; (MInt -&gt; MInt -&gt; Bool)
@@ -93,7 +81,7 @@ $c&lt; :: MInt -&gt; MInt -&gt; Bool
 compare :: MInt -&gt; MInt -&gt; Ordering
 $ccompare :: MInt -&gt; MInt -&gt; Ordering
 $cp1Ord :: Eq MInt
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679068633"><span id="local-6989586621679068635"><span id="local-6989586621679068637"><span class="annot"><span class="annottext">Int -&gt; MInt -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679071612"><span id="local-6989586621679071614"><span id="local-6989586621679071616"><span class="annot"><span class="annottext">Int -&gt; MInt -&gt; ShowS
 [MInt] -&gt; ShowS
 MInt -&gt; String
 (Int -&gt; MInt -&gt; ShowS)
@@ -107,69 +95,69 @@ $cshow :: MInt -&gt; String
 showsPrec :: Int -&gt; MInt -&gt; ShowS
 $cshowsPrec :: Int -&gt; MInt -&gt; ShowS
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
-</span><span id="line-49"></span><span>
-</span><span id="line-50"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679068627"><span class="annot"><span class="hs-identifier hs-type">Num</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-51"></span><span>    </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679068622"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068622"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679068621"><span class="annot"><span class="annottext">+ :: MInt -&gt; MInt -&gt; MInt
-</span><span class="hs-operator hs-var hs-var hs-var hs-var">+</span></span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679068619"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068619"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
+</span><span id="line-37"></span><span>
+</span><span id="line-38"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679071606"><span class="annot"><span class="hs-identifier hs-type">Num</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-39"></span><span>    </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679071601"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071601"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679071600"><span class="annot"><span class="annottext">+ :: MInt -&gt; MInt -&gt; MInt
+</span><span class="hs-operator hs-var hs-var hs-var hs-var">+</span></span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679071598"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071598"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
 </span><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; MInt) -&gt; Int -&gt; MInt
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679068618"><span class="annot"><span class="annottext">c :: Int
-</span><a href="#local-6989586621679068618"><span class="hs-identifier hs-var hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068622"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679071597"><span class="annot"><span class="annottext">c :: Int
+</span><a href="#local-6989586621679071597"><span class="hs-identifier hs-var hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071601"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068619"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068618"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679071598"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071597"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&gt;=</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><a href="MInt.html#mm"><span class="hs-identifier hs-var">mm</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068618"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679071597"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><a href="MInt.html#mm"><span class="hs-identifier hs-var">mm</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068618"><span class="hs-identifier hs-var">c</span></a></span><span>
-</span><span id="line-52"></span><span>    </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679068617"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068617"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679068616"><span class="annot"><span class="annottext">- :: MInt -&gt; MInt -&gt; MInt
-</span><span class="hs-glyph hs-var hs-var hs-var hs-var">-</span></span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679068615"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068615"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
+</span><a href="#local-6989586621679071597"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><span id="line-40"></span><span>    </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679071596"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071596"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679071595"><span class="annot"><span class="annottext">- :: MInt -&gt; MInt -&gt; MInt
+</span><span class="hs-glyph hs-var hs-var hs-var hs-var">-</span></span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679071594"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071594"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
 </span><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; MInt) -&gt; Int -&gt; MInt
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679068614"><span class="annot"><span class="annottext">c :: Int
-</span><a href="#local-6989586621679068614"><span class="hs-identifier hs-var hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068617"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679071593"><span class="annot"><span class="annottext">c :: Int
+</span><a href="#local-6989586621679071593"><span class="hs-identifier hs-var hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071596"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068615"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068614"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679071594"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071593"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068614"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679071593"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><a href="MInt.html#mm"><span class="hs-identifier hs-var">mm</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068614"><span class="hs-identifier hs-var">c</span></a></span><span>
-</span><span id="line-53"></span><span>    </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679068612"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068612"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679068611"><span class="annot"><span class="annottext">* :: MInt -&gt; MInt -&gt; MInt
-</span><span class="hs-operator hs-var hs-var hs-var hs-var">*</span></span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679068609"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068609"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
+</span><a href="#local-6989586621679071593"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><span id="line-41"></span><span>    </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679071591"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071591"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679071590"><span class="annot"><span class="annottext">* :: MInt -&gt; MInt -&gt; MInt
+</span><span class="hs-operator hs-var hs-var hs-var hs-var">*</span></span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679071588"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071588"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
 </span><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; MInt) -&gt; Int -&gt; MInt
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068612"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679071591"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068609"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679071588"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Integral a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">`mod`</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><a href="MInt.html#mm"><span class="hs-identifier hs-var">mm</span></a></span><span>
-</span><span id="line-54"></span><span>    </span><span id="local-6989586621679068607"><span class="annot"><span class="annottext">abs :: MInt -&gt; MInt
+</span><span id="line-42"></span><span>    </span><span id="local-6989586621679071586"><span class="annot"><span class="annottext">abs :: MInt -&gt; MInt
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">abs</span></span></span><span>             </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MInt -&gt; MInt
 forall a. a -&gt; a
 </span><span class="hs-identifier hs-var">id</span></span><span>
-</span><span id="line-55"></span><span>    </span><span id="local-6989586621679068604"><span class="annot"><span class="annottext">signum :: MInt -&gt; MInt
+</span><span id="line-43"></span><span>    </span><span id="local-6989586621679071583"><span class="annot"><span class="annottext">signum :: MInt -&gt; MInt
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">signum</span></span></span><span>          </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
 </span><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; MInt) -&gt; (MInt -&gt; Int) -&gt; MInt -&gt; MInt
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
@@ -179,7 +167,7 @@ forall a. Num a =&gt; a -&gt; a
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">MInt -&gt; Int
 </span><a href="MInt.html#unMInt"><span class="hs-identifier hs-var hs-var">unMInt</span></a></span><span>
-</span><span id="line-56"></span><span>    </span><span id="local-6989586621679068601"><span class="annot"><span class="annottext">fromInteger :: Integer -&gt; MInt
+</span><span id="line-44"></span><span>    </span><span id="local-6989586621679071580"><span class="annot"><span class="annottext">fromInteger :: Integer -&gt; MInt
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromInteger</span></span></span><span>     </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
 </span><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; MInt) -&gt; (Integer -&gt; Int) -&gt; Integer -&gt; MInt
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
@@ -193,9 +181,9 @@ forall a. Integral a =&gt; a -&gt; a -&gt; a
 forall a b. (Integral a, Num b) =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><a href="MInt.html#mm"><span class="hs-identifier hs-var">mm</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-57"></span><span>
-</span><span id="line-58"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679068598"><span class="annot"><span class="hs-identifier hs-type">Fractional</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-59"></span><span>    </span><span id="local-6989586621679068594"><span class="annot"><span class="annottext">recip :: MInt -&gt; MInt
+</span><span id="line-45"></span><span>
+</span><span id="line-46"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679071577"><span class="annot"><span class="hs-identifier hs-type">Fractional</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-47"></span><span>    </span><span id="local-6989586621679071573"><span class="annot"><span class="annottext">recip :: MInt -&gt; MInt
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">recip</span></span></span><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MInt -&gt; Int -&gt; MInt
 forall a b. (Num a, Integral b) =&gt; a -&gt; b -&gt; a
 </span><span class="hs-operator hs-var">^</span></span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
@@ -203,409 +191,67 @@ forall a b. (Num a, Integral b) =&gt; a -&gt; b -&gt; a
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">2</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-60"></span><span>    </span><span id="local-6989586621679068591"><span class="annot"><span class="annottext">fromRational :: Rational -&gt; MInt
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromRational</span></span></span><span> </span><span id="local-6989586621679068590"><span class="annot"><span class="annottext">Rational
-</span><a href="#local-6989586621679068590"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; MInt
+</span><span id="line-48"></span><span>    </span><span id="local-6989586621679071570"><span class="annot"><span class="annottext">fromRational :: Rational -&gt; MInt
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromRational</span></span></span><span> </span><span id="local-6989586621679071569"><span class="annot"><span class="annottext">Rational
+</span><a href="#local-6989586621679071569"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; MInt
 forall a b. (Integral a, Num b) =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Rational -&gt; Integer
 forall a. Ratio a -&gt; a
 </span><span class="hs-identifier hs-var">numerator</span></span><span> </span><span class="annot"><span class="annottext">Rational
-</span><a href="#local-6989586621679068590"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; MInt
+</span><a href="#local-6989586621679071569"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; MInt
 forall a. Fractional a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">/</span></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; MInt
 forall a b. (Integral a, Num b) =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Rational -&gt; Integer
 forall a. Ratio a -&gt; a
 </span><span class="hs-identifier hs-var">denominator</span></span><span> </span><span class="annot"><span class="annottext">Rational
-</span><a href="#local-6989586621679068590"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-61"></span><span>
-</span><span id="line-62"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679068577"><span id="local-6989586621679068579"><span id="local-6989586621679068583"><span id="local-6989586621679068585"><span class="annot"><span class="hs-identifier hs-type">Enum</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-63"></span><span>    </span><span id="local-6989586621679068573"><span class="annot"><span class="annottext">toEnum :: Int -&gt; MInt
+</span><a href="#local-6989586621679071569"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-49"></span><span>
+</span><span id="line-50"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679071556"><span id="local-6989586621679071558"><span id="local-6989586621679071562"><span id="local-6989586621679071564"><span class="annot"><span class="hs-identifier hs-type">Enum</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-51"></span><span>    </span><span id="local-6989586621679071552"><span class="annot"><span class="annottext">toEnum :: Int -&gt; MInt
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">toEnum</span></span></span><span>                 </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
 forall a b. (Integral a, Num b) =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">fromIntegral</span></span><span>
-</span><span id="line-64"></span><span>    </span><span id="local-6989586621679068571"><span class="annot"><span class="annottext">fromEnum :: MInt -&gt; Int
+</span><span id="line-52"></span><span>    </span><span id="local-6989586621679071550"><span class="annot"><span class="annottext">fromEnum :: MInt -&gt; Int
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromEnum</span></span></span><span>               </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MInt -&gt; Int
 </span><a href="MInt.html#unMInt"><span class="hs-identifier hs-var hs-var">unMInt</span></a></span><span>
-</span><span id="line-65"></span><span>    </span><span id="local-6989586621679068569"><span class="annot"><span class="annottext">enumFromTo :: MInt -&gt; MInt -&gt; [MInt]
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">enumFromTo</span></span></span><span> </span><span id="local-6989586621679068568"><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068568"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679068567"><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068567"><span class="hs-identifier hs-var">y</span></a></span></span><span>         </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(MInt -&gt; Bool) -&gt; [MInt] -&gt; [MInt]
+</span><span id="line-53"></span><span>    </span><span id="local-6989586621679071548"><span class="annot"><span class="annottext">enumFromTo :: MInt -&gt; MInt -&gt; [MInt]
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">enumFromTo</span></span></span><span> </span><span id="local-6989586621679071547"><span class="annot"><span class="annottext">MInt
+</span><a href="#local-6989586621679071547"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679071546"><span class="annot"><span class="annottext">MInt
+</span><a href="#local-6989586621679071546"><span class="hs-identifier hs-var">y</span></a></span></span><span>         </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(MInt -&gt; Bool) -&gt; [MInt] -&gt; [MInt]
 forall a. (a -&gt; Bool) -&gt; [a] -&gt; [a]
 </span><span class="hs-identifier hs-var">takeWhile</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068567"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; MInt
+</span><a href="#local-6989586621679071546"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; MInt
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">MInt
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068568"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-glyph">..</span><span class="hs-special">]</span><span>
-</span><span id="line-66"></span><span>    </span><span id="local-6989586621679068564"><span class="annot"><span class="annottext">enumFromThenTo :: MInt -&gt; MInt -&gt; MInt -&gt; [MInt]
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">enumFromThenTo</span></span></span><span> </span><span id="local-6989586621679068563"><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068563"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679068562"><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068562"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span id="local-6989586621679068561"><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068561"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(MInt -&gt; Bool) -&gt; [MInt] -&gt; [MInt]
+</span><a href="#local-6989586621679071547"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-glyph">..</span><span class="hs-special">]</span><span>
+</span><span id="line-54"></span><span>    </span><span id="local-6989586621679071543"><span class="annot"><span class="annottext">enumFromThenTo :: MInt -&gt; MInt -&gt; MInt -&gt; [MInt]
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">enumFromThenTo</span></span></span><span> </span><span id="local-6989586621679071542"><span class="annot"><span class="annottext">MInt
+</span><a href="#local-6989586621679071542"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679071541"><span class="annot"><span class="annottext">MInt
+</span><a href="#local-6989586621679071541"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span id="local-6989586621679071540"><span class="annot"><span class="annottext">MInt
+</span><a href="#local-6989586621679071540"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(MInt -&gt; Bool) -&gt; [MInt] -&gt; [MInt]
 forall a. (a -&gt; Bool) -&gt; [a] -&gt; [a]
 </span><span class="hs-identifier hs-var">takeWhile</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068561"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; MInt
+</span><a href="#local-6989586621679071540"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; MInt
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">MInt
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068563"><span class="hs-identifier hs-var">x1</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068562"><span class="hs-identifier hs-var">x2</span></a></span><span> </span><span class="hs-glyph">..</span><span class="hs-special">]</span><span>
-</span><span id="line-67"></span><span>
-</span><span id="line-68"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
-</span><span id="line-69"></span><span class="hs-comment">-- Unboxed array support</span><span>
-</span><span id="line-70"></span><span>
-</span><span id="line-71"></span><span id="local-6989586621679068721"><span class="annot"><a href="MInt.html#coerceUIM"><span class="hs-identifier hs-type">coerceUIM</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068721"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068721"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span><span>
-</span><span id="line-72"></span><span id="coerceUIM"><span class="annot"><span class="annottext">coerceUIM :: UArray i Int -&gt; UArray i MInt
-</span><a href="MInt.html#coerceUIM"><span class="hs-identifier hs-var hs-var">coerceUIM</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">UArray i Int -&gt; UArray i MInt
-forall a b. a -&gt; b
-</span><span class="hs-identifier hs-var">unsafeCoerce</span></span><span>
-</span><span id="line-73"></span><span>
-</span><span id="line-74"></span><span id="local-6989586621679068724"><span class="annot"><a href="MInt.html#coerceUMI"><span class="hs-identifier hs-type">coerceUMI</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068724"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068724"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span></span><span>
-</span><span id="line-75"></span><span id="coerceUMI"><span class="annot"><span class="annottext">coerceUMI :: UArray i MInt -&gt; UArray i Int
-</span><a href="MInt.html#coerceUMI"><span class="hs-identifier hs-var hs-var">coerceUMI</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">UArray i MInt -&gt; UArray i Int
-forall a b. a -&gt; b
-</span><span class="hs-identifier hs-var">unsafeCoerce</span></span><span>
-</span><span id="line-76"></span><span>
-</span><span id="line-77"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-78"></span><span>    </span><span id="local-6989586621679068549"><span class="annot"><span class="annottext">bounds :: UArray i MInt -&gt; (i, i)
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">bounds</span></span></span><span>                </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">UArray i Int -&gt; (i, i)
-forall (a :: * -&gt; * -&gt; *) e i.
-(IArray a e, Ix i) =&gt;
-a i e -&gt; (i, i)
-</span><span class="hs-identifier hs-var">bounds</span></span><span> </span><span class="annot"><span class="annottext">(UArray i Int -&gt; (i, i))
--&gt; (UArray i MInt -&gt; UArray i Int) -&gt; UArray i MInt -&gt; (i, i)
-forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">UArray i MInt -&gt; UArray i Int
-forall i. UArray i MInt -&gt; UArray i Int
-</span><a href="MInt.html#coerceUMI"><span class="hs-identifier hs-var">coerceUMI</span></a></span><span>
-</span><span id="line-79"></span><span>    </span><span id="local-6989586621679068547"><span class="annot"><span class="annottext">numElements :: UArray i MInt -&gt; Int
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">numElements</span></span></span><span>           </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">UArray i Int -&gt; Int
-forall (a :: * -&gt; * -&gt; *) e i. (IArray a e, Ix i) =&gt; a i e -&gt; Int
-</span><span class="hs-identifier hs-var">numElements</span></span><span> </span><span class="annot"><span class="annottext">(UArray i Int -&gt; Int)
--&gt; (UArray i MInt -&gt; UArray i Int) -&gt; UArray i MInt -&gt; Int
-forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">UArray i MInt -&gt; UArray i Int
-forall i. UArray i MInt -&gt; UArray i Int
-</span><a href="MInt.html#coerceUMI"><span class="hs-identifier hs-var">coerceUMI</span></a></span><span>
-</span><span id="line-80"></span><span>    </span><span id="local-6989586621679068545"><span class="annot"><span class="annottext">unsafeArray :: (i, i) -&gt; [(Int, MInt)] -&gt; UArray i MInt
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeArray</span></span></span><span> </span><span id="local-6989586621679068543"><span class="annot"><span class="annottext">(i, i)
-</span><a href="#local-6989586621679068543"><span class="hs-identifier hs-var">lu</span></a></span></span><span> </span><span id="local-6989586621679068542"><span class="annot"><span class="annottext">[(Int, MInt)]
-</span><a href="#local-6989586621679068542"><span class="hs-identifier hs-var">ies</span></a></span></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">UArray i Int -&gt; UArray i MInt
-forall i. UArray i Int -&gt; UArray i MInt
-</span><a href="MInt.html#coerceUIM"><span class="hs-identifier hs-var">coerceUIM</span></a></span><span> </span><span class="annot"><span class="annottext">(UArray i Int -&gt; UArray i MInt) -&gt; UArray i Int -&gt; UArray i MInt
-forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(i, i) -&gt; [(Int, Int)] -&gt; UArray i Int
-forall (a :: * -&gt; * -&gt; *) e i.
-(IArray a e, Ix i) =&gt;
-(i, i) -&gt; [(Int, e)] -&gt; a i e
-</span><span class="hs-identifier hs-var">unsafeArray</span></span><span> </span><span class="annot"><span class="annottext">(i, i)
-</span><a href="#local-6989586621679068543"><span class="hs-identifier hs-var">lu</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[(Int, MInt)] -&gt; [(Int, Int)]
-</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">[(Int, MInt)]
-</span><a href="#local-6989586621679068542"><span class="hs-identifier hs-var">ies</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-81"></span><span>    </span><span id="local-6989586621679068541"><span class="annot"><span class="annottext">unsafeAt :: UArray i MInt -&gt; Int -&gt; MInt
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeAt</span></span></span><span> </span><span id="local-6989586621679068539"><span class="annot"><span class="annottext">UArray i MInt
-</span><a href="#local-6989586621679068539"><span class="hs-identifier hs-var">arr</span></a></span></span><span> </span><span id="local-6989586621679068538"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068538"><span class="hs-identifier hs-var">i</span></a></span></span><span>        </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
-</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; MInt) -&gt; Int -&gt; MInt
-forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">UArray i Int -&gt; Int -&gt; Int
-forall (a :: * -&gt; * -&gt; *) e i.
-(IArray a e, Ix i) =&gt;
-a i e -&gt; Int -&gt; e
-</span><span class="hs-identifier hs-var">unsafeAt</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UArray i MInt -&gt; UArray i Int
-forall i. UArray i MInt -&gt; UArray i Int
-</span><a href="MInt.html#coerceUMI"><span class="hs-identifier hs-var">coerceUMI</span></a></span><span> </span><span class="annot"><span class="annottext">UArray i MInt
-</span><a href="#local-6989586621679068539"><span class="hs-identifier hs-var">arr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068538"><span class="hs-identifier hs-var">i</span></a></span><span>
-</span><span id="line-82"></span><span>    </span><span id="local-6989586621679068537"><span class="annot"><span class="annottext">unsafeReplace :: UArray i MInt -&gt; [(Int, MInt)] -&gt; UArray i MInt
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeReplace</span></span></span><span> </span><span id="local-6989586621679068535"><span class="annot"><span class="annottext">UArray i MInt
-</span><a href="#local-6989586621679068535"><span class="hs-identifier hs-var">arr</span></a></span></span><span> </span><span id="local-6989586621679068534"><span class="annot"><span class="annottext">[(Int, MInt)]
-</span><a href="#local-6989586621679068534"><span class="hs-identifier hs-var">ies</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">UArray i Int -&gt; UArray i MInt
-forall i. UArray i Int -&gt; UArray i MInt
-</span><a href="MInt.html#coerceUIM"><span class="hs-identifier hs-var">coerceUIM</span></a></span><span> </span><span class="annot"><span class="annottext">(UArray i Int -&gt; UArray i MInt) -&gt; UArray i Int -&gt; UArray i MInt
-forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">UArray i Int -&gt; [(Int, Int)] -&gt; UArray i Int
-forall (a :: * -&gt; * -&gt; *) e i.
-(IArray a e, Ix i) =&gt;
-a i e -&gt; [(Int, e)] -&gt; a i e
-</span><span class="hs-identifier hs-var">unsafeReplace</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UArray i MInt -&gt; UArray i Int
-forall i. UArray i MInt -&gt; UArray i Int
-</span><a href="MInt.html#coerceUMI"><span class="hs-identifier hs-var">coerceUMI</span></a></span><span> </span><span class="annot"><span class="annottext">UArray i MInt
-</span><a href="#local-6989586621679068535"><span class="hs-identifier hs-var">arr</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[(Int, MInt)] -&gt; [(Int, Int)]
-</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">[(Int, MInt)]
-</span><a href="#local-6989586621679068534"><span class="hs-identifier hs-var">ies</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-83"></span><span>    </span><span id="local-6989586621679068533"><span class="annot"><span class="annottext">unsafeAccum :: (MInt -&gt; e' -&gt; MInt)
--&gt; UArray i MInt -&gt; [(Int, e')] -&gt; UArray i MInt
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeAccum</span></span></span><span> </span><span id="local-6989586621679068531"><span class="annot"><span class="annottext">MInt -&gt; e' -&gt; MInt
-</span><a href="#local-6989586621679068531"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679068530"><span class="annot"><span class="annottext">UArray i MInt
-</span><a href="#local-6989586621679068530"><span class="hs-identifier hs-var">arr</span></a></span></span><span> </span><span id="local-6989586621679068529"><span class="annot"><span class="annottext">[(Int, e')]
-</span><a href="#local-6989586621679068529"><span class="hs-identifier hs-var">ies</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">UArray i Int -&gt; UArray i MInt
-forall i. UArray i Int -&gt; UArray i MInt
-</span><a href="MInt.html#coerceUIM"><span class="hs-identifier hs-var">coerceUIM</span></a></span><span> </span><span class="annot"><span class="annottext">(UArray i Int -&gt; UArray i MInt) -&gt; UArray i Int -&gt; UArray i MInt
-forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; e' -&gt; Int) -&gt; UArray i Int -&gt; [(Int, e')] -&gt; UArray i Int
-forall (a :: * -&gt; * -&gt; *) e i e'.
-(IArray a e, Ix i) =&gt;
-(e -&gt; e' -&gt; e) -&gt; a i e -&gt; [(Int, e')] -&gt; a i e
-</span><span class="hs-identifier hs-var">unsafeAccum</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(MInt -&gt; e' -&gt; MInt) -&gt; Int -&gt; e' -&gt; Int
-</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">MInt -&gt; e' -&gt; MInt
-</span><a href="#local-6989586621679068531"><span class="hs-identifier hs-var">f</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UArray i MInt -&gt; UArray i Int
-forall i. UArray i MInt -&gt; UArray i Int
-</span><a href="MInt.html#coerceUMI"><span class="hs-identifier hs-var">coerceUMI</span></a></span><span> </span><span class="annot"><span class="annottext">UArray i MInt
-</span><a href="#local-6989586621679068530"><span class="hs-identifier hs-var">arr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(Int, e')]
-</span><a href="#local-6989586621679068529"><span class="hs-identifier hs-var">ies</span></a></span><span>
-</span><span id="line-84"></span><span>    </span><span id="local-6989586621679068528"><span class="annot"><span class="annottext">unsafeAccumArray :: (MInt -&gt; e' -&gt; MInt)
--&gt; MInt -&gt; (i, i) -&gt; [(Int, e')] -&gt; UArray i MInt
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeAccumArray</span></span></span><span> </span><span id="local-6989586621679068526"><span class="annot"><span class="annottext">MInt -&gt; e' -&gt; MInt
-</span><a href="#local-6989586621679068526"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679068525"><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068525"><span class="hs-identifier hs-var">initialValue</span></a></span></span><span> </span><span id="local-6989586621679068524"><span class="annot"><span class="annottext">(i, i)
-</span><a href="#local-6989586621679068524"><span class="hs-identifier hs-var">lu</span></a></span></span><span> </span><span id="local-6989586621679068523"><span class="annot"><span class="annottext">[(Int, e')]
-</span><a href="#local-6989586621679068523"><span class="hs-identifier hs-var">ies</span></a></span></span><span>
-</span><span id="line-85"></span><span>                          </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">UArray i Int -&gt; UArray i MInt
-forall i. UArray i Int -&gt; UArray i MInt
-</span><a href="MInt.html#coerceUIM"><span class="hs-identifier hs-var">coerceUIM</span></a></span><span> </span><span class="annot"><span class="annottext">(UArray i Int -&gt; UArray i MInt) -&gt; UArray i Int -&gt; UArray i MInt
-forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; e' -&gt; Int) -&gt; Int -&gt; (i, i) -&gt; [(Int, e')] -&gt; UArray i Int
-forall (a :: * -&gt; * -&gt; *) e i e'.
-(IArray a e, Ix i) =&gt;
-(e -&gt; e' -&gt; e) -&gt; e -&gt; (i, i) -&gt; [(Int, e')] -&gt; a i e
-</span><span class="hs-identifier hs-var">unsafeAccumArray</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(MInt -&gt; e' -&gt; MInt) -&gt; Int -&gt; e' -&gt; Int
-</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">MInt -&gt; e' -&gt; MInt
-</span><a href="#local-6989586621679068526"><span class="hs-identifier hs-var">f</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MInt -&gt; Int
-</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068525"><span class="hs-identifier hs-var">initialValue</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(i, i)
-</span><a href="#local-6989586621679068524"><span class="hs-identifier hs-var">lu</span></a></span><span> </span><span class="annot"><span class="annottext">[(Int, e')]
-</span><a href="#local-6989586621679068523"><span class="hs-identifier hs-var">ies</span></a></span><span>
-</span><span id="line-86"></span><span>
-</span><span id="line-87"></span><span id="local-6989586621679068684"><span id="local-6989586621679068685"><span class="annot"><a href="MInt.html#coerceSTIM"><span class="hs-identifier hs-type">coerceSTIM</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">STUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068685"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068684"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">STUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068685"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068684"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span></span><span>
-</span><span id="line-88"></span><span id="coerceSTIM"><span class="annot"><span class="annottext">coerceSTIM :: STUArray s i Int -&gt; STUArray s i MInt
-</span><a href="MInt.html#coerceSTIM"><span class="hs-identifier hs-var hs-var">coerceSTIM</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">STUArray s i Int -&gt; STUArray s i MInt
-forall a b. a -&gt; b
-</span><span class="hs-identifier hs-var">unsafeCoerce</span></span><span>
-</span><span id="line-89"></span><span>
-</span><span id="line-90"></span><span id="local-6989586621679068691"><span id="local-6989586621679068692"><span class="annot"><a href="MInt.html#coerceSTMI"><span class="hs-identifier hs-type">coerceSTMI</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">STUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068692"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068691"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">STUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068692"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068691"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span></span></span><span>
-</span><span id="line-91"></span><span id="coerceSTMI"><span class="annot"><span class="annottext">coerceSTMI :: STUArray s i MInt -&gt; STUArray s i Int
-</span><a href="MInt.html#coerceSTMI"><span class="hs-identifier hs-var hs-var">coerceSTMI</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">STUArray s i MInt -&gt; STUArray s i Int
-forall a b. a -&gt; b
-</span><span class="hs-identifier hs-var">unsafeCoerce</span></span><span>
-</span><span id="line-92"></span><span>
-</span><span id="line-93"></span><span id="local-6989586621679068520"><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679068515"><span class="annot"><span class="hs-identifier hs-type">MArray</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">STUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068520"><span class="hs-identifier hs-type">s</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ST</span></span><span> </span><span class="annot"><a href="#local-6989586621679068520"><span class="hs-identifier hs-type">s</span></a></span><span class="hs-special">)</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-94"></span><span>    </span><span id="local-6989586621679068509"><span class="annot"><span class="annottext">getBounds :: STUArray s i MInt -&gt; ST s (i, i)
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">getBounds</span></span></span><span>           </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">STUArray s i Int -&gt; ST s (i, i)
-forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
-(MArray a e m, Ix i) =&gt;
-a i e -&gt; m (i, i)
-</span><span class="hs-identifier hs-var">getBounds</span></span><span> </span><span class="annot"><span class="annottext">(STUArray s i Int -&gt; ST s (i, i))
--&gt; (STUArray s i MInt -&gt; STUArray s i Int)
--&gt; STUArray s i MInt
--&gt; ST s (i, i)
-forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">STUArray s i MInt -&gt; STUArray s i Int
-forall s i. STUArray s i MInt -&gt; STUArray s i Int
-</span><a href="MInt.html#coerceSTMI"><span class="hs-identifier hs-var">coerceSTMI</span></a></span><span>
-</span><span id="line-95"></span><span>    </span><span id="local-6989586621679068507"><span class="annot"><span class="annottext">getNumElements :: STUArray s i MInt -&gt; ST s Int
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">getNumElements</span></span></span><span>      </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">STUArray s i Int -&gt; ST s Int
-forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
-(MArray a e m, Ix i) =&gt;
-a i e -&gt; m Int
-</span><span class="hs-identifier hs-var">getNumElements</span></span><span> </span><span class="annot"><span class="annottext">(STUArray s i Int -&gt; ST s Int)
--&gt; (STUArray s i MInt -&gt; STUArray s i Int)
--&gt; STUArray s i MInt
--&gt; ST s Int
-forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">STUArray s i MInt -&gt; STUArray s i Int
-forall s i. STUArray s i MInt -&gt; STUArray s i Int
-</span><a href="MInt.html#coerceSTMI"><span class="hs-identifier hs-var">coerceSTMI</span></a></span><span>
-</span><span id="line-96"></span><span>    </span><span id="local-6989586621679068505"><span class="annot"><span class="annottext">unsafeNewArray_ :: (i, i) -&gt; ST s (STUArray s i MInt)
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeNewArray_</span></span></span><span>     </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(STUArray s i Int -&gt; STUArray s i MInt)
--&gt; ST s (STUArray s i Int) -&gt; ST s (STUArray s i MInt)
-forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
-</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">STUArray s i Int -&gt; STUArray s i MInt
-forall s i. STUArray s i Int -&gt; STUArray s i MInt
-</span><a href="MInt.html#coerceSTIM"><span class="hs-identifier hs-var">coerceSTIM</span></a></span><span> </span><span class="annot"><span class="annottext">(ST s (STUArray s i Int) -&gt; ST s (STUArray s i MInt))
--&gt; ((i, i) -&gt; ST s (STUArray s i Int))
--&gt; (i, i)
--&gt; ST s (STUArray s i MInt)
-forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(i, i) -&gt; ST s (STUArray s i Int)
-forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
-(MArray a e m, Ix i) =&gt;
-(i, i) -&gt; m (a i e)
-</span><span class="hs-identifier hs-var">unsafeNewArray_</span></span><span>
-</span><span id="line-97"></span><span>    </span><span id="local-6989586621679068503"><span class="annot"><span class="annottext">newArray_ :: (i, i) -&gt; ST s (STUArray s i MInt)
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">newArray_</span></span></span><span>           </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(STUArray s i Int -&gt; STUArray s i MInt)
--&gt; ST s (STUArray s i Int) -&gt; ST s (STUArray s i MInt)
-forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
-</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">STUArray s i Int -&gt; STUArray s i MInt
-forall s i. STUArray s i Int -&gt; STUArray s i MInt
-</span><a href="MInt.html#coerceSTIM"><span class="hs-identifier hs-var">coerceSTIM</span></a></span><span> </span><span class="annot"><span class="annottext">(ST s (STUArray s i Int) -&gt; ST s (STUArray s i MInt))
--&gt; ((i, i) -&gt; ST s (STUArray s i Int))
--&gt; (i, i)
--&gt; ST s (STUArray s i MInt)
-forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(i, i) -&gt; ST s (STUArray s i Int)
-forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
-(MArray a e m, Ix i) =&gt;
-(i, i) -&gt; m (a i e)
-</span><span class="hs-identifier hs-var">newArray_</span></span><span>
-</span><span id="line-98"></span><span>    </span><span id="local-6989586621679068501"><span class="annot"><span class="annottext">unsafeRead :: STUArray s i MInt -&gt; Int -&gt; ST s MInt
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeRead</span></span></span><span> </span><span id="local-6989586621679068499"><span class="annot"><span class="annottext">STUArray s i MInt
-</span><a href="#local-6989586621679068499"><span class="hs-identifier hs-var">arr</span></a></span></span><span> </span><span id="local-6989586621679068498"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068498"><span class="hs-identifier hs-var">i</span></a></span></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
-</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; MInt) -&gt; ST s Int -&gt; ST s MInt
-forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
-</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">STUArray s i Int -&gt; Int -&gt; ST s Int
-forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
-(MArray a e m, Ix i) =&gt;
-a i e -&gt; Int -&gt; m e
-</span><span class="hs-identifier hs-var">unsafeRead</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">STUArray s i MInt -&gt; STUArray s i Int
-forall s i. STUArray s i MInt -&gt; STUArray s i Int
-</span><a href="MInt.html#coerceSTMI"><span class="hs-identifier hs-var">coerceSTMI</span></a></span><span> </span><span class="annot"><span class="annottext">STUArray s i MInt
-</span><a href="#local-6989586621679068499"><span class="hs-identifier hs-var">arr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068498"><span class="hs-identifier hs-var">i</span></a></span><span>
-</span><span id="line-99"></span><span>    </span><span id="local-6989586621679068496"><span class="annot"><span class="annottext">unsafeWrite :: STUArray s i MInt -&gt; Int -&gt; MInt -&gt; ST s ()
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeWrite</span></span></span><span> </span><span id="local-6989586621679068494"><span class="annot"><span class="annottext">STUArray s i MInt
-</span><a href="#local-6989586621679068494"><span class="hs-identifier hs-var">arr</span></a></span></span><span> </span><span id="local-6989586621679068493"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068493"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679068492"><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068492"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">STUArray s i Int -&gt; Int -&gt; Int -&gt; ST s ()
-forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
-(MArray a e m, Ix i) =&gt;
-a i e -&gt; Int -&gt; e -&gt; m ()
-</span><span class="hs-identifier hs-var">unsafeWrite</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">STUArray s i MInt -&gt; STUArray s i Int
-forall s i. STUArray s i MInt -&gt; STUArray s i Int
-</span><a href="MInt.html#coerceSTMI"><span class="hs-identifier hs-var">coerceSTMI</span></a></span><span> </span><span class="annot"><span class="annottext">STUArray s i MInt
-</span><a href="#local-6989586621679068494"><span class="hs-identifier hs-var">arr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068493"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MInt -&gt; Int
-</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068492"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span></span><span>
-</span><span id="line-100"></span><span>
-</span><span id="line-101"></span><span id="local-6989586621679068670"><span class="annot"><a href="MInt.html#coerceIOIM"><span class="hs-identifier hs-type">coerceIOIM</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IOUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068670"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IOUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068670"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span><span>
-</span><span id="line-102"></span><span id="coerceIOIM"><span class="annot"><span class="annottext">coerceIOIM :: IOUArray i Int -&gt; IOUArray i MInt
-</span><a href="MInt.html#coerceIOIM"><span class="hs-identifier hs-var hs-var">coerceIOIM</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IOUArray i Int -&gt; IOUArray i MInt
-forall a b. a -&gt; b
-</span><span class="hs-identifier hs-var">unsafeCoerce</span></span><span>
-</span><span id="line-103"></span><span>
-</span><span id="line-104"></span><span id="local-6989586621679068673"><span class="annot"><a href="MInt.html#coerceIOMI"><span class="hs-identifier hs-type">coerceIOMI</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IOUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068673"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IOUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068673"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span></span><span>
-</span><span id="line-105"></span><span id="coerceIOMI"><span class="annot"><span class="annottext">coerceIOMI :: IOUArray i MInt -&gt; IOUArray i Int
-</span><a href="MInt.html#coerceIOMI"><span class="hs-identifier hs-var hs-var">coerceIOMI</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IOUArray i MInt -&gt; IOUArray i Int
-forall a b. a -&gt; b
-</span><span class="hs-identifier hs-var">unsafeCoerce</span></span><span>
-</span><span id="line-106"></span><span>
-</span><span id="line-107"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IOUArray</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-108"></span><span>    </span><span id="local-6989586621679068481"><span class="annot"><span class="annottext">getBounds :: IOUArray i MInt -&gt; IO (i, i)
-</span><a href="#local-6989586621679068481"><span class="hs-identifier hs-var hs-var hs-var hs-var">getBounds</span></a></span></span><span>                </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IOUArray i Int -&gt; IO (i, i)
-forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
-(MArray a e m, Ix i) =&gt;
-a i e -&gt; m (i, i)
-</span><span class="hs-identifier hs-var">getBounds</span></span><span> </span><span class="annot"><span class="annottext">(IOUArray i Int -&gt; IO (i, i))
--&gt; (IOUArray i MInt -&gt; IOUArray i Int)
--&gt; IOUArray i MInt
--&gt; IO (i, i)
-forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">IOUArray i MInt -&gt; IOUArray i Int
-forall i. IOUArray i MInt -&gt; IOUArray i Int
-</span><a href="MInt.html#coerceIOMI"><span class="hs-identifier hs-var">coerceIOMI</span></a></span><span>
-</span><span id="line-109"></span><span>    </span><span id="local-6989586621679068480"><span class="annot"><span class="annottext">getNumElements :: IOUArray i MInt -&gt; IO Int
-</span><a href="#local-6989586621679068480"><span class="hs-identifier hs-var hs-var hs-var hs-var">getNumElements</span></a></span></span><span>           </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IOUArray i Int -&gt; IO Int
-forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
-(MArray a e m, Ix i) =&gt;
-a i e -&gt; m Int
-</span><span class="hs-identifier hs-var">getNumElements</span></span><span> </span><span class="annot"><span class="annottext">(IOUArray i Int -&gt; IO Int)
--&gt; (IOUArray i MInt -&gt; IOUArray i Int) -&gt; IOUArray i MInt -&gt; IO Int
-forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">IOUArray i MInt -&gt; IOUArray i Int
-forall i. IOUArray i MInt -&gt; IOUArray i Int
-</span><a href="MInt.html#coerceIOMI"><span class="hs-identifier hs-var">coerceIOMI</span></a></span><span>
-</span><span id="line-110"></span><span>    </span><span id="local-6989586621679068479"><span class="annot"><span class="annottext">newArray :: (i, i) -&gt; MInt -&gt; IO (IOUArray i MInt)
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">newArray</span></span></span><span> </span><span id="local-6989586621679068477"><span class="annot"><span class="annottext">(i, i)
-</span><a href="#local-6989586621679068477"><span class="hs-identifier hs-var">lu</span></a></span></span><span> </span><span id="local-6989586621679068476"><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068476"><span class="hs-identifier hs-var">initialValue</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IOUArray i Int -&gt; IOUArray i MInt
-forall i. IOUArray i Int -&gt; IOUArray i MInt
-</span><a href="MInt.html#coerceIOIM"><span class="hs-identifier hs-var">coerceIOIM</span></a></span><span> </span><span class="annot"><span class="annottext">(IOUArray i Int -&gt; IOUArray i MInt)
--&gt; IO (IOUArray i Int) -&gt; IO (IOUArray i MInt)
-forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
-</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">(i, i) -&gt; Int -&gt; IO (IOUArray i Int)
-forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
-(MArray a e m, Ix i) =&gt;
-(i, i) -&gt; e -&gt; m (a i e)
-</span><span class="hs-identifier hs-var">newArray</span></span><span> </span><span class="annot"><span class="annottext">(i, i)
-</span><a href="#local-6989586621679068477"><span class="hs-identifier hs-var">lu</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MInt -&gt; Int
-</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068476"><span class="hs-identifier hs-var">initialValue</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-111"></span><span>    </span><span id="local-6989586621679068475"><span class="annot"><span class="annottext">unsafeNewArray_ :: (i, i) -&gt; IO (IOUArray i MInt)
-</span><a href="#local-6989586621679068475"><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeNewArray_</span></a></span></span><span>          </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(IOUArray i Int -&gt; IOUArray i MInt)
--&gt; IO (IOUArray i Int) -&gt; IO (IOUArray i MInt)
-forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
-</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">IOUArray i Int -&gt; IOUArray i MInt
-forall i. IOUArray i Int -&gt; IOUArray i MInt
-</span><a href="MInt.html#coerceIOIM"><span class="hs-identifier hs-var">coerceIOIM</span></a></span><span> </span><span class="annot"><span class="annottext">(IO (IOUArray i Int) -&gt; IO (IOUArray i MInt))
--&gt; ((i, i) -&gt; IO (IOUArray i Int))
--&gt; (i, i)
--&gt; IO (IOUArray i MInt)
-forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(i, i) -&gt; IO (IOUArray i Int)
-forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
-(MArray a e m, Ix i) =&gt;
-(i, i) -&gt; m (a i e)
-</span><span class="hs-identifier hs-var">unsafeNewArray_</span></span><span>
-</span><span id="line-112"></span><span>    </span><span id="local-6989586621679068474"><span class="annot"><span class="annottext">newArray_ :: (i, i) -&gt; IO (IOUArray i MInt)
-</span><a href="#local-6989586621679068474"><span class="hs-identifier hs-var hs-var hs-var hs-var">newArray_</span></a></span></span><span>                </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(IOUArray i Int -&gt; IOUArray i MInt)
--&gt; IO (IOUArray i Int) -&gt; IO (IOUArray i MInt)
-forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
-</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">IOUArray i Int -&gt; IOUArray i MInt
-forall i. IOUArray i Int -&gt; IOUArray i MInt
-</span><a href="MInt.html#coerceIOIM"><span class="hs-identifier hs-var">coerceIOIM</span></a></span><span> </span><span class="annot"><span class="annottext">(IO (IOUArray i Int) -&gt; IO (IOUArray i MInt))
--&gt; ((i, i) -&gt; IO (IOUArray i Int))
--&gt; (i, i)
--&gt; IO (IOUArray i MInt)
-forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(i, i) -&gt; IO (IOUArray i Int)
-forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
-(MArray a e m, Ix i) =&gt;
-(i, i) -&gt; m (a i e)
-</span><span class="hs-identifier hs-var">newArray_</span></span><span>
-</span><span id="line-113"></span><span>    </span><span id="local-6989586621679068473"><span class="annot"><span class="annottext">unsafeRead :: IOUArray i MInt -&gt; Int -&gt; IO MInt
-</span><a href="#local-6989586621679068473"><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeRead</span></a></span></span><span> </span><span id="local-6989586621679068472"><span class="annot"><span class="annottext">IOUArray i MInt
-</span><a href="#local-6989586621679068472"><span class="hs-identifier hs-var">arr</span></a></span></span><span> </span><span id="local-6989586621679068471"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068471"><span class="hs-identifier hs-var">i</span></a></span></span><span>         </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
-</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; MInt) -&gt; IO Int -&gt; IO MInt
-forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
-</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">IOUArray i Int -&gt; Int -&gt; IO Int
-forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
-(MArray a e m, Ix i) =&gt;
-a i e -&gt; Int -&gt; m e
-</span><span class="hs-identifier hs-var">unsafeRead</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">IOUArray i MInt -&gt; IOUArray i Int
-forall i. IOUArray i MInt -&gt; IOUArray i Int
-</span><a href="MInt.html#coerceIOMI"><span class="hs-identifier hs-var">coerceIOMI</span></a></span><span> </span><span class="annot"><span class="annottext">IOUArray i MInt
-</span><a href="#local-6989586621679068472"><span class="hs-identifier hs-var">arr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068471"><span class="hs-identifier hs-var">i</span></a></span><span>
-</span><span id="line-114"></span><span>    </span><span id="local-6989586621679068470"><span class="annot"><span class="annottext">unsafeWrite :: IOUArray i MInt -&gt; Int -&gt; MInt -&gt; IO ()
-</span><a href="#local-6989586621679068470"><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeWrite</span></a></span></span><span> </span><span id="local-6989586621679068469"><span class="annot"><span class="annottext">IOUArray i MInt
-</span><a href="#local-6989586621679068469"><span class="hs-identifier hs-var">arr</span></a></span></span><span> </span><span id="local-6989586621679068468"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068468"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679068467"><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068467"><span class="hs-identifier hs-var">e</span></a></span></span><span>      </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IOUArray i Int -&gt; Int -&gt; Int -&gt; IO ()
-forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
-(MArray a e m, Ix i) =&gt;
-a i e -&gt; Int -&gt; e -&gt; m ()
-</span><span class="hs-identifier hs-var">unsafeWrite</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">IOUArray i MInt -&gt; IOUArray i Int
-forall i. IOUArray i MInt -&gt; IOUArray i Int
-</span><a href="MInt.html#coerceIOMI"><span class="hs-identifier hs-var">coerceIOMI</span></a></span><span> </span><span class="annot"><span class="annottext">IOUArray i MInt
-</span><a href="#local-6989586621679068469"><span class="hs-identifier hs-var">arr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068468"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MInt -&gt; Int
-</span><span class="hs-identifier hs-var">coerce</span></span><span> </span><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679068467"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-115"></span><span>
-</span><span id="line-116"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
-</span><span id="line-117"></span><span class="hs-comment">-- For tests</span><span>
-</span><span id="line-118"></span><span>
-</span><span id="line-119"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-120"></span><span>    </span><span id="local-6989586621679068464"><span class="annot"><span class="annottext">rnf :: MInt -&gt; ()
+</span><a href="#local-6989586621679071542"><span class="hs-identifier hs-var">x1</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">MInt
+</span><a href="#local-6989586621679071541"><span class="hs-identifier hs-var">x2</span></a></span><span> </span><span class="hs-glyph">..</span><span class="hs-special">]</span><span>
+</span><span id="line-55"></span><span>
+</span><span id="line-56"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679071536"><span id="local-6989586621679071538"><span class="annot"><a href="Unbox.html#Unbox"><span class="hs-identifier hs-type">Unbox</span></a></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span></span></span><span>
+</span><span id="line-57"></span><span>
+</span><span id="line-58"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-59"></span><span class="hs-comment">-- For tests</span><span>
+</span><span id="line-60"></span><span>
+</span><span id="line-61"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-62"></span><span>    </span><span id="local-6989586621679071532"><span class="annot"><span class="annottext">rnf :: MInt -&gt; ()
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MInt -&gt; ()
 forall a. a -&gt; ()
 </span><span class="hs-identifier hs-var">rwhnf</span></span><span>
-</span><span id="line-121"></span></pre></body></html>
+</span><span id="line-63"></span></pre></body></html>

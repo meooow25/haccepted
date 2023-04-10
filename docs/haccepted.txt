@@ -266,38 +266,6 @@ dijkstraH :: LGraph Weight -> [Vertex] -> UArray Vertex Weight
 type Weight = Int
 
 
--- | <h2>Modular arithmetic</h2>
---   
---   MInt is a newtype of Int for arithmetic modulo a known fixed prime.
---   For a more general type see Mod.hs.
---   
---   Instances of Eq, Num, Fractional exist for MInt. All the usual
---   operations take O(1) time, except for recip which takes O(log m) time.
---   An instance of Enum exists for MInt. The enum is cyclic, it wraps to 0
---   after m-1. An instance of IArray UArray MInt exists. Instances of
---   MArray (STUArray s) MInt (ST s) and MArray IOUArray MInt IO are also
---   defined.
-module MInt
-
--- | Int type for arithmetic modulo a fixed prime mm.
-newtype MInt
-MInt :: Int -> MInt
-[unMInt] :: MInt -> Int
-
--- | The prime modulus.
-mm :: Int
-instance GHC.Show.Show MInt.MInt
-instance GHC.Classes.Ord MInt.MInt
-instance GHC.Classes.Eq MInt.MInt
-instance GHC.Num.Num MInt.MInt
-instance GHC.Real.Fractional MInt.MInt
-instance GHC.Enum.Enum MInt.MInt
-instance Data.Array.Base.IArray Data.Array.Base.UArray MInt.MInt
-instance Data.Array.Base.MArray (Data.Array.Base.STUArray s) MInt.MInt (GHC.ST.ST s)
-instance Data.Array.Base.MArray Data.Array.IO.Internals.IOUArray MInt.MInt GHC.Types.IO
-instance Control.DeepSeq.NFData MInt.MInt
-
-
 -- | <h2>Math</h2>
 --   
 --   Sources:
@@ -635,51 +603,6 @@ runMo :: Monad m => Int -> (Int -> m ()) -> (Int -> m ()) -> m a -> [MoQuery] ->
 sqrtSize :: Int -> Int
 instance GHC.Show.Show Mo.MoQuery
 instance Control.DeepSeq.NFData Mo.MoQuery
-
-
--- | <h2>Modular arithmetic</h2>
---   
---   Mod m i is an integer of type i modulo m. m will usually be a
---   compile-time constant. If m is not known at compile time, Mod can
---   still be used via GHC.TypeNats.SomeNat. m must be &gt;= 2 and fit in
---   the type i. Integer operations on i for values in [0..m-1] must not
---   overflow. Examples to avoid are using (-) with a word type or using
---   (*) with a large enough mod that (m-1)^2 oveflows.
---   
---   This is a very general type, for something simpler see MInt.hs.
---   
---   Instances of Eq, Num, Fractional exist for Mod m i. All the usual
---   operations take O(1) time, except for recip which takes O(log n) time.
---   This assumes Integral i methods take O(1) time. An instance of Enum
---   exists for MInt. The enum is cyclic, it wraps to 0 after m-1. An
---   instance of IArray UArray MInt exists. Instances of MArray (STUArray
---   s) MInt (ST s) and MArray IOUArray MInt IO are also defined.
-module Mod
-
--- | Type for modular arithmetic modulo m with underlying type i.
-newtype Mod (m :: Nat) i
-Mod :: i -> Mod (m :: Nat) i
-[unMod] :: Mod (m :: Nat) i -> i
-
--- | Commonly used modulus.
-type M7 = Mod 1000000007 Int
-
--- | Commonly used modulus.
-type M3 = Mod 998244353 Int
-
--- | The multiplicative inverse modulo m. It exists if and only if the
---   number is coprime to m. O(log n).
-invMaybe :: forall m i. (KnownNat m, Integral i) => Mod m i -> Maybe (Mod m i)
-instance GHC.Show.Show i => GHC.Show.Show (Mod.Mod m i)
-instance GHC.Classes.Ord i => GHC.Classes.Ord (Mod.Mod m i)
-instance GHC.Classes.Eq i => GHC.Classes.Eq (Mod.Mod m i)
-instance (GHC.TypeNats.KnownNat m, GHC.Real.Integral i) => GHC.Num.Num (Mod.Mod m i)
-instance (GHC.TypeNats.KnownNat m, GHC.Real.Integral i) => GHC.Real.Fractional (Mod.Mod m i)
-instance (GHC.TypeNats.KnownNat m, GHC.Real.Integral i) => GHC.Enum.Enum (Mod.Mod m i)
-instance Data.Array.Base.IArray Data.Array.Base.UArray e => Data.Array.Base.IArray Data.Array.Base.UArray (Mod.Mod m e)
-instance Data.Array.Base.MArray (Data.Array.Base.STUArray s) e (GHC.ST.ST s) => Data.Array.Base.MArray (Data.Array.Base.STUArray s) (Mod.Mod m e) (GHC.ST.ST s)
-instance Data.Array.Base.MArray Data.Array.IO.Internals.IOUArray e GHC.Types.IO => Data.Array.Base.MArray Data.Array.IO.Internals.IOUArray (Mod.Mod m e) GHC.Types.IO
-instance Control.DeepSeq.NFData i => Control.DeepSeq.NFData (Mod.Mod m i)
 
 
 -- | <h2>PQ-tree</h2>
@@ -1177,6 +1100,90 @@ Not :: !Int -> Var
 solve2Sat :: (Int, Int) -> [(Var, Var)] -> Maybe [Bool]
 instance GHC.Show.Show TwoSat.Var
 instance Control.DeepSeq.NFData TwoSat.Var
+
+
+-- | <h2>Unboxed array support for types isomorphic to other types with
+--   unboxed array support.</h2>
+--   
+--   As easy as "instance Unbox (Sum Int) Int".
+module Unbox
+class Unbox a b | a -> b
+toU :: Unbox a b => a -> b
+toU :: (Unbox a b, Coercible a b) => a -> b
+frU :: Unbox a b => b -> a
+frU :: (Unbox a b, Coercible b a) => b -> a
+instance (Unbox.Unbox a b, Data.Array.Base.IArray arr b) => Data.Array.Base.IArray arr a
+instance (Unbox.Unbox a b, GHC.Base.Monad m, Data.Array.Base.MArray marr b m) => Data.Array.Base.MArray marr a m
+
+
+-- | <h2>Modular arithmetic</h2>
+--   
+--   Mod m i is an integer of type i modulo m. m will usually be a
+--   compile-time constant. If m is not known at compile time, Mod can
+--   still be used via GHC.TypeNats.SomeNat. m must be &gt;= 2 and fit in
+--   the type i. Integer operations on i for values in [0..m-1] must not
+--   overflow. Examples to avoid are using (-) with a word type or using
+--   (*) with a large enough mod that (m-1)^2 oveflows.
+--   
+--   This is a very general type, for something simpler see MInt.hs.
+--   
+--   Instances of Eq, Num, Fractional exist for Mod m i. All the usual
+--   operations take O(1) time, except for recip which takes O(log n) time.
+--   This assumes Integral i methods take O(1) time. An instance of Enum
+--   exists for MInt. The enum is cyclic, it wraps to 0 after m-1. Unboxed
+--   array support is available via Unbox.
+module Mod
+
+-- | Type for modular arithmetic modulo m with underlying type i.
+newtype Mod (m :: Nat) i
+Mod :: i -> Mod (m :: Nat) i
+[unMod] :: Mod (m :: Nat) i -> i
+
+-- | Commonly used modulus.
+type M7 = Mod 1000000007 Int
+
+-- | Commonly used modulus.
+type M3 = Mod 998244353 Int
+
+-- | The multiplicative inverse modulo m. It exists if and only if the
+--   number is coprime to m. O(log n).
+invMaybe :: forall m i. (KnownNat m, Integral i) => Mod m i -> Maybe (Mod m i)
+instance GHC.Show.Show i => GHC.Show.Show (Mod.Mod m i)
+instance GHC.Classes.Ord i => GHC.Classes.Ord (Mod.Mod m i)
+instance GHC.Classes.Eq i => GHC.Classes.Eq (Mod.Mod m i)
+instance (GHC.TypeNats.KnownNat m, GHC.Real.Integral i) => GHC.Num.Num (Mod.Mod m i)
+instance (GHC.TypeNats.KnownNat m, GHC.Real.Integral i) => GHC.Real.Fractional (Mod.Mod m i)
+instance (GHC.TypeNats.KnownNat m, GHC.Real.Integral i) => GHC.Enum.Enum (Mod.Mod m i)
+instance Unbox.Unbox (Mod.Mod m i) i
+instance Control.DeepSeq.NFData i => Control.DeepSeq.NFData (Mod.Mod m i)
+
+
+-- | <h2>Modular arithmetic</h2>
+--   
+--   MInt is a newtype of Int for arithmetic modulo a known fixed prime.
+--   For a more general type see Mod.hs.
+--   
+--   Instances of Eq, Num, Fractional exist for MInt. All the usual
+--   operations take O(1) time, except for recip which takes O(log m) time.
+--   An instance of Enum exists for MInt. The enum is cyclic, it wraps to 0
+--   after m-1. Unboxed array support is available via Unbox.
+module MInt
+
+-- | Int type for arithmetic modulo a fixed prime mm.
+newtype MInt
+MInt :: Int -> MInt
+[unMInt] :: MInt -> Int
+
+-- | The prime modulus.
+mm :: Int
+instance GHC.Show.Show MInt.MInt
+instance GHC.Classes.Ord MInt.MInt
+instance GHC.Classes.Eq MInt.MInt
+instance GHC.Num.Num MInt.MInt
+instance GHC.Real.Fractional MInt.MInt
+instance GHC.Enum.Enum MInt.MInt
+instance Unbox.Unbox MInt.MInt GHC.Types.Int
+instance Control.DeepSeq.NFData MInt.MInt
 
 
 -- | <h2>Z-function</h2>
