@@ -17,6 +17,7 @@ extra-source-files:
 library
   exposed-modules:
       AhoCorasick
+      Array2
       BFS
       BinSearch
       CentroidDecomp
@@ -104,6 +105,7 @@ test-suite test-all
   other-modules:
       AhoCorasickSpec
       ArbitraryInstances
+      Array2Spec
       ArrayTests
       BFSSpec
       BinSearchSpec
