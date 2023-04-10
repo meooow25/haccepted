@@ -1,5 +1,4 @@
-{-# LANGUAGE ConstraintKinds, DataKinds, FlexibleInstances, KindSignatures, MultiParamTypeClasses,
-             ScopedTypeVariables #-}
+{-# LANGUAGE DataKinds, ScopedTypeVariables, TypeFamilies #-}
 {-|
 Modular arithmetic
 
@@ -44,7 +43,7 @@ import Data.Ratio
 import GHC.TypeNats ( KnownNat, Nat, natVal )
 
 import Math ( egcd )
-import Unbox ( Unbox )
+import Unbox ( Unbox(..) )
 
 newtype Mod (m :: Nat) i = Mod { unMod :: i } deriving (Eq, Ord, Show)
 
@@ -82,7 +81,8 @@ instance (KnownNat m, Integral i) => Enum (Mod m i) where
     enumFromTo x y         = takeWhile (/= y + 1) [x..]
     enumFromThenTo x1 x2 y = takeWhile (/= y + 1) [x1, x2 ..]
 
-instance Unbox (Mod m i) i
+instance Unbox (Mod m i) where
+    type Unboxed (Mod m i) = i
 
 --------------------------------------------------------------------------------
 -- For tests

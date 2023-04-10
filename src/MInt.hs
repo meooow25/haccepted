@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies #-}
 {-|
 Modular arithmetic
 
@@ -28,7 +28,7 @@ module MInt
 import Control.DeepSeq
 import Data.Ratio
 
-import Unbox ( Unbox )
+import Unbox ( Unbox(..) )
 
 mm :: Int
 mm = 1000000007
@@ -54,7 +54,8 @@ instance Enum MInt where
     enumFromTo x y         = takeWhile (/= y + 1) [x..]
     enumFromThenTo x1 x2 y = takeWhile (/= y + 1) [x1, x2 ..]
 
-instance Unbox MInt Int
+instance Unbox MInt where
+    type Unboxed MInt = Int
 
 --------------------------------------------------------------------------------
 -- For tests
