@@ -10,6 +10,7 @@ import Test.QuickCheck
 import Math ( egcd, egcd2, mkFactorials, mkInvFactorials, mkBinom )
 import MInt ( MInt )
 import ArbitraryInstances ()
+import Unbox ( UArr )
 
 spec :: Spec
 spec = do
@@ -27,15 +28,15 @@ spec = do
 
     describe "mkFactorials" $ do
         prop "Integer" $ testMkFactorials @Array @Integer
-        prop "MInt" $ testMkFactorials @UArray @MInt
+        prop "MInt" $ testMkFactorials @UArr @MInt
 
     describe "mkInvFactorials" $ do
         prop "Rational" $ testMkInvFactorials @Array @Rational
-        prop "MInt" $ testMkInvFactorials @UArray @MInt
+        prop "MInt" $ testMkInvFactorials @UArr @MInt
 
     describe "mkBinom" $ do
         prop "Rational" $ testMkBinom @Array @Rational
-        prop "MInt" $ testMkBinom @UArray @MInt
+        prop "MInt" $ testMkBinom @UArr @MInt
 
   where
     testEgcd2 :: forall i. (Integral i, Show i, Arbitrary i) => String -> Spec
