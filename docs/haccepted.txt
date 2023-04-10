@@ -1102,18 +1102,26 @@ instance GHC.Show.Show TwoSat.Var
 instance Control.DeepSeq.NFData TwoSat.Var
 
 
--- | <h2>Unboxed array support for types isomorphic to other types with
---   unboxed array support.</h2>
+-- | <h2>Array type for element types isomorphic to other element types
+--   with existing array support.</h2>
 --   
---   As easy as "instance Unbox (Sum Int) Int".
+--   Primarily useful for unboxed arrays. As an example, define "instance
+--   Unbox (Sum Int) where type Unboxed (Sum Int) = Int" and use UArr i
+--   (Sum Int) as an unboxed array for Sum Int.
 module Unbox
-class Unbox a b | a -> b
-toU :: Unbox a b => a -> b
-toU :: (Unbox a b, Coercible a b) => a -> b
-frU :: Unbox a b => b -> a
-frU :: (Unbox a b, Coercible b a) => b -> a
-instance (Unbox.Unbox a b, Data.Array.Base.IArray arr b) => Data.Array.Base.IArray arr a
-instance (Unbox.Unbox a b, GHC.Base.Monad m, Data.Array.Base.MArray marr b m) => Data.Array.Base.MArray marr a m
+class Unbox a where {
+    type family Unboxed a;
+}
+toU :: Unbox a => a -> Unboxed a
+toU :: (Unbox a, Coercible a (Unboxed a)) => a -> Unboxed a
+frU :: Unbox a => Unboxed a -> a
+frU :: (Unbox a, Coercible (Unboxed a) a) => Unboxed a -> a
+data Arr arr i a
+type UArr = Arr UArray
+type IOUArr = Arr IOUArray
+type STUArr s = Arr (STUArray s)
+instance (Unbox.Unbox a, Data.Array.Base.IArray arr (Unbox.Unboxed a)) => Data.Array.Base.IArray (Unbox.Arr arr) a
+instance (Unbox.Unbox a, GHC.Base.Monad m, Data.Array.Base.MArray marr (Unbox.Unboxed a) m) => Data.Array.Base.MArray (Unbox.Arr marr) a m
 
 
 -- | <h2>Modular arithmetic</h2>
@@ -1154,7 +1162,7 @@ instance GHC.Classes.Eq i => GHC.Classes.Eq (Mod.Mod m i)
 instance (GHC.TypeNats.KnownNat m, GHC.Real.Integral i) => GHC.Num.Num (Mod.Mod m i)
 instance (GHC.TypeNats.KnownNat m, GHC.Real.Integral i) => GHC.Real.Fractional (Mod.Mod m i)
 instance (GHC.TypeNats.KnownNat m, GHC.Real.Integral i) => GHC.Enum.Enum (Mod.Mod m i)
-instance Unbox.Unbox (Mod.Mod m i) i
+instance Unbox.Unbox (Mod.Mod m i)
 instance Control.DeepSeq.NFData i => Control.DeepSeq.NFData (Mod.Mod m i)
 
 
@@ -1182,7 +1190,7 @@ instance GHC.Classes.Eq MInt.MInt
 instance GHC.Num.Num MInt.MInt
 instance GHC.Real.Fractional MInt.MInt
 instance GHC.Enum.Enum MInt.MInt
-instance Unbox.Unbox MInt.MInt GHC.Types.Int
+instance Unbox.Unbox MInt.MInt
 instance Control.DeepSeq.NFData MInt.MInt
 
 

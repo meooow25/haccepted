@@ -1,264 +1,265 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DefaultSignatures, FlexibleInstances, FunctionalDependencies, UndecidableInstances #-}</span><span>
-</span><span id="line-2"></span><span class="hs-pragma">{-# OPTIONS_GHC -fno-warn-orphans #-}</span><span>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DefaultSignatures, FlexibleContexts, FlexibleInstances, MultiParamTypeClasses,
+             TypeFamilies, UndecidableInstances #-}</span><span>
 </span><span id="line-3"></span><span class="hs-comment">{-|
-== Unboxed array support for types isomorphic to other types with unboxed array support.
+== Array type for element types isomorphic to other element types with existing array support.
 
-As easy as &quot;instance Unbox (Sum Int) Int&quot;.
+Primarily useful for unboxed arrays.
+As an example, define &quot;instance Unbox (Sum Int) where type Unboxed (Sum Int) = Int&quot; and use
+UArr i (Sum Int) as an unboxed array for Sum Int.
 
 -}</span><span>
-</span><span id="line-9"></span><span>
-</span><span id="line-10"></span><span class="hs-comment">{-
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-comment">{-
 Implementation notes:
 * The problem: Unboxed array types (UArray, STUArray, IOUArray) have the element type role as
   nominal (https://gitlab.haskell.org/ghc/ghc/-/issues/9220). This makes it impossible to newtype
   derive IArray and MArray instances. And it's a PITA to write them manually for every newtype.
   No one wants to write 40 lines of instances each for Sum Int, Max Int, Mod 1000000007 Int.
-* The solution: Use an unholy trinity of unsafeCoerce, overlappable instances, and an Iso typeclass
-  (just like Vector.Unboxed.IsoUnbox). This still requires ~30 lines of code, but only once. The
-  typeclass also makes it useful for more than just newtypes. If there is a better way, I would love
+* The solution: Use a newtype wrapper and an iso class (a bit like Vector.Unboxed.IsoUnbox). This
+  still requires ~30 lines of code, but only once. The typeclass also makes it useful for more than
+  just newtypes. This is the cleanest approach I got so far. If there is a better way, I would love
   to hear of it.
+* We use an associated type over fundeps (class Unbox a b | a -&gt; b) because Arr would then need to
+  be Arr b arr i a and you would have to specify b when using it even though a determines b.
 -}</span><span>
-</span><span id="line-21"></span><span>
-</span><span id="line-22"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Unbox</span><span>
-</span><span id="line-23"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Unbox.html#Unbox"><span class="hs-identifier">Unbox</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
-</span><span id="line-24"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-25"></span><span>
-</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Array.Base</span></span><span>
-</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Coerce</span></span><span>
-</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Unsafe.Coerce</span></span><span>
-</span><span id="line-29"></span><span>
-</span><span id="line-30"></span><span class="hs-keyword">class</span><span> </span><span id="Unbox"><span class="annot"><a href="Unbox.html#Unbox"><span class="hs-identifier hs-var">Unbox</span></a></span></span><span> </span><span id="local-6989586621679071336"><span class="annot"><a href="#local-6989586621679071336"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span id="local-6989586621679071335"><span class="annot"><a href="#local-6989586621679071335"><span class="hs-identifier hs-type">b</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><a href="#local-6989586621679071336"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071335"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-31"></span><span>    </span><span id="toU"><span class="annot"><a href="Unbox.html#toU"><span class="hs-identifier hs-type">toU</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679071336"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071335"><span class="hs-identifier hs-type">b</span></a></span><span>
-</span><span id="line-32"></span><span>    </span><span class="hs-keyword">default</span><span> </span><span id="toU"><span class="annot"><a href="Unbox.html#toU"><span class="hs-identifier hs-type">toU</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Coercible</span></span><span> </span><span class="annot"><a href="#local-6989586621679071336"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071335"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071336"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071335"><span class="hs-identifier hs-type">b</span></a></span><span>
-</span><span id="line-33"></span><span>    </span><span id="local-6989586621679071250"><span class="annot"><a href="Unbox.html#toU"><span class="hs-identifier hs-var hs-var">toU</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; b
-</span><span class="hs-identifier hs-var">coerce</span></span></span><span>
-</span><span id="line-34"></span><span>    </span><span id="frU"><span class="annot"><a href="Unbox.html#frU"><span class="hs-identifier hs-type">frU</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679071335"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071336"><span class="hs-identifier hs-type">a</span></a></span><span>
-</span><span id="line-35"></span><span>    </span><span class="hs-keyword">default</span><span> </span><span id="frU"><span class="annot"><a href="Unbox.html#frU"><span class="hs-identifier hs-type">frU</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Coercible</span></span><span> </span><span class="annot"><a href="#local-6989586621679071335"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071336"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071335"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071336"><span class="hs-identifier hs-type">a</span></a></span><span>
-</span><span id="line-36"></span><span>    </span><span id="local-6989586621679071248"><span class="annot"><a href="Unbox.html#frU"><span class="hs-identifier hs-var hs-var">frU</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">b -&gt; a
-</span><span class="hs-identifier hs-var">coerce</span></span></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Unbox</span><span>
+</span><span id="line-27"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Unbox.html#Unbox"><span class="hs-identifier">Unbox</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Unbox.html#Arr"><span class="hs-identifier">Arr</span></a></span><span>
+</span><span id="line-29"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Unbox.html#UArr"><span class="hs-identifier">UArr</span></a></span><span>
+</span><span id="line-30"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Unbox.html#IOUArr"><span class="hs-identifier">IOUArr</span></a></span><span>
+</span><span id="line-31"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Unbox.html#STUArr"><span class="hs-identifier">STUArr</span></a></span><span>
+</span><span id="line-32"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-33"></span><span>
+</span><span id="line-34"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Array.Base</span></span><span>
+</span><span id="line-35"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Array.IO</span></span><span>
+</span><span id="line-36"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Coerce</span></span><span>
 </span><span id="line-37"></span><span>
-</span><span id="line-38"></span><span id="local-6989586621679071298"><span id="local-6989586621679071299"><span id="local-6989586621679071300"><span id="local-6989586621679071301"><span class="annot"><a href="Unbox.html#coerceToU"><span class="hs-identifier hs-type">coerceToU</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unbox.html#Unbox"><span class="hs-identifier hs-type">Unbox</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071301"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071300"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071299"><span class="hs-identifier hs-type">arr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071298"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071301"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071299"><span class="hs-identifier hs-type">arr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071298"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071300"><span class="hs-identifier hs-type">b</span></a></span></span></span></span></span><span>
-</span><span id="line-39"></span><span id="local-6989586621679071292"><span id="local-6989586621679071293"><span id="local-6989586621679071294"><span id="local-6989586621679071295"><span class="annot"><a href="Unbox.html#coerceFrU"><span class="hs-identifier hs-type">coerceFrU</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unbox.html#Unbox"><span class="hs-identifier hs-type">Unbox</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071295"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071294"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071293"><span class="hs-identifier hs-type">arr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071292"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071294"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071293"><span class="hs-identifier hs-type">arr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071292"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071295"><span class="hs-identifier hs-type">a</span></a></span></span></span></span></span><span>
-</span><span id="line-40"></span><span id="coerceToU"><span class="annot"><span class="annottext">coerceToU :: arr i a -&gt; arr i b
-</span><a href="Unbox.html#coerceToU"><span class="hs-identifier hs-var hs-var">coerceToU</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">arr i a -&gt; arr i b
-forall a b. a -&gt; b
-</span><span class="hs-identifier hs-var">unsafeCoerce</span></span><span>
-</span><span id="line-41"></span><span id="coerceFrU"><span class="annot"><span class="annottext">coerceFrU :: arr i b -&gt; arr i a
-</span><a href="Unbox.html#coerceFrU"><span class="hs-identifier hs-var hs-var">coerceFrU</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">arr i b -&gt; arr i a
-forall a b. a -&gt; b
-</span><span class="hs-identifier hs-var">unsafeCoerce</span></span><span>
-</span><span id="line-42"></span><span>
-</span><span id="line-43"></span><span id="local-6989586621679071242"><span id="local-6989586621679071243"><span id="local-6989586621679071244"><span class="hs-keyword">instance</span><span> </span><span class="hs-pragma">{-# OVERLAPPABLE</span><span> </span><span class="hs-pragma">#-}</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Unbox.html#Unbox"><span class="hs-identifier hs-type">Unbox</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071244"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071243"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679071242"><span class="hs-identifier hs-type">arr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071243"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679071242"><span class="hs-identifier hs-type">arr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071244"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-44"></span><span>    </span><span id="local-6989586621679071233"><span class="annot"><span class="annottext">bounds :: arr i a -&gt; (i, i)
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">bounds</span></span></span><span>                     </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">arr i b -&gt; (i, i)
+</span><span id="line-38"></span><span class="hs-keyword">class</span><span> </span><span id="Unbox"><span class="annot"><a href="Unbox.html#Unbox"><span class="hs-identifier hs-var">Unbox</span></a></span></span><span> </span><span id="local-6989586621679071355"><span class="annot"><a href="#local-6989586621679071355"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-39"></span><span>    </span><span class="hs-keyword">type</span><span> </span><span id="Unboxed"><span class="annot"><a href="Unbox.html#Unboxed"><span class="hs-identifier hs-var">Unboxed</span></a></span></span><span> </span><span id="local-6989586621679071355"><span class="annot"><a href="#local-6989586621679071355"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-40"></span><span>    </span><span id="toU"><span class="annot"><a href="Unbox.html#toU"><span class="hs-identifier hs-type">toU</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679071355"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Unbox.html#Unboxed"><span class="hs-identifier hs-type">Unboxed</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071355"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-41"></span><span>    </span><span class="hs-keyword">default</span><span> </span><span id="toU"><span class="annot"><a href="Unbox.html#toU"><span class="hs-identifier hs-type">toU</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Coercible</span></span><span> </span><span class="annot"><a href="#local-6989586621679071355"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Unbox.html#Unboxed"><span class="hs-identifier hs-type">Unboxed</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071355"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071355"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Unbox.html#Unboxed"><span class="hs-identifier hs-type">Unboxed</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071355"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-42"></span><span>    </span><span id="local-6989586621679071287"><span class="annot"><a href="Unbox.html#toU"><span class="hs-identifier hs-var hs-var">toU</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; Unboxed a
+</span><span class="hs-identifier hs-var">coerce</span></span></span><span>
+</span><span id="line-43"></span><span>    </span><span id="frU"><span class="annot"><a href="Unbox.html#frU"><span class="hs-identifier hs-type">frU</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unbox.html#Unboxed"><span class="hs-identifier hs-type">Unboxed</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071355"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071355"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-44"></span><span>    </span><span class="hs-keyword">default</span><span> </span><span id="frU"><span class="annot"><a href="Unbox.html#frU"><span class="hs-identifier hs-type">frU</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Coercible</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Unbox.html#Unboxed"><span class="hs-identifier hs-type">Unboxed</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071355"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679071355"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Unbox.html#Unboxed"><span class="hs-identifier hs-type">Unboxed</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071355"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071355"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-45"></span><span>    </span><span id="local-6989586621679071285"><span class="annot"><a href="Unbox.html#frU"><span class="hs-identifier hs-var hs-var">frU</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Unboxed a -&gt; a
+</span><span class="hs-identifier hs-var">coerce</span></span></span><span>
+</span><span id="line-46"></span><span>
+</span><span id="line-47"></span><span class="hs-keyword">newtype</span><span> </span><span id="Arr"><span class="annot"><a href="Unbox.html#Arr"><span class="hs-identifier hs-var">Arr</span></a></span></span><span> </span><span id="local-6989586621679071327"><span class="annot"><a href="#local-6989586621679071327"><span class="hs-identifier hs-type">arr</span></a></span></span><span> </span><span id="local-6989586621679071326"><span class="annot"><a href="#local-6989586621679071326"><span class="hs-identifier hs-type">i</span></a></span></span><span> </span><span id="local-6989586621679071325"><span class="annot"><a href="#local-6989586621679071325"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Arr"><span class="annot"><a href="Unbox.html#Arr"><span class="hs-identifier hs-var">Arr</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="unArr"><span class="annot"><span class="annottext">Arr arr i a -&gt; arr i (Unboxed a)
+</span><a href="Unbox.html#unArr"><span class="hs-identifier hs-var hs-var">unArr</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679071327"><span class="hs-identifier hs-type">arr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071326"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Unbox.html#Unboxed"><span class="hs-identifier hs-type">Unboxed</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071325"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">}</span><span>
+</span><span id="line-48"></span><span>
+</span><span id="line-49"></span><span id="local-6989586621679071281"><span id="local-6989586621679071282"><span class="hs-keyword">instance</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Unbox.html#Unbox"><span class="hs-identifier hs-type">Unbox</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071282"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679071281"><span class="hs-identifier hs-type">arr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Unbox.html#Unboxed"><span class="hs-identifier hs-type">Unboxed</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071282"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IArray</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Unbox.html#Arr"><span class="hs-identifier hs-type">Arr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071281"><span class="hs-identifier hs-type">arr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679071282"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-50"></span><span>    </span><span id="local-6989586621679071272"><span class="annot"><span class="annottext">bounds :: Arr arr i a -&gt; (i, i)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">bounds</span></span></span><span>                     </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">arr i (Unboxed a) -&gt; (i, i)
 forall (a :: * -&gt; * -&gt; *) e i.
 (IArray a e, Ix i) =&gt;
 a i e -&gt; (i, i)
-</span><span class="hs-identifier hs-var">bounds</span></span><span> </span><span class="annot"><span class="annottext">(arr i b -&gt; (i, i)) -&gt; (arr i a -&gt; arr i b) -&gt; arr i a -&gt; (i, i)
+</span><span class="hs-identifier hs-var">bounds</span></span><span> </span><span class="annot"><span class="annottext">(arr i (Unboxed a) -&gt; (i, i))
+-&gt; (Arr arr i a -&gt; arr i (Unboxed a)) -&gt; Arr arr i a -&gt; (i, i)
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">arr i a -&gt; arr i b
-forall a b (arr :: * -&gt; * -&gt; *) i. Unbox a b =&gt; arr i a -&gt; arr i b
-</span><a href="Unbox.html#coerceToU"><span class="hs-identifier hs-var">coerceToU</span></a></span><span>
-</span><span id="line-45"></span><span>    </span><span id="local-6989586621679071230"><span class="annot"><span class="annottext">numElements :: arr i a -&gt; Int
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">numElements</span></span></span><span>                </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">arr i b -&gt; Int
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Arr arr i a -&gt; arr i (Unboxed a)
+forall (arr :: * -&gt; * -&gt; *) i a. Arr arr i a -&gt; arr i (Unboxed a)
+</span><a href="Unbox.html#unArr"><span class="hs-identifier hs-var hs-var">unArr</span></a></span><span>
+</span><span id="line-51"></span><span>    </span><span id="local-6989586621679071269"><span class="annot"><span class="annottext">numElements :: Arr arr i a -&gt; Int
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">numElements</span></span></span><span>                </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">arr i (Unboxed a) -&gt; Int
 forall (a :: * -&gt; * -&gt; *) e i. (IArray a e, Ix i) =&gt; a i e -&gt; Int
-</span><span class="hs-identifier hs-var">numElements</span></span><span> </span><span class="annot"><span class="annottext">(arr i b -&gt; Int) -&gt; (arr i a -&gt; arr i b) -&gt; arr i a -&gt; Int
+</span><span class="hs-identifier hs-var">numElements</span></span><span> </span><span class="annot"><span class="annottext">(arr i (Unboxed a) -&gt; Int)
+-&gt; (Arr arr i a -&gt; arr i (Unboxed a)) -&gt; Arr arr i a -&gt; Int
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">arr i a -&gt; arr i b
-forall a b (arr :: * -&gt; * -&gt; *) i. Unbox a b =&gt; arr i a -&gt; arr i b
-</span><a href="Unbox.html#coerceToU"><span class="hs-identifier hs-var">coerceToU</span></a></span><span>
-</span><span id="line-46"></span><span>    </span><span id="local-6989586621679071228"><span class="annot"><span class="annottext">unsafeArray :: (i, i) -&gt; [(Int, a)] -&gt; arr i a
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeArray</span></span></span><span> </span><span id="local-6989586621679071226"><span class="annot"><span class="annottext">(i, i)
-</span><a href="#local-6989586621679071226"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span id="local-6989586621679071225"><span class="annot"><span class="annottext">[(Int, a)]
-</span><a href="#local-6989586621679071225"><span class="hs-identifier hs-var">ixs</span></a></span></span><span>          </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">arr i b -&gt; arr i a
-forall a b (arr :: * -&gt; * -&gt; *) i. Unbox a b =&gt; arr i b -&gt; arr i a
-</span><a href="Unbox.html#coerceFrU"><span class="hs-identifier hs-var">coerceFrU</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(i, i) -&gt; [(Int, b)] -&gt; arr i b
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Arr arr i a -&gt; arr i (Unboxed a)
+forall (arr :: * -&gt; * -&gt; *) i a. Arr arr i a -&gt; arr i (Unboxed a)
+</span><a href="Unbox.html#unArr"><span class="hs-identifier hs-var hs-var">unArr</span></a></span><span>
+</span><span id="line-52"></span><span>    </span><span id="local-6989586621679071267"><span class="annot"><span class="annottext">unsafeArray :: (i, i) -&gt; [(Int, a)] -&gt; Arr arr i a
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeArray</span></span></span><span> </span><span id="local-6989586621679071265"><span class="annot"><span class="annottext">(i, i)
+</span><a href="#local-6989586621679071265"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span id="local-6989586621679071264"><span class="annot"><span class="annottext">[(Int, a)]
+</span><a href="#local-6989586621679071264"><span class="hs-identifier hs-var">ixs</span></a></span></span><span>          </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">arr i (Unboxed a) -&gt; Arr arr i a
+forall (arr :: * -&gt; * -&gt; *) i a. arr i (Unboxed a) -&gt; Arr arr i a
+</span><a href="Unbox.html#Arr"><span class="hs-identifier hs-var">Arr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(i, i) -&gt; [(Int, Unboxed a)] -&gt; arr i (Unboxed a)
 forall (a :: * -&gt; * -&gt; *) e i.
 (IArray a e, Ix i) =&gt;
 (i, i) -&gt; [(Int, e)] -&gt; a i e
 </span><span class="hs-identifier hs-var">unsafeArray</span></span><span> </span><span class="annot"><span class="annottext">(i, i)
-</span><a href="#local-6989586621679071226"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">((Int, a) -&gt; (Int, b)) -&gt; [(Int, a)] -&gt; [(Int, b)]
+</span><a href="#local-6989586621679071265"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">((Int, a) -&gt; (Int, Unboxed a)) -&gt; [(Int, a)] -&gt; [(Int, Unboxed a)]
 forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
-</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(a -&gt; b) -&gt; (Int, a) -&gt; (Int, b)
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(a -&gt; Unboxed a) -&gt; (Int, a) -&gt; (Int, Unboxed a)
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
-</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; b
-forall a b. Unbox a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Unboxed a
+forall a. Unbox a =&gt; a -&gt; Unboxed a
 </span><a href="Unbox.html#toU"><span class="hs-identifier hs-var">toU</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(Int, a)]
-</span><a href="#local-6989586621679071225"><span class="hs-identifier hs-var">ixs</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-47"></span><span>    </span><span id="local-6989586621679071224"><span class="annot"><span class="annottext">unsafeAt :: arr i a -&gt; Int -&gt; a
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeAt</span></span></span><span> </span><span id="local-6989586621679071222"><span class="annot"><span class="annottext">arr i a
-</span><a href="#local-6989586621679071222"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679071221"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071221"><span class="hs-identifier hs-var">i</span></a></span></span><span>               </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">b -&gt; a
-forall a b. Unbox a b =&gt; b -&gt; a
-</span><a href="Unbox.html#frU"><span class="hs-identifier hs-var">frU</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">arr i b -&gt; Int -&gt; b
+</span><a href="#local-6989586621679071264"><span class="hs-identifier hs-var">ixs</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-53"></span><span>    </span><span id="local-6989586621679071263"><span class="annot"><span class="annottext">unsafeAt :: Arr arr i a -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeAt</span></span></span><span> </span><span id="local-6989586621679071261"><span class="annot"><span class="annottext">Arr arr i a
+</span><a href="#local-6989586621679071261"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679071260"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071260"><span class="hs-identifier hs-var">i</span></a></span></span><span>               </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Unboxed a -&gt; a
+forall a. Unbox a =&gt; Unboxed a -&gt; a
+</span><a href="Unbox.html#frU"><span class="hs-identifier hs-var">frU</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">arr i (Unboxed a) -&gt; Int -&gt; Unboxed a
 forall (a :: * -&gt; * -&gt; *) e i.
 (IArray a e, Ix i) =&gt;
 a i e -&gt; Int -&gt; e
-</span><span class="hs-identifier hs-var">unsafeAt</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">arr i a -&gt; arr i b
-forall a b (arr :: * -&gt; * -&gt; *) i. Unbox a b =&gt; arr i a -&gt; arr i b
-</span><a href="Unbox.html#coerceToU"><span class="hs-identifier hs-var">coerceToU</span></a></span><span> </span><span class="annot"><span class="annottext">arr i a
-</span><a href="#local-6989586621679071222"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071221"><span class="hs-identifier hs-var">i</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-48"></span><span>    </span><span id="local-6989586621679071220"><span class="annot"><span class="annottext">unsafeReplace :: arr i a -&gt; [(Int, a)] -&gt; arr i a
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeReplace</span></span></span><span> </span><span id="local-6989586621679071218"><span class="annot"><span class="annottext">arr i a
-</span><a href="#local-6989586621679071218"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679071217"><span class="annot"><span class="annottext">[(Int, a)]
-</span><a href="#local-6989586621679071217"><span class="hs-identifier hs-var">ixs</span></a></span></span><span>        </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">arr i b -&gt; arr i a
-forall a b (arr :: * -&gt; * -&gt; *) i. Unbox a b =&gt; arr i b -&gt; arr i a
-</span><a href="Unbox.html#coerceFrU"><span class="hs-identifier hs-var">coerceFrU</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">arr i b -&gt; [(Int, b)] -&gt; arr i b
+</span><span class="hs-identifier hs-var">unsafeAt</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Arr arr i a -&gt; arr i (Unboxed a)
+forall (arr :: * -&gt; * -&gt; *) i a. Arr arr i a -&gt; arr i (Unboxed a)
+</span><a href="Unbox.html#unArr"><span class="hs-identifier hs-var hs-var">unArr</span></a></span><span> </span><span class="annot"><span class="annottext">Arr arr i a
+</span><a href="#local-6989586621679071261"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071260"><span class="hs-identifier hs-var">i</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-54"></span><span>    </span><span id="local-6989586621679071259"><span class="annot"><span class="annottext">unsafeReplace :: Arr arr i a -&gt; [(Int, a)] -&gt; Arr arr i a
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeReplace</span></span></span><span> </span><span id="local-6989586621679071257"><span class="annot"><span class="annottext">Arr arr i a
+</span><a href="#local-6989586621679071257"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679071256"><span class="annot"><span class="annottext">[(Int, a)]
+</span><a href="#local-6989586621679071256"><span class="hs-identifier hs-var">ixs</span></a></span></span><span>        </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">arr i (Unboxed a) -&gt; Arr arr i a
+forall (arr :: * -&gt; * -&gt; *) i a. arr i (Unboxed a) -&gt; Arr arr i a
+</span><a href="Unbox.html#Arr"><span class="hs-identifier hs-var">Arr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">arr i (Unboxed a) -&gt; [(Int, Unboxed a)] -&gt; arr i (Unboxed a)
 forall (a :: * -&gt; * -&gt; *) e i.
 (IArray a e, Ix i) =&gt;
 a i e -&gt; [(Int, e)] -&gt; a i e
-</span><span class="hs-identifier hs-var">unsafeReplace</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">arr i a -&gt; arr i b
-forall a b (arr :: * -&gt; * -&gt; *) i. Unbox a b =&gt; arr i a -&gt; arr i b
-</span><a href="Unbox.html#coerceToU"><span class="hs-identifier hs-var">coerceToU</span></a></span><span> </span><span class="annot"><span class="annottext">arr i a
-</span><a href="#local-6989586621679071218"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">((Int, a) -&gt; (Int, b)) -&gt; [(Int, a)] -&gt; [(Int, b)]
+</span><span class="hs-identifier hs-var">unsafeReplace</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Arr arr i a -&gt; arr i (Unboxed a)
+forall (arr :: * -&gt; * -&gt; *) i a. Arr arr i a -&gt; arr i (Unboxed a)
+</span><a href="Unbox.html#unArr"><span class="hs-identifier hs-var hs-var">unArr</span></a></span><span> </span><span class="annot"><span class="annottext">Arr arr i a
+</span><a href="#local-6989586621679071257"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">((Int, a) -&gt; (Int, Unboxed a)) -&gt; [(Int, a)] -&gt; [(Int, Unboxed a)]
 forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
-</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(a -&gt; b) -&gt; (Int, a) -&gt; (Int, b)
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(a -&gt; Unboxed a) -&gt; (Int, a) -&gt; (Int, Unboxed a)
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
-</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; b
-forall a b. Unbox a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Unboxed a
+forall a. Unbox a =&gt; a -&gt; Unboxed a
 </span><a href="Unbox.html#toU"><span class="hs-identifier hs-var">toU</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(Int, a)]
-</span><a href="#local-6989586621679071217"><span class="hs-identifier hs-var">ixs</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-49"></span><span>    </span><span id="local-6989586621679071216"><span class="annot"><span class="annottext">unsafeAccum :: (a -&gt; e' -&gt; a) -&gt; arr i a -&gt; [(Int, e')] -&gt; arr i a
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeAccum</span></span></span><span> </span><span id="local-6989586621679071214"><span class="annot"><span class="annottext">a -&gt; e' -&gt; a
-</span><a href="#local-6989586621679071214"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679071213"><span class="annot"><span class="annottext">arr i a
-</span><a href="#local-6989586621679071213"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679071212"><span class="annot"><span class="annottext">[(Int, e')]
-</span><a href="#local-6989586621679071212"><span class="hs-identifier hs-var">iys</span></a></span></span><span>        </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">arr i b -&gt; arr i a
-forall a b (arr :: * -&gt; * -&gt; *) i. Unbox a b =&gt; arr i b -&gt; arr i a
-</span><a href="Unbox.html#coerceFrU"><span class="hs-identifier hs-var">coerceFrU</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(b -&gt; e' -&gt; b) -&gt; arr i b -&gt; [(Int, e')] -&gt; arr i b
+</span><a href="#local-6989586621679071256"><span class="hs-identifier hs-var">ixs</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-55"></span><span>    </span><span id="local-6989586621679071255"><span class="annot"><span class="annottext">unsafeAccum :: (a -&gt; e' -&gt; a) -&gt; Arr arr i a -&gt; [(Int, e')] -&gt; Arr arr i a
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeAccum</span></span></span><span> </span><span id="local-6989586621679071253"><span class="annot"><span class="annottext">a -&gt; e' -&gt; a
+</span><a href="#local-6989586621679071253"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679071252"><span class="annot"><span class="annottext">Arr arr i a
+</span><a href="#local-6989586621679071252"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679071251"><span class="annot"><span class="annottext">[(Int, e')]
+</span><a href="#local-6989586621679071251"><span class="hs-identifier hs-var">iys</span></a></span></span><span>        </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">arr i (Unboxed a) -&gt; Arr arr i a
+forall (arr :: * -&gt; * -&gt; *) i a. arr i (Unboxed a) -&gt; Arr arr i a
+</span><a href="Unbox.html#Arr"><span class="hs-identifier hs-var">Arr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Unboxed a -&gt; e' -&gt; Unboxed a)
+-&gt; arr i (Unboxed a) -&gt; [(Int, e')] -&gt; arr i (Unboxed a)
 forall (a :: * -&gt; * -&gt; *) e i e'.
 (IArray a e, Ix i) =&gt;
 (e -&gt; e' -&gt; e) -&gt; a i e -&gt; [(Int, e')] -&gt; a i e
-</span><span class="hs-identifier hs-var">unsafeAccum</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679071211"><span class="annot"><span class="annottext">b
-</span><a href="#local-6989586621679071211"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679071210"><span class="annot"><span class="annottext">e'
-</span><a href="#local-6989586621679071210"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; b
-forall a b. Unbox a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">unsafeAccum</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679071250"><span class="annot"><span class="annottext">Unboxed a
+</span><a href="#local-6989586621679071250"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679071249"><span class="annot"><span class="annottext">e'
+</span><a href="#local-6989586621679071249"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; Unboxed a
+forall a. Unbox a =&gt; a -&gt; Unboxed a
 </span><a href="Unbox.html#toU"><span class="hs-identifier hs-var">toU</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; e' -&gt; a
-</span><a href="#local-6989586621679071214"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">b -&gt; a
-forall a b. Unbox a b =&gt; b -&gt; a
-</span><a href="Unbox.html#frU"><span class="hs-identifier hs-var">frU</span></a></span><span> </span><span class="annot"><span class="annottext">b
-</span><a href="#local-6989586621679071211"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">e'
-</span><a href="#local-6989586621679071210"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">arr i a -&gt; arr i b
-forall a b (arr :: * -&gt; * -&gt; *) i. Unbox a b =&gt; arr i a -&gt; arr i b
-</span><a href="Unbox.html#coerceToU"><span class="hs-identifier hs-var">coerceToU</span></a></span><span> </span><span class="annot"><span class="annottext">arr i a
-</span><a href="#local-6989586621679071213"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(Int, e')]
-</span><a href="#local-6989586621679071212"><span class="hs-identifier hs-var">iys</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-50"></span><span>    </span><span id="local-6989586621679071209"><span class="annot"><span class="annottext">unsafeAccumArray :: (a -&gt; e' -&gt; a) -&gt; a -&gt; (i, i) -&gt; [(Int, e')] -&gt; arr i a
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeAccumArray</span></span></span><span> </span><span id="local-6989586621679071207"><span class="annot"><span class="annottext">a -&gt; e' -&gt; a
-</span><a href="#local-6989586621679071207"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679071206"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071206"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679071205"><span class="annot"><span class="annottext">(i, i)
-</span><a href="#local-6989586621679071205"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span id="local-6989586621679071204"><span class="annot"><span class="annottext">[(Int, e')]
-</span><a href="#local-6989586621679071204"><span class="hs-identifier hs-var">iys</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">arr i b -&gt; arr i a
-forall a b (arr :: * -&gt; * -&gt; *) i. Unbox a b =&gt; arr i b -&gt; arr i a
-</span><a href="Unbox.html#coerceFrU"><span class="hs-identifier hs-var">coerceFrU</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(b -&gt; e' -&gt; b) -&gt; b -&gt; (i, i) -&gt; [(Int, e')] -&gt; arr i b
+</span><a href="#local-6989586621679071253"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Unboxed a -&gt; a
+forall a. Unbox a =&gt; Unboxed a -&gt; a
+</span><a href="Unbox.html#frU"><span class="hs-identifier hs-var">frU</span></a></span><span> </span><span class="annot"><span class="annottext">Unboxed a
+</span><a href="#local-6989586621679071250"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">e'
+</span><a href="#local-6989586621679071249"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Arr arr i a -&gt; arr i (Unboxed a)
+forall (arr :: * -&gt; * -&gt; *) i a. Arr arr i a -&gt; arr i (Unboxed a)
+</span><a href="Unbox.html#unArr"><span class="hs-identifier hs-var hs-var">unArr</span></a></span><span> </span><span class="annot"><span class="annottext">Arr arr i a
+</span><a href="#local-6989586621679071252"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(Int, e')]
+</span><a href="#local-6989586621679071251"><span class="hs-identifier hs-var">iys</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-56"></span><span>    </span><span id="local-6989586621679071248"><span class="annot"><span class="annottext">unsafeAccumArray :: (a -&gt; e' -&gt; a) -&gt; a -&gt; (i, i) -&gt; [(Int, e')] -&gt; Arr arr i a
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeAccumArray</span></span></span><span> </span><span id="local-6989586621679071246"><span class="annot"><span class="annottext">a -&gt; e' -&gt; a
+</span><a href="#local-6989586621679071246"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679071245"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679071245"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679071244"><span class="annot"><span class="annottext">(i, i)
+</span><a href="#local-6989586621679071244"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span id="local-6989586621679071243"><span class="annot"><span class="annottext">[(Int, e')]
+</span><a href="#local-6989586621679071243"><span class="hs-identifier hs-var">iys</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">arr i (Unboxed a) -&gt; Arr arr i a
+forall (arr :: * -&gt; * -&gt; *) i a. arr i (Unboxed a) -&gt; Arr arr i a
+</span><a href="Unbox.html#Arr"><span class="hs-identifier hs-var">Arr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Unboxed a -&gt; e' -&gt; Unboxed a)
+-&gt; Unboxed a -&gt; (i, i) -&gt; [(Int, e')] -&gt; arr i (Unboxed a)
 forall (a :: * -&gt; * -&gt; *) e i e'.
 (IArray a e, Ix i) =&gt;
 (e -&gt; e' -&gt; e) -&gt; e -&gt; (i, i) -&gt; [(Int, e')] -&gt; a i e
-</span><span class="hs-identifier hs-var">unsafeAccumArray</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679071203"><span class="annot"><span class="annottext">b
-</span><a href="#local-6989586621679071203"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679071202"><span class="annot"><span class="annottext">e'
-</span><a href="#local-6989586621679071202"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; b
-forall a b. Unbox a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">unsafeAccumArray</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679071242"><span class="annot"><span class="annottext">Unboxed a
+</span><a href="#local-6989586621679071242"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679071241"><span class="annot"><span class="annottext">e'
+</span><a href="#local-6989586621679071241"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; Unboxed a
+forall a. Unbox a =&gt; a -&gt; Unboxed a
 </span><a href="Unbox.html#toU"><span class="hs-identifier hs-var">toU</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; e' -&gt; a
-</span><a href="#local-6989586621679071207"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">b -&gt; a
-forall a b. Unbox a b =&gt; b -&gt; a
-</span><a href="Unbox.html#frU"><span class="hs-identifier hs-var">frU</span></a></span><span> </span><span class="annot"><span class="annottext">b
-</span><a href="#local-6989586621679071203"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">e'
-</span><a href="#local-6989586621679071202"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; b
-forall a b. Unbox a b =&gt; a -&gt; b
+</span><a href="#local-6989586621679071246"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Unboxed a -&gt; a
+forall a. Unbox a =&gt; Unboxed a -&gt; a
+</span><a href="Unbox.html#frU"><span class="hs-identifier hs-var">frU</span></a></span><span> </span><span class="annot"><span class="annottext">Unboxed a
+</span><a href="#local-6989586621679071242"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">e'
+</span><a href="#local-6989586621679071241"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Unboxed a
+forall a. Unbox a =&gt; a -&gt; Unboxed a
 </span><a href="Unbox.html#toU"><span class="hs-identifier hs-var">toU</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071206"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(i, i)
-</span><a href="#local-6989586621679071205"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">[(Int, e')]
-</span><a href="#local-6989586621679071204"><span class="hs-identifier hs-var">iys</span></a></span><span class="hs-special">)</span></span></span></span><span>
-</span><span id="line-51"></span><span>
-</span><span id="line-52"></span><span id="local-6989586621679071198"><span id="local-6989586621679071199"><span id="local-6989586621679071200"><span id="local-6989586621679071201"><span class="annot"><a href="Unbox.html#coerceToMU"><span class="hs-identifier hs-type">coerceToMU</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unbox.html#Unbox"><span class="hs-identifier hs-type">Unbox</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071201"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071200"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071199"><span class="hs-identifier hs-type">marr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071198"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071201"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071199"><span class="hs-identifier hs-type">marr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071198"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071200"><span class="hs-identifier hs-type">b</span></a></span></span></span></span></span><span>
-</span><span id="line-53"></span><span id="local-6989586621679071193"><span id="local-6989586621679071194"><span id="local-6989586621679071195"><span id="local-6989586621679071196"><span class="annot"><a href="Unbox.html#coerceFrMU"><span class="hs-identifier hs-type">coerceFrMU</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Unbox.html#Unbox"><span class="hs-identifier hs-type">Unbox</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071196"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071195"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071194"><span class="hs-identifier hs-type">marr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071193"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071195"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071194"><span class="hs-identifier hs-type">marr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071193"><span class="hs-identifier hs-type">i</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071196"><span class="hs-identifier hs-type">a</span></a></span></span></span></span></span><span>
-</span><span id="line-54"></span><span id="coerceToMU"><span class="annot"><span class="annottext">coerceToMU :: marr i a -&gt; marr i b
-</span><a href="Unbox.html#coerceToMU"><span class="hs-identifier hs-var hs-var">coerceToMU</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">marr i a -&gt; marr i b
-forall a b. a -&gt; b
-</span><span class="hs-identifier hs-var">unsafeCoerce</span></span><span>
-</span><span id="line-55"></span><span id="coerceFrMU"><span class="annot"><span class="annottext">coerceFrMU :: marr i b -&gt; marr i a
-</span><a href="Unbox.html#coerceFrMU"><span class="hs-identifier hs-var hs-var">coerceFrMU</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">marr i b -&gt; marr i a
-forall a b. a -&gt; b
-</span><span class="hs-identifier hs-var">unsafeCoerce</span></span><span>
-</span><span id="line-56"></span><span>
-</span><span id="line-57"></span><span id="local-6989586621679071188"><span id="local-6989586621679071189"><span id="local-6989586621679071190"><span id="local-6989586621679071191"><span class="hs-keyword">instance</span><span> </span><span class="hs-pragma">{-# OVERLAPPABLE</span><span> </span><span class="hs-pragma">#-}</span><span> </span><span id="local-6989586621679071183"><span class="hs-special">(</span><span class="annot"><a href="Unbox.html#Unbox"><span class="hs-identifier hs-type">Unbox</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071191"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071190"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monad</span></span><span> </span><span class="annot"><a href="#local-6989586621679071189"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679071188"><span class="hs-identifier hs-type">marr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071190"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071189"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679071188"><span class="hs-identifier hs-type">marr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071191"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071189"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-58"></span><span>    </span><span id="local-6989586621679071177"><span class="annot"><span class="annottext">getBounds :: marr i a -&gt; m (i, i)
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">getBounds</span></span></span><span>         </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">marr i b -&gt; m (i, i)
+</span><a href="#local-6989586621679071245"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(i, i)
+</span><a href="#local-6989586621679071244"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">[(Int, e')]
+</span><a href="#local-6989586621679071243"><span class="hs-identifier hs-var">iys</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-57"></span><span>
+</span><span id="line-58"></span><span id="local-6989586621679071238"><span id="local-6989586621679071239"><span id="local-6989586621679071240"><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679071233"><span class="hs-special">(</span><span class="annot"><a href="Unbox.html#Unbox"><span class="hs-identifier hs-type">Unbox</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071240"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monad</span></span><span> </span><span class="annot"><a href="#local-6989586621679071239"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679071238"><span class="hs-identifier hs-type">marr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Unbox.html#Unboxed"><span class="hs-identifier hs-type">Unboxed</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071240"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679071239"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MArray</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Unbox.html#Arr"><span class="hs-identifier hs-type">Arr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071238"><span class="hs-identifier hs-type">marr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679071240"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071239"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-59"></span><span>    </span><span id="local-6989586621679071227"><span class="annot"><span class="annottext">getBounds :: Arr marr i a -&gt; m (i, i)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">getBounds</span></span></span><span>         </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">marr i (Unboxed a) -&gt; m (i, i)
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; m (i, i)
-</span><span class="hs-identifier hs-var">getBounds</span></span><span> </span><span class="annot"><span class="annottext">(marr i b -&gt; m (i, i))
--&gt; (marr i a -&gt; marr i b) -&gt; marr i a -&gt; m (i, i)
+</span><span class="hs-identifier hs-var">getBounds</span></span><span> </span><span class="annot"><span class="annottext">(marr i (Unboxed a) -&gt; m (i, i))
+-&gt; (Arr marr i a -&gt; marr i (Unboxed a)) -&gt; Arr marr i a -&gt; m (i, i)
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">marr i a -&gt; marr i b
-forall a b (arr :: * -&gt; * -&gt; *) i. Unbox a b =&gt; arr i a -&gt; arr i b
-</span><a href="Unbox.html#coerceToMU"><span class="hs-identifier hs-var">coerceToMU</span></a></span><span>
-</span><span id="line-59"></span><span>    </span><span id="local-6989586621679071175"><span class="annot"><span class="annottext">getNumElements :: marr i a -&gt; m Int
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">getNumElements</span></span></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">marr i b -&gt; m Int
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Arr marr i a -&gt; marr i (Unboxed a)
+forall (arr :: * -&gt; * -&gt; *) i a. Arr arr i a -&gt; arr i (Unboxed a)
+</span><a href="Unbox.html#unArr"><span class="hs-identifier hs-var hs-var">unArr</span></a></span><span>
+</span><span id="line-60"></span><span>    </span><span id="local-6989586621679071225"><span class="annot"><span class="annottext">getNumElements :: Arr marr i a -&gt; m Int
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">getNumElements</span></span></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">marr i (Unboxed a) -&gt; m Int
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; m Int
-</span><span class="hs-identifier hs-var">getNumElements</span></span><span> </span><span class="annot"><span class="annottext">(marr i b -&gt; m Int) -&gt; (marr i a -&gt; marr i b) -&gt; marr i a -&gt; m Int
+</span><span class="hs-identifier hs-var">getNumElements</span></span><span> </span><span class="annot"><span class="annottext">(marr i (Unboxed a) -&gt; m Int)
+-&gt; (Arr marr i a -&gt; marr i (Unboxed a)) -&gt; Arr marr i a -&gt; m Int
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">marr i a -&gt; marr i b
-forall a b (arr :: * -&gt; * -&gt; *) i. Unbox a b =&gt; arr i a -&gt; arr i b
-</span><a href="Unbox.html#coerceToMU"><span class="hs-identifier hs-var">coerceToMU</span></a></span><span>
-</span><span id="line-60"></span><span>    </span><span id="local-6989586621679071173"><span class="annot"><span class="annottext">unsafeNewArray_ :: (i, i) -&gt; m (marr i a)
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeNewArray_</span></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(marr i b -&gt; marr i a) -&gt; m (marr i b) -&gt; m (marr i a)
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Arr marr i a -&gt; marr i (Unboxed a)
+forall (arr :: * -&gt; * -&gt; *) i a. Arr arr i a -&gt; arr i (Unboxed a)
+</span><a href="Unbox.html#unArr"><span class="hs-identifier hs-var hs-var">unArr</span></a></span><span>
+</span><span id="line-61"></span><span>    </span><span id="local-6989586621679071223"><span class="annot"><span class="annottext">unsafeNewArray_ :: (i, i) -&gt; m (Arr marr i a)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeNewArray_</span></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(marr i (Unboxed a) -&gt; Arr marr i a)
+-&gt; m (marr i (Unboxed a)) -&gt; m (Arr marr i a)
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
-</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">marr i b -&gt; marr i a
-forall a b (arr :: * -&gt; * -&gt; *) i. Unbox a b =&gt; arr i b -&gt; arr i a
-</span><a href="Unbox.html#coerceFrMU"><span class="hs-identifier hs-var">coerceFrMU</span></a></span><span> </span><span class="annot"><span class="annottext">(m (marr i b) -&gt; m (marr i a))
--&gt; ((i, i) -&gt; m (marr i b)) -&gt; (i, i) -&gt; m (marr i a)
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">marr i (Unboxed a) -&gt; Arr marr i a
+forall (arr :: * -&gt; * -&gt; *) i a. arr i (Unboxed a) -&gt; Arr arr i a
+</span><a href="Unbox.html#Arr"><span class="hs-identifier hs-var">Arr</span></a></span><span> </span><span class="annot"><span class="annottext">(m (marr i (Unboxed a)) -&gt; m (Arr marr i a))
+-&gt; ((i, i) -&gt; m (marr i (Unboxed a))) -&gt; (i, i) -&gt; m (Arr marr i a)
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(i, i) -&gt; m (marr i b)
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(i, i) -&gt; m (marr i (Unboxed a))
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 (i, i) -&gt; m (a i e)
 </span><span class="hs-identifier hs-var">unsafeNewArray_</span></span><span>
-</span><span id="line-61"></span><span>    </span><span id="local-6989586621679071171"><span class="annot"><span class="annottext">newArray_ :: (i, i) -&gt; m (marr i a)
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">newArray_</span></span></span><span>         </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(marr i b -&gt; marr i a) -&gt; m (marr i b) -&gt; m (marr i a)
+</span><span id="line-62"></span><span>    </span><span id="local-6989586621679071221"><span class="annot"><span class="annottext">newArray_ :: (i, i) -&gt; m (Arr marr i a)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">newArray_</span></span></span><span>         </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(marr i (Unboxed a) -&gt; Arr marr i a)
+-&gt; m (marr i (Unboxed a)) -&gt; m (Arr marr i a)
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
-</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">marr i b -&gt; marr i a
-forall a b (arr :: * -&gt; * -&gt; *) i. Unbox a b =&gt; arr i b -&gt; arr i a
-</span><a href="Unbox.html#coerceFrMU"><span class="hs-identifier hs-var">coerceFrMU</span></a></span><span> </span><span class="annot"><span class="annottext">(m (marr i b) -&gt; m (marr i a))
--&gt; ((i, i) -&gt; m (marr i b)) -&gt; (i, i) -&gt; m (marr i a)
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">marr i (Unboxed a) -&gt; Arr marr i a
+forall (arr :: * -&gt; * -&gt; *) i a. arr i (Unboxed a) -&gt; Arr arr i a
+</span><a href="Unbox.html#Arr"><span class="hs-identifier hs-var">Arr</span></a></span><span> </span><span class="annot"><span class="annottext">(m (marr i (Unboxed a)) -&gt; m (Arr marr i a))
+-&gt; ((i, i) -&gt; m (marr i (Unboxed a))) -&gt; (i, i) -&gt; m (Arr marr i a)
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(i, i) -&gt; m (marr i b)
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(i, i) -&gt; m (marr i (Unboxed a))
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 (i, i) -&gt; m (a i e)
 </span><span class="hs-identifier hs-var">newArray_</span></span><span>
-</span><span id="line-62"></span><span>    </span><span id="local-6989586621679071169"><span class="annot"><span class="annottext">unsafeRead :: marr i a -&gt; Int -&gt; m a
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeRead</span></span></span><span> </span><span id="local-6989586621679071167"><span class="annot"><span class="annottext">marr i a
-</span><a href="#local-6989586621679071167"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679071166"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071166"><span class="hs-identifier hs-var">i</span></a></span></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(b -&gt; a) -&gt; m b -&gt; m a
+</span><span id="line-63"></span><span>    </span><span id="local-6989586621679071219"><span class="annot"><span class="annottext">unsafeRead :: Arr marr i a -&gt; Int -&gt; m a
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeRead</span></span></span><span> </span><span id="local-6989586621679071217"><span class="annot"><span class="annottext">Arr marr i a
+</span><a href="#local-6989586621679071217"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679071216"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071216"><span class="hs-identifier hs-var">i</span></a></span></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Unboxed a -&gt; a) -&gt; m (Unboxed a) -&gt; m a
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
-</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">b -&gt; a
-forall a b. Unbox a b =&gt; b -&gt; a
-</span><a href="Unbox.html#frU"><span class="hs-identifier hs-var">frU</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">marr i b -&gt; Int -&gt; m b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">Unboxed a -&gt; a
+forall a. Unbox a =&gt; Unboxed a -&gt; a
+</span><a href="Unbox.html#frU"><span class="hs-identifier hs-var">frU</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">marr i (Unboxed a) -&gt; Int -&gt; m (Unboxed a)
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; Int -&gt; m e
-</span><span class="hs-identifier hs-var">unsafeRead</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">marr i a -&gt; marr i b
-forall a b (arr :: * -&gt; * -&gt; *) i. Unbox a b =&gt; arr i a -&gt; arr i b
-</span><a href="Unbox.html#coerceToMU"><span class="hs-identifier hs-var">coerceToMU</span></a></span><span> </span><span class="annot"><span class="annottext">marr i a
-</span><a href="#local-6989586621679071167"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071166"><span class="hs-identifier hs-var">i</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-63"></span><span>    </span><span id="local-6989586621679071165"><span class="annot"><span class="annottext">unsafeWrite :: marr i a -&gt; Int -&gt; a -&gt; m ()
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeWrite</span></span></span><span> </span><span id="local-6989586621679071163"><span class="annot"><span class="annottext">marr i a
-</span><a href="#local-6989586621679071163"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679071162"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071162"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679071161"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071161"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">marr i b -&gt; Int -&gt; b -&gt; m ()
+</span><span class="hs-identifier hs-var">unsafeRead</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Arr marr i a -&gt; marr i (Unboxed a)
+forall (arr :: * -&gt; * -&gt; *) i a. Arr arr i a -&gt; arr i (Unboxed a)
+</span><a href="Unbox.html#unArr"><span class="hs-identifier hs-var hs-var">unArr</span></a></span><span> </span><span class="annot"><span class="annottext">Arr marr i a
+</span><a href="#local-6989586621679071217"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071216"><span class="hs-identifier hs-var">i</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-64"></span><span>    </span><span id="local-6989586621679071215"><span class="annot"><span class="annottext">unsafeWrite :: Arr marr i a -&gt; Int -&gt; a -&gt; m ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unsafeWrite</span></span></span><span> </span><span id="local-6989586621679071213"><span class="annot"><span class="annottext">Arr marr i a
+</span><a href="#local-6989586621679071213"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679071212"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071212"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679071211"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679071211"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">marr i (Unboxed a) -&gt; Int -&gt; Unboxed a -&gt; m ()
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; Int -&gt; e -&gt; m ()
-</span><span class="hs-identifier hs-var">unsafeWrite</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">marr i a -&gt; marr i b
-forall a b (arr :: * -&gt; * -&gt; *) i. Unbox a b =&gt; arr i a -&gt; arr i b
-</span><a href="Unbox.html#coerceToMU"><span class="hs-identifier hs-var">coerceToMU</span></a></span><span> </span><span class="annot"><span class="annottext">marr i a
-</span><a href="#local-6989586621679071163"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071162"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; b
-forall a b. Unbox a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">unsafeWrite</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Arr marr i a -&gt; marr i (Unboxed a)
+forall (arr :: * -&gt; * -&gt; *) i a. Arr arr i a -&gt; arr i (Unboxed a)
+</span><a href="Unbox.html#unArr"><span class="hs-identifier hs-var hs-var">unArr</span></a></span><span> </span><span class="annot"><span class="annottext">Arr marr i a
+</span><a href="#local-6989586621679071213"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679071212"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Unboxed a
+forall a. Unbox a =&gt; a -&gt; Unboxed a
 </span><a href="Unbox.html#toU"><span class="hs-identifier hs-var">toU</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071161"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span></span></span></span></span><span>
-</span><span id="line-64"></span></pre></body></html>
+</span><a href="#local-6989586621679071211"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span></span></span></span><span>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span class="hs-keyword">type</span><span> </span><span id="UArr"><span class="annot"><a href="Unbox.html#UArr"><span class="hs-identifier hs-var">UArr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Unbox.html#Arr"><span class="hs-identifier hs-type">Arr</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span>
+</span><span id="line-67"></span><span class="hs-keyword">type</span><span> </span><span id="IOUArr"><span class="annot"><a href="Unbox.html#IOUArr"><span class="hs-identifier hs-var">IOUArr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Unbox.html#Arr"><span class="hs-identifier hs-type">Arr</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IOUArray</span></span><span>
+</span><span id="line-68"></span><span class="hs-keyword">type</span><span> </span><span id="STUArr"><span class="annot"><a href="Unbox.html#STUArr"><span class="hs-identifier hs-var">STUArr</span></a></span></span><span> </span><span id="local-6989586621679071208"><span class="annot"><a href="#local-6989586621679071208"><span class="hs-identifier hs-type">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Unbox.html#Arr"><span class="hs-identifier hs-type">Arr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">STUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679071208"><span class="hs-identifier hs-type">s</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-69"></span></pre></body></html>
