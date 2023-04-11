@@ -157,6 +157,9 @@ benchmark bench-all
   main-is: Bench.hs
   other-modules:
       AhoCorasickBench
+      Array2Bench
+      ArrayBench
+      ArrayBenches
       ArrayNFData
       BFSBench
       BinSearchBench

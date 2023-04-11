@@ -20,6 +20,9 @@ Implementation notes:
   to hear of it.
 * We use an associated type over fundeps (class Unbox a b | a -> b) because Arr would then need to
   be Arr b arr i a and you would have to specify b when using it even though a determines b.
+* Indexing is as fast as the underlying representation but construction via listArray and array are
+  known to be slower. See ArrayBench.hs. TODO: Figure out why and fix it.
+* TODO: Implement freeze and unsafeFreeze.
 -}
 
 module Array
@@ -30,6 +33,7 @@ module Array
     , STUArr
     ) where
 
+import Control.DeepSeq
 import Data.Array.Base
 import Data.Array.IO
 import Data.Coerce
@@ -68,3 +72,9 @@ instance (Unbox a, Monad m, MArray marr (Unboxed a) m) => MArray (Arr marr) a m 
 type UArr = Arr UArray
 type IOUArr = Arr IOUArray
 type STUArr s = Arr (STUArray s)
+
+--------------------------------------------------------------------------------
+-- For tests
+
+instance NFData (arr i (Unboxed a)) => NFData (Arr arr i a) where
+    rnf = rnf . unArr

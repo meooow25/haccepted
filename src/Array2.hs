@@ -9,14 +9,17 @@ Can be nested to store n-tuples. Use with Unbox to store your own defined types.
 
 Implementation notes:
 * unsafeAccum and unsafeAccumArray are optional but explicity error for Arr2 because the default
-  definitions use STArray. This might be unexpectedly slow with unboxed arrays. Better error than
-  TLE. Remove the erroring definition if you don't care.
+  definitions use STArray. This is horribly slow with unboxed arrays. Better error than TLE.
+* Indexing is as fast as the underlying representation but construction via listArray and array are
+  known to be slower. See Array2Bench.hs. TODO: Figure out why and fix it.
+* TODO: Implement freeze and unsafeFreeze.
 -}
 
 module Array2
     ( Arr2
     ) where
 
+import Control.DeepSeq
 import Data.Array.Base
 import Data.Ix
 
@@ -42,3 +45,9 @@ instance (Monad m, MArray marra a m, MArray marrb b m) => MArray (Arr2 marra mar
     newArray_ b                       = Arr2 <$> newArray_ b <*> newArray_ b
     unsafeRead (Arr2 xa ya) i         = (,) <$> unsafeRead xa i <*> unsafeRead ya i
     unsafeWrite (Arr2 xa ya) i (x, y) = unsafeWrite xa i x *> unsafeWrite ya i y
+
+--------------------------------------------------------------------------------
+-- For tests
+
+instance (NFData (arra i a), NFData (arrb i b)) => NFData (Arr2 arra arrb i (a, b)) where
+    rnf (Arr2 xa ya) = rnf xa `seq` rnf ya
