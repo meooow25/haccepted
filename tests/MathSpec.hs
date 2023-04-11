@@ -7,10 +7,10 @@ import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
+import Array ( UArr )
 import Math ( egcd, egcd2, mkFactorials, mkInvFactorials, mkBinom )
 import MInt ( MInt )
 import ArbitraryInstances ()
-import Unbox ( UArr )
 
 spec :: Spec
 spec = do

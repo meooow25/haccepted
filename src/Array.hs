@@ -22,7 +22,7 @@ Implementation notes:
   be Arr b arr i a and you would have to specify b when using it even though a determines b.
 -}
 
-module Unbox
+module Array
     ( Unbox(..)
     , Arr
     , UArr

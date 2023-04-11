@@ -17,6 +17,7 @@ extra-source-files:
 library
   exposed-modules:
       AhoCorasick
+      Array
       Array2
       BFS
       BinSearch
@@ -47,7 +48,6 @@ library
       SuffixTree
       TreeDraw
       TwoSat
-      Unbox
       ZFunc
   other-modules:
       Paths_haccepted
@@ -106,6 +106,7 @@ test-suite test-all
       AhoCorasickSpec
       ArbitraryInstances
       Array2Spec
+      ArraySpec
       ArrayTests
       BFSSpec
       BinSearchSpec
@@ -133,7 +134,6 @@ test-suite test-all
       SuffixArraySpec
       SuffixTreeSpec
       TwoSatSpec
-      UnboxSpec
       Util
       ZFuncSpec
       Paths_haccepted

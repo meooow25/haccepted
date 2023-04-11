@@ -1,12 +1,12 @@
 {-# LANGUAGE FlexibleContexts, FlexibleInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses,
              ScopedTypeVariables, TypeFamilies, TypeApplications #-}
-module UnboxSpec where
+module ArraySpec where
 
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
-import Unbox ( Unbox(..), UArr, IOUArr )
+import Array ( Unbox(..), UArr, IOUArr )
 import ArrayTests ( testListArrayElems, testNewListArrayGetElems, testReadWriteArray )
 
 spec :: Spec
