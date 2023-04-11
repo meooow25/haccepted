@@ -26,50 +26,50 @@ Sources:
 </span><span id="line-26"></span><span class="hs-comment">-- O(n + m), for a graph with n vertices and m edges.</span><span>
 </span><span id="line-27"></span><span class="annot"><a href="BFS.html#bfs"><span class="hs-identifier hs-type">bfs</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Graph</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Forest</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span>
 </span><span id="line-28"></span><span id="bfs"><span class="annot"><span class="annottext">bfs :: Graph -&gt; [Vertex] -&gt; Forest Vertex
-</span><a href="BFS.html#bfs"><span class="hs-identifier hs-var hs-var">bfs</span></a></span></span><span> </span><span id="local-6989586621679068883"><span class="annot"><span class="annottext">Graph
-</span><a href="#local-6989586621679068883"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679068882"><span class="annot"><span class="annottext">[Vertex]
-</span><a href="#local-6989586621679068882"><span class="hs-identifier hs-var">vs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Vertex -&gt; Tree Vertex) -&gt; [Vertex] -&gt; Forest Vertex
+</span><a href="BFS.html#bfs"><span class="hs-identifier hs-var hs-var">bfs</span></a></span></span><span> </span><span id="local-6989586621679070273"><span class="annot"><span class="annottext">Graph
+</span><a href="#local-6989586621679070273"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679070272"><span class="annot"><span class="annottext">[Vertex]
+</span><a href="#local-6989586621679070272"><span class="hs-identifier hs-var">vs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Vertex -&gt; Tree Vertex) -&gt; [Vertex] -&gt; Forest Vertex
 forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
 </span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">Vertex -&gt; Tree Vertex
-</span><a href="#local-6989586621679068881"><span class="hs-identifier hs-var">toTree</span></a></span><span> </span><span class="annot"><span class="annottext">[Vertex]
-</span><a href="#local-6989586621679068882"><span class="hs-identifier hs-var">vs</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-29"></span><span>    </span><span id="local-6989586621679068880"><span class="annot"><span class="annottext">bnds :: (Vertex, Vertex)
-</span><a href="#local-6989586621679068880"><span class="hs-identifier hs-var hs-var">bnds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Graph -&gt; (Vertex, Vertex)
+</span><a href="#local-6989586621679070271"><span class="hs-identifier hs-var">toTree</span></a></span><span> </span><span class="annot"><span class="annottext">[Vertex]
+</span><a href="#local-6989586621679070272"><span class="hs-identifier hs-var">vs</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-29"></span><span>    </span><span id="local-6989586621679070270"><span class="annot"><span class="annottext">bnds :: (Vertex, Vertex)
+</span><a href="#local-6989586621679070270"><span class="hs-identifier hs-var hs-var">bnds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Graph -&gt; (Vertex, Vertex)
 forall (a :: * -&gt; * -&gt; *) e i.
 (IArray a e, Ix i) =&gt;
 a i e -&gt; (i, i)
 </span><span class="hs-identifier hs-var">bounds</span></span><span> </span><span class="annot"><span class="annottext">Graph
-</span><a href="#local-6989586621679068883"><span class="hs-identifier hs-var">g</span></a></span><span>
-</span><span id="line-30"></span><span>    </span><span id="local-6989586621679068878"><span class="annot"><span class="annottext">g' :: Graph
-</span><a href="#local-6989586621679068878"><span class="hs-identifier hs-var hs-var">g'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(forall s. ST s (STArray s Vertex [Vertex])) -&gt; Graph
+</span><a href="#local-6989586621679070273"><span class="hs-identifier hs-var">g</span></a></span><span>
+</span><span id="line-30"></span><span>    </span><span id="local-6989586621679070268"><span class="annot"><span class="annottext">g' :: Graph
+</span><a href="#local-6989586621679070268"><span class="hs-identifier hs-var hs-var">g'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(forall s. ST s (STArray s Vertex [Vertex])) -&gt; Graph
 forall i e. (forall s. ST s (STArray s i e)) -&gt; Array i e
 </span><span class="hs-identifier hs-var">runSTArray</span></span><span> </span><span class="annot"><span class="annottext">((forall s. ST s (STArray s Vertex [Vertex])) -&gt; Graph)
 -&gt; (forall s. ST s (STArray s Vertex [Vertex])) -&gt; Graph
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-31"></span><span>        </span><span id="local-6989586621679068876"><span id="local-6989586621679068875"><span class="annot"><span class="annottext">STUArray s Vertex Bool
-</span><a href="#local-6989586621679068875"><span class="hs-identifier hs-var">vis</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">STUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068876"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(Vertex, Vertex) -&gt; Bool -&gt; ST s (STUArray s Vertex Bool)
+</span><span id="line-31"></span><span>        </span><span id="local-6989586621679070266"><span id="local-6989586621679070265"><span class="annot"><span class="annottext">STUArray s Vertex Bool
+</span><a href="#local-6989586621679070265"><span class="hs-identifier hs-var">vis</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">STUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679070266"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(Vertex, Vertex) -&gt; Bool -&gt; ST s (STUArray s Vertex Bool)
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 (i, i) -&gt; e -&gt; m (a i e)
 </span><span class="hs-identifier hs-var">newArray</span></span><span> </span><span class="annot"><span class="annottext">(Vertex, Vertex)
-</span><a href="#local-6989586621679068880"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679070270"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">False</span></span><span>
-</span><span id="line-32"></span><span>        </span><span id="local-6989586621679068873"><span class="annot"><span class="annottext">STArray s Vertex [Vertex]
-</span><a href="#local-6989586621679068873"><span class="hs-identifier hs-var">ch</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">STArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068876"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(Vertex, Vertex) -&gt; [Vertex] -&gt; ST s (STArray s Vertex [Vertex])
+</span><span id="line-32"></span><span>        </span><span id="local-6989586621679070263"><span class="annot"><span class="annottext">STArray s Vertex [Vertex]
+</span><a href="#local-6989586621679070263"><span class="hs-identifier hs-var">ch</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">STArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679070266"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(Vertex, Vertex) -&gt; [Vertex] -&gt; ST s (STArray s Vertex [Vertex])
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 (i, i) -&gt; e -&gt; m (a i e)
 </span><span class="hs-identifier hs-var">newArray</span></span><span> </span><span class="annot"><span class="annottext">(Vertex, Vertex)
-</span><a href="#local-6989586621679068880"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
-</span><span id="line-33"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679068872"><span class="annot"><span class="annottext">go :: [Vertex] -&gt; ST s ()
-</span><a href="#local-6989586621679068872"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679068871"><span class="annot"><span class="annottext">[Vertex]
-</span><a href="#local-6989586621679068871"><span class="hs-identifier hs-var">q</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; ST s () -&gt; ST s ()
+</span><a href="#local-6989586621679070270"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-33"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679070262"><span class="annot"><span class="annottext">go :: [Vertex] -&gt; ST s ()
+</span><a href="#local-6989586621679070262"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679070261"><span class="annot"><span class="annottext">[Vertex]
+</span><a href="#local-6989586621679070261"><span class="hs-identifier hs-var">q</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; ST s () -&gt; ST s ()
 forall (f :: * -&gt; *). Applicative f =&gt; Bool -&gt; f () -&gt; f ()
 </span><span class="hs-identifier hs-var">unless</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Vertex] -&gt; Bool
 forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Bool
 </span><span class="hs-identifier hs-var">null</span></span><span> </span><span class="annot"><span class="annottext">[Vertex]
-</span><a href="#local-6989586621679068871"><span class="hs-identifier hs-var">q</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ST s () -&gt; ST s ()) -&gt; ST s () -&gt; ST s ()
+</span><a href="#local-6989586621679070261"><span class="hs-identifier hs-var">q</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ST s () -&gt; ST s ()) -&gt; ST s () -&gt; ST s ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">([Vertex] -&gt; Vertex -&gt; ST s [Vertex])
 -&gt; [Vertex] -&gt; [Vertex] -&gt; ST s [Vertex]
@@ -77,59 +77,59 @@ forall (t :: * -&gt; *) (m :: * -&gt; *) b a.
 (Foldable t, Monad m) =&gt;
 (b -&gt; a -&gt; m b) -&gt; b -&gt; t a -&gt; m b
 </span><span class="hs-identifier hs-var">foldM</span></span><span> </span><span class="annot"><span class="annottext">[Vertex] -&gt; Vertex -&gt; ST s [Vertex]
-</span><a href="#local-6989586621679068867"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">[Vertex]
-</span><a href="#local-6989586621679068871"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="annottext">ST s [Vertex] -&gt; ([Vertex] -&gt; ST s ()) -&gt; ST s ()
+</span><a href="#local-6989586621679070257"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">[Vertex]
+</span><a href="#local-6989586621679070261"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="annottext">ST s [Vertex] -&gt; ([Vertex] -&gt; ST s ()) -&gt; ST s ()
 forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
 </span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="annot"><span class="annottext">[Vertex] -&gt; ST s ()
-</span><a href="#local-6989586621679068872"><span class="hs-identifier hs-var">go</span></a></span><span>
-</span><span id="line-34"></span><span>            </span><span id="local-6989586621679068867"><span class="annot"><span class="annottext">f :: [Vertex] -&gt; Vertex -&gt; ST s [Vertex]
-</span><a href="#local-6989586621679068867"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679068866"><span class="annot"><span class="annottext">[Vertex]
-</span><a href="#local-6989586621679068866"><span class="hs-identifier hs-var">q</span></a></span></span><span> </span><span id="local-6989586621679068865"><span class="annot"><span class="annottext">Vertex
-</span><a href="#local-6989586621679068865"><span class="hs-identifier hs-var">u</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">([Vertex] -&gt; Vertex -&gt; ST s [Vertex])
+</span><a href="#local-6989586621679070262"><span class="hs-identifier hs-var">go</span></a></span><span>
+</span><span id="line-34"></span><span>            </span><span id="local-6989586621679070257"><span class="annot"><span class="annottext">f :: [Vertex] -&gt; Vertex -&gt; ST s [Vertex]
+</span><a href="#local-6989586621679070257"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679070256"><span class="annot"><span class="annottext">[Vertex]
+</span><a href="#local-6989586621679070256"><span class="hs-identifier hs-var">q</span></a></span></span><span> </span><span id="local-6989586621679070255"><span class="annot"><span class="annottext">Vertex
+</span><a href="#local-6989586621679070255"><span class="hs-identifier hs-var">u</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">([Vertex] -&gt; Vertex -&gt; ST s [Vertex])
 -&gt; [Vertex] -&gt; [Vertex] -&gt; ST s [Vertex]
 forall (t :: * -&gt; *) (m :: * -&gt; *) b a.
 (Foldable t, Monad m) =&gt;
 (b -&gt; a -&gt; m b) -&gt; b -&gt; t a -&gt; m b
 </span><span class="hs-identifier hs-var">foldM</span></span><span> </span><span class="annot"><span class="annottext">[Vertex] -&gt; Vertex -&gt; ST s [Vertex]
-</span><a href="#local-6989586621679068864"><span class="hs-identifier hs-var">f'</span></a></span><span> </span><span class="annot"><span class="annottext">[Vertex]
-</span><a href="#local-6989586621679068866"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Graph
-</span><a href="#local-6989586621679068883"><span class="hs-identifier hs-var">g</span></a></span><span class="annot"><span class="annottext">Graph -&gt; Vertex -&gt; [Vertex]
+</span><a href="#local-6989586621679070254"><span class="hs-identifier hs-var">f'</span></a></span><span> </span><span class="annot"><span class="annottext">[Vertex]
+</span><a href="#local-6989586621679070256"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Graph
+</span><a href="#local-6989586621679070273"><span class="hs-identifier hs-var">g</span></a></span><span class="annot"><span class="annottext">Graph -&gt; Vertex -&gt; [Vertex]
 forall (a :: * -&gt; * -&gt; *) e i.
 (IArray a e, Ix i) =&gt;
 a i e -&gt; i -&gt; e
 </span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Vertex
-</span><a href="#local-6989586621679068865"><span class="hs-identifier hs-var">u</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-35"></span><span>                </span><span id="local-6989586621679068864"><span class="annot"><span class="annottext">f' :: [Vertex] -&gt; Vertex -&gt; ST s [Vertex]
-</span><a href="#local-6989586621679068864"><span class="hs-identifier hs-var hs-var">f'</span></a></span></span><span> </span><span id="local-6989586621679068862"><span class="annot"><span class="annottext">[Vertex]
-</span><a href="#local-6989586621679068862"><span class="hs-identifier hs-var">q</span></a></span></span><span> </span><span id="local-6989586621679068861"><span class="annot"><span class="annottext">Vertex
-</span><a href="#local-6989586621679068861"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">STUArray s Vertex Bool -&gt; Vertex -&gt; ST s Bool
+</span><a href="#local-6989586621679070255"><span class="hs-identifier hs-var">u</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-35"></span><span>                </span><span id="local-6989586621679070254"><span class="annot"><span class="annottext">f' :: [Vertex] -&gt; Vertex -&gt; ST s [Vertex]
+</span><a href="#local-6989586621679070254"><span class="hs-identifier hs-var hs-var">f'</span></a></span></span><span> </span><span id="local-6989586621679070252"><span class="annot"><span class="annottext">[Vertex]
+</span><a href="#local-6989586621679070252"><span class="hs-identifier hs-var">q</span></a></span></span><span> </span><span id="local-6989586621679070251"><span class="annot"><span class="annottext">Vertex
+</span><a href="#local-6989586621679070251"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">STUArray s Vertex Bool -&gt; Vertex -&gt; ST s Bool
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; m e
 </span><span class="hs-identifier hs-var">readArray</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Vertex Bool
-</span><a href="#local-6989586621679068875"><span class="hs-identifier hs-var">vis</span></a></span><span> </span><span class="annot"><span class="annottext">Vertex
-</span><a href="#local-6989586621679068861"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">ST s Bool -&gt; (Bool -&gt; ST s [Vertex]) -&gt; ST s [Vertex]
+</span><a href="#local-6989586621679070265"><span class="hs-identifier hs-var">vis</span></a></span><span> </span><span class="annot"><span class="annottext">Vertex
+</span><a href="#local-6989586621679070251"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">ST s Bool -&gt; (Bool -&gt; ST s [Vertex]) -&gt; ST s [Vertex]
 forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
-</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679068859"><span class="annot"><span class="annottext">Bool
-</span><a href="#local-6989586621679068859"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Bool
-</span><a href="#local-6989586621679068859"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">[Vertex] -&gt; ST s [Vertex]
+</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679070249"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679070249"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679070249"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">[Vertex] -&gt; ST s [Vertex]
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">[Vertex]
-</span><a href="#local-6989586621679068862"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">[Vertex] -&gt; Vertex -&gt; ST s [Vertex]
-</span><a href="#local-6989586621679068858"><span class="hs-identifier hs-var">add</span></a></span><span> </span><span class="annot"><span class="annottext">[Vertex]
-</span><a href="#local-6989586621679068862"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="annottext">Vertex
-</span><a href="#local-6989586621679068861"><span class="hs-identifier hs-var">v</span></a></span><span>
-</span><span id="line-36"></span><span>                </span><span id="local-6989586621679068858"><span class="annot"><span class="annottext">add :: [Vertex] -&gt; Vertex -&gt; ST s [Vertex]
-</span><a href="#local-6989586621679068858"><span class="hs-identifier hs-var hs-var">add</span></a></span></span><span> </span><span id="local-6989586621679068857"><span class="annot"><span class="annottext">[Vertex]
-</span><a href="#local-6989586621679068857"><span class="hs-identifier hs-var">q</span></a></span></span><span> </span><span id="local-6989586621679068856"><span class="annot"><span class="annottext">Vertex
-</span><a href="#local-6989586621679068856"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="#local-6989586621679070252"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">[Vertex] -&gt; Vertex -&gt; ST s [Vertex]
+</span><a href="#local-6989586621679070248"><span class="hs-identifier hs-var">add</span></a></span><span> </span><span class="annot"><span class="annottext">[Vertex]
+</span><a href="#local-6989586621679070252"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="annot"><span class="annottext">Vertex
+</span><a href="#local-6989586621679070251"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><span id="line-36"></span><span>                </span><span id="local-6989586621679070248"><span class="annot"><span class="annottext">add :: [Vertex] -&gt; Vertex -&gt; ST s [Vertex]
+</span><a href="#local-6989586621679070248"><span class="hs-identifier hs-var hs-var">add</span></a></span></span><span> </span><span id="local-6989586621679070247"><span class="annot"><span class="annottext">[Vertex]
+</span><a href="#local-6989586621679070247"><span class="hs-identifier hs-var">q</span></a></span></span><span> </span><span id="local-6989586621679070246"><span class="annot"><span class="annottext">Vertex
+</span><a href="#local-6989586621679070246"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-37"></span><span>                    </span><span class="annot"><span class="annottext">STUArray s Vertex Bool -&gt; Vertex -&gt; Bool -&gt; ST s ()
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; e -&gt; m ()
 </span><span class="hs-identifier hs-var">writeArray</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Vertex Bool
-</span><a href="#local-6989586621679068875"><span class="hs-identifier hs-var">vis</span></a></span><span> </span><span class="annot"><span class="annottext">Vertex
-</span><a href="#local-6989586621679068856"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679070265"><span class="hs-identifier hs-var">vis</span></a></span><span> </span><span class="annot"><span class="annottext">Vertex
+</span><a href="#local-6989586621679070246"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">True</span></span><span>
 </span><span id="line-38"></span><span>                    </span><span class="annot"><span class="annottext">STArray s Vertex [Vertex]
 -&gt; Vertex -&gt; ([Vertex] -&gt; [Vertex]) -&gt; ST s ()
@@ -137,56 +137,56 @@ forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; (e -&gt; e) -&gt; m ()
 </span><a href="Misc.html#modifyArray"><span class="hs-identifier hs-var">modifyArray</span></a></span><span> </span><span class="annot"><span class="annottext">STArray s Vertex [Vertex]
-</span><a href="#local-6989586621679068873"><span class="hs-identifier hs-var">ch</span></a></span><span> </span><span class="annot"><span class="annottext">Vertex
-</span><a href="#local-6989586621679068865"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Vertex
-</span><a href="#local-6989586621679068856"><span class="hs-identifier hs-var">v</span></a></span><span class="annot"><span class="annottext">Vertex -&gt; [Vertex] -&gt; [Vertex]
+</span><a href="#local-6989586621679070263"><span class="hs-identifier hs-var">ch</span></a></span><span> </span><span class="annot"><span class="annottext">Vertex
+</span><a href="#local-6989586621679070255"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Vertex
+</span><a href="#local-6989586621679070246"><span class="hs-identifier hs-var">v</span></a></span><span class="annot"><span class="annottext">Vertex -&gt; [Vertex] -&gt; [Vertex]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span class="hs-special">)</span><span>
 </span><span id="line-39"></span><span>                    </span><span class="annot"><span class="annottext">[Vertex] -&gt; ST s [Vertex]
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Vertex
-</span><a href="#local-6989586621679068856"><span class="hs-identifier hs-var">v</span></a></span><span class="annot"><span class="annottext">Vertex -&gt; [Vertex] -&gt; [Vertex]
+</span><a href="#local-6989586621679070246"><span class="hs-identifier hs-var">v</span></a></span><span class="annot"><span class="annottext">Vertex -&gt; [Vertex] -&gt; [Vertex]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span class="annot"><span class="annottext">[Vertex]
-</span><a href="#local-6989586621679068857"><span class="hs-identifier hs-var">q</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ST</span></span><span> </span><span class="annot"><a href="#local-6989586621679068876"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span class="hs-special">]</span><span>
+</span><a href="#local-6989586621679070247"><span class="hs-identifier hs-var">q</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ST</span></span><span> </span><span class="annot"><a href="#local-6989586621679070266"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span class="hs-special">]</span><span>
 </span><span id="line-40"></span><span>        </span><span class="annot"><span class="annottext">[Vertex] -&gt; (Vertex -&gt; ST s ()) -&gt; ST s ()
 forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
 (Foldable t, Monad m) =&gt;
 t a -&gt; (a -&gt; m b) -&gt; m ()
 </span><span class="hs-identifier hs-var">forM_</span></span><span> </span><span class="annot"><span class="annottext">[Vertex]
-</span><a href="#local-6989586621679068882"><span class="hs-identifier hs-var">vs</span></a></span><span> </span><span class="annot"><span class="annottext">((Vertex -&gt; ST s ()) -&gt; ST s ()) -&gt; (Vertex -&gt; ST s ()) -&gt; ST s ()
+</span><a href="#local-6989586621679070272"><span class="hs-identifier hs-var">vs</span></a></span><span> </span><span class="annot"><span class="annottext">((Vertex -&gt; ST s ()) -&gt; ST s ()) -&gt; (Vertex -&gt; ST s ()) -&gt; ST s ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679068853"><span class="annot"><span class="annottext">Vertex
-</span><a href="#local-6989586621679068853"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">STUArray s Vertex Bool -&gt; Vertex -&gt; Bool -&gt; ST s ()
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679070243"><span class="annot"><span class="annottext">Vertex
+</span><a href="#local-6989586621679070243"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">STUArray s Vertex Bool -&gt; Vertex -&gt; Bool -&gt; ST s ()
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; e -&gt; m ()
 </span><span class="hs-identifier hs-var">writeArray</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Vertex Bool
-</span><a href="#local-6989586621679068875"><span class="hs-identifier hs-var">vis</span></a></span><span> </span><span class="annot"><span class="annottext">Vertex
-</span><a href="#local-6989586621679068853"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679070265"><span class="hs-identifier hs-var">vis</span></a></span><span> </span><span class="annot"><span class="annottext">Vertex
+</span><a href="#local-6989586621679070243"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">True</span></span><span>
 </span><span id="line-41"></span><span>        </span><span class="annot"><span class="annottext">[Vertex] -&gt; ST s ()
-</span><a href="#local-6989586621679068872"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[Vertex]
-</span><a href="#local-6989586621679068882"><span class="hs-identifier hs-var">vs</span></a></span><span>
+</span><a href="#local-6989586621679070262"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[Vertex]
+</span><a href="#local-6989586621679070272"><span class="hs-identifier hs-var">vs</span></a></span><span>
 </span><span id="line-42"></span><span>        </span><span class="annot"><span class="annottext">STArray s Vertex [Vertex] -&gt; ST s (STArray s Vertex [Vertex])
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">STArray s Vertex [Vertex]
-</span><a href="#local-6989586621679068873"><span class="hs-identifier hs-var">ch</span></a></span><span>
-</span><span id="line-43"></span><span>    </span><span id="local-6989586621679068881"><span class="annot"><span class="annottext">toTree :: Vertex -&gt; Tree Vertex
-</span><a href="#local-6989586621679068881"><span class="hs-identifier hs-var hs-var">toTree</span></a></span></span><span> </span><span id="local-6989586621679068852"><span class="annot"><span class="annottext">Vertex
-</span><a href="#local-6989586621679068852"><span class="hs-identifier hs-var">u</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Vertex -&gt; Forest Vertex -&gt; Tree Vertex
+</span><a href="#local-6989586621679070263"><span class="hs-identifier hs-var">ch</span></a></span><span>
+</span><span id="line-43"></span><span>    </span><span id="local-6989586621679070271"><span class="annot"><span class="annottext">toTree :: Vertex -&gt; Tree Vertex
+</span><a href="#local-6989586621679070271"><span class="hs-identifier hs-var hs-var">toTree</span></a></span></span><span> </span><span id="local-6989586621679070242"><span class="annot"><span class="annottext">Vertex
+</span><a href="#local-6989586621679070242"><span class="hs-identifier hs-var">u</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Vertex -&gt; Forest Vertex -&gt; Tree Vertex
 forall a. a -&gt; Forest a -&gt; Tree a
 </span><span class="hs-identifier hs-var">Node</span></span><span> </span><span class="annot"><span class="annottext">Vertex
-</span><a href="#local-6989586621679068852"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="annot"><span class="annottext">(Forest Vertex -&gt; Tree Vertex) -&gt; Forest Vertex -&gt; Tree Vertex
+</span><a href="#local-6989586621679070242"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="annot"><span class="annottext">(Forest Vertex -&gt; Tree Vertex) -&gt; Forest Vertex -&gt; Tree Vertex
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(Vertex -&gt; Tree Vertex) -&gt; [Vertex] -&gt; Forest Vertex
 forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
 </span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">Vertex -&gt; Tree Vertex
-</span><a href="#local-6989586621679068881"><span class="hs-identifier hs-var">toTree</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Graph
-</span><a href="#local-6989586621679068878"><span class="hs-identifier hs-var">g'</span></a></span><span class="annot"><span class="annottext">Graph -&gt; Vertex -&gt; [Vertex]
+</span><a href="#local-6989586621679070271"><span class="hs-identifier hs-var">toTree</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Graph
+</span><a href="#local-6989586621679070268"><span class="hs-identifier hs-var">g'</span></a></span><span class="annot"><span class="annottext">Graph -&gt; Vertex -&gt; [Vertex]
 forall (a :: * -&gt; * -&gt; *) e i.
 (IArray a e, Ix i) =&gt;
 a i e -&gt; i -&gt; e
 </span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Vertex
-</span><a href="#local-6989586621679068852"><span class="hs-identifier hs-var">u</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679070242"><span class="hs-identifier hs-var">u</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-44"></span></pre></body></html>
