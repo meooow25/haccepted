@@ -140,10 +140,7 @@ modifyArray a i f = readArray a i >>= writeArray a i . f
 {-# INLINE modifyArray #-}
 
 modifyArray' :: (MArray a e m, Ix i) => a i e -> i -> (e -> e) -> m ()
-modifyArray' a i f = do
-    x <- readArray a i
-    let x' = f x
-    x' `seq` writeArray a i x'
+modifyArray' a i f = readArray a i >>= (writeArray a i $!) . f
 {-# INLINE modifyArray' #-}
 
 foldMComp :: Monad m => (b -> a -> b) -> (c -> m a) -> b -> c -> m b
