@@ -7,7 +7,8 @@ Array type for element types isomorphic to other element types with existing arr
 
 Primarily useful for unboxed arrays.
 As an example, define "instance Unbox (Sum Int) where type Unboxed (Sum Int) = Int" and use
-UArr i (Sum Int) as an unboxed array for Sum Int.
+UArr i (Sum Int) as an unboxed array for Sum Int. It works similarly with mutable arrays IOUArr
+and STUArr.
 
 Implementation notes:
 * The problem: Unboxed array types (UArray, STUArray, IOUArray) have the element type role as

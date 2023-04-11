@@ -4,7 +4,7 @@ Arrays for 2-tuples
 
 Primarily useful for unboxed arrays.
 If a and b can be put in UArrays, Arr2 UArray UArray i (a,b) works as an unboxed array for (a,b).
-This is much better than a boxed Array i (a,b).
+This is much better than a boxed Array i (a,b). It works similarly with mutable IOUArray/STUArray.
 Can be nested to store n-tuples. Use with Unbox to store your own defined types.
 
 Implementation notes:
