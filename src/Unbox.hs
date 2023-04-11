@@ -1,6 +1,8 @@
 {-# LANGUAGE DefaultSignatures, FlexibleContexts, FlexibleInstances, MultiParamTypeClasses,
              TypeFamilies, UndecidableInstances #-}
 {-|
+Arrays
+
 Array type for element types isomorphic to other element types with existing array support.
 
 Primarily useful for unboxed arrays.
@@ -51,6 +53,9 @@ instance (Unbox a, IArray arr (Unboxed a)) => IArray (Arr arr) a where
     unsafeReplace a ixs        = Arr (unsafeReplace (unArr a) (map (fmap toU) ixs))
     unsafeAccum f a iys        = Arr (unsafeAccum (\x y -> toU (f (frU x) y)) (unArr a) iys)
     unsafeAccumArray f x b iys = Arr (unsafeAccumArray (\x y -> toU (f (frU x) y)) (toU x) b iys)
+
+instance (IArray (Arr arr) a, Ix i, Show i, Show a) => Show (Arr arr i a) where
+    showsPrec = showsIArray
 
 instance (Unbox a, Monad m, MArray marr (Unboxed a) m) => MArray (Arr marr) a m where
     getBounds         = getBounds . unArr
