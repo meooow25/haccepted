@@ -2,11 +2,11 @@
 module MathBench where
 
 import Control.DeepSeq
-import Data.Array.Unboxed
 import Data.List
 
 import Criterion
 
+import Array ( UArr )
 import Math ( egcd, egcd2, mkFactorials, mkInvFactorials )
 import MInt ( MInt )
 import Util ( evalR, randInts, sizedBench )
@@ -35,8 +35,8 @@ benchEgcdf f n = sizedBench n gen $ nf go where
     go = foldl' (\_ xy -> uncurry f xy `deepseq` ()) ()
 
 benchMkFactorials :: Int -> Benchmark
-benchMkFactorials n = sizedBench n n $ whnf (mkFactorials @UArray @MInt)
+benchMkFactorials n = sizedBench n n $ whnf (mkFactorials @UArr @MInt)
 
 benchMkInvFactorials :: Int -> Benchmark
-benchMkInvFactorials n = sizedBench n gen $ whnf (mkInvFactorials @UArray @MInt n) where
+benchMkInvFactorials n = sizedBench n gen $ whnf (mkInvFactorials @UArr @MInt n) where
     gen = product (map fromIntegral [1..n]) :: MInt

@@ -28,7 +28,7 @@ module MInt
 import Control.DeepSeq
 import Data.Ratio
 
-import Unbox ( Unbox(..) )
+import Array ( Unbox(..) )
 
 mm :: Int
 mm = 1000000007

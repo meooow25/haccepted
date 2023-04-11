@@ -42,8 +42,8 @@ import Data.Proxy
 import Data.Ratio
 import GHC.TypeNats ( KnownNat, Nat, natVal )
 
+import Array ( Unbox(..) )
 import Math ( egcd )
-import Unbox ( Unbox(..) )
 
 newtype Mod (m :: Nat) i = Mod { unMod :: i } deriving (Eq, Ord, Show)
 

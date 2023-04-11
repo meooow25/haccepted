@@ -1,11 +1,14 @@
 {-# LANGUAGE DefaultSignatures, FlexibleContexts, FlexibleInstances, MultiParamTypeClasses,
              TypeFamilies, UndecidableInstances #-}
 {-|
+Arrays
+
 Array type for element types isomorphic to other element types with existing array support.
 
 Primarily useful for unboxed arrays.
 As an example, define "instance Unbox (Sum Int) where type Unboxed (Sum Int) = Int" and use
-UArr i (Sum Int) as an unboxed array for Sum Int.
+UArr i (Sum Int) as an unboxed array for Sum Int. It works similarly with mutable arrays IOUArr
+and STUArr.
 
 Implementation notes:
 * The problem: Unboxed array types (UArray, STUArray, IOUArray) have the element type role as
@@ -18,9 +21,12 @@ Implementation notes:
   to hear of it.
 * We use an associated type over fundeps (class Unbox a b | a -> b) because Arr would then need to
   be Arr b arr i a and you would have to specify b when using it even though a determines b.
+* Indexing is as fast as the underlying representation but construction via listArray and array are
+  known to be slower. See ArrayBench.hs. TODO: Figure out why and fix it.
+* TODO: Implement freeze and unsafeFreeze.
 -}
 
-module Unbox
+module Array
     ( Unbox(..)
     , Arr
     , UArr
@@ -28,6 +34,7 @@ module Unbox
     , STUArr
     ) where
 
+import Control.DeepSeq
 import Data.Array.Base
 import Data.Array.IO
 import Data.Coerce
@@ -52,6 +59,9 @@ instance (Unbox a, IArray arr (Unboxed a)) => IArray (Arr arr) a where
     unsafeAccum f a iys        = Arr (unsafeAccum (\x y -> toU (f (frU x) y)) (unArr a) iys)
     unsafeAccumArray f x b iys = Arr (unsafeAccumArray (\x y -> toU (f (frU x) y)) (toU x) b iys)
 
+instance (IArray (Arr arr) a, Ix i, Show i, Show a) => Show (Arr arr i a) where
+    showsPrec = showsIArray
+
 instance (Unbox a, Monad m, MArray marr (Unboxed a) m) => MArray (Arr marr) a m where
     getBounds         = getBounds . unArr
     getNumElements    = getNumElements . unArr
@@ -63,3 +73,9 @@ instance (Unbox a, Monad m, MArray marr (Unboxed a) m) => MArray (Arr marr) a m 
 type UArr = Arr UArray
 type IOUArr = Arr IOUArray
 type STUArr s = Arr (STUArray s)
+
+--------------------------------------------------------------------------------
+-- For tests
+
+instance NFData (arr i (Unboxed a)) => NFData (Arr arr i a) where
+    rnf = rnf . unArr

@@ -17,6 +17,8 @@ extra-source-files:
 library
   exposed-modules:
       AhoCorasick
+      Array
+      Array2
       BFS
       BinSearch
       CentroidDecomp
@@ -46,7 +48,6 @@ library
       SuffixTree
       TreeDraw
       TwoSat
-      Unbox
       ZFunc
   other-modules:
       Paths_haccepted
@@ -104,6 +105,9 @@ test-suite test-all
   other-modules:
       AhoCorasickSpec
       ArbitraryInstances
+      Array2Spec
+      ArraySpec
+      ArrayTests
       BFSSpec
       BinSearchSpec
       CentroidDecompSpec
@@ -130,7 +134,6 @@ test-suite test-all
       SuffixArraySpec
       SuffixTreeSpec
       TwoSatSpec
-      UnboxSpec
       Util
       ZFuncSpec
       Paths_haccepted
@@ -154,6 +157,9 @@ benchmark bench-all
   main-is: Bench.hs
   other-modules:
       AhoCorasickBench
+      Array2Bench
+      ArrayBench
+      ArrayBenches
       ArrayNFData
       BFSBench
       BinSearchBench
