@@ -33,6 +33,7 @@ setLSNM :: (Action u a, MArray marru u m, MArray marra a m)
 setLSNM ua aa i = do
     writeArray ua i $! mempty
     (<>) <$> readArray aa (2*i) <*> readArray aa (2*i+1) >>= (writeArray aa i $!)
+{-# INLINE setLSNM #-}
 
 fromListLSTM :: (Action u a, MArray marru u m, MArray marra a m)
              => (Int, Int) -> [a] -> m (LazySegTreeMut marru marra u a)
@@ -58,6 +59,7 @@ applyLSNM :: (Action u a, MArray marru u m, MArray marra a m)
 applyLSNM ua aa i l r u
     | l == r    = modifyArray' aa i (`act` u)
     | otherwise = modifyArray' aa i (`act` u) *> modifyArray' ua i (<> u)
+{-# INLINE applyLSNM #-}
 
 adjustLSTM :: (Action u a, MArray marru u m, MArray marra a m)
            => LazySegTreeMut marru marra u a -> Int -> (a -> a) -> m ()
@@ -126,3 +128,9 @@ foldrLSTM (LSTM l0 r0 ua aa) f z0
 
 --------------------------------------------------------------------------------
 -- For tests
+
+-- Allows specialization across modules
+{-# INLINABLE fromListLSTM #-}
+{-# INLINABLE adjustLSTM #-}
+{-# INLINABLE updateRangeLSTM #-}
+{-# INLINABLE foldRangeLSTM #-}
