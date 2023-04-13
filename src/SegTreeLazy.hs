@@ -29,9 +29,6 @@ fromListLST
 Builds a segment tree on (l, r) where the elements are taken from a list. If the list is shorter
 than the range, the remaining elements are mempty. O(n).
 
-boundsLST
-The bounds of the segment tree. O(1).
-
 adjustLST
 Adjusts the element at index i. O(log n).
 
@@ -51,7 +48,6 @@ module SegTreeLazy
     ( LazySegTree
     , emptyLST
     , fromListLST
-    , boundsLST
     , adjustLST
     , updateRangeLST
     , foldRangeLST
@@ -94,54 +90,55 @@ fromListLST bnds xs = buildLST bnds (flip evalState xs . go) where
     go 0 = LSLeaf <$> pop
     go j = makeLSN <$> go (j - 1) <*> go (j - 1)
 
-boundsLST :: LazySegTree u a -> (Int, Int)
-boundsLST (LazySegTree (l, r, _) _) = (l, r)
-
 applyLSN :: Action u a => LSegNode u a -> u -> LSegNode u a
 applyLSN (LSLeaf x)        u' = LSLeaf (act x u')
 applyLSN (LSBin x u lt rt) u' = LSBin (act x u') (u <> u') lt rt
 
 adjustLST :: Action u a => (a -> a) -> Int -> LazySegTree u a -> LazySegTree u a
-adjustLST f i (LazySegTree lrp@(l, r, p) root)
-    | i < l || r < i = error "outside range"
-    | otherwise      = LazySegTree lrp (go root l (l + p - 1) mempty)
+adjustLST f i (LazySegTree lrp@(l0,r0,p) root)
+    | i < l0 || r0 < i = error "adjustLST: outside range"
+    | otherwise        = LazySegTree lrp (go root l0 (l0+p-1) mempty)
   where
     go n l r pu | i < l || r < i = applyLSN n pu
     go (LSLeaf x)        _ _ pu = LSLeaf (f (act x pu))
-    go (LSBin _ u lt rt) l r pu = makeLSN (go lt l m u') (go rt (m + 1) r u') where
-        m = (l + r) `div` 2
+    go (LSBin _ u lt rt) l r pu = makeLSN (go lt l m u') (go rt (m+1) r u') where
+        m = (l+r) `div` 2
         u' = u <> pu
 
 updateRangeLST :: Action u a => u -> Int -> Int -> LazySegTree u a -> LazySegTree u a
-updateRangeLST qu ql qr (LazySegTree lrp@(l, r, p) root)
-    | ql < l || r < qr = error "outside range"
-    | otherwise        = LazySegTree lrp (go root l (l + p - 1) mempty)
+updateRangeLST qu ql qr (LazySegTree lrp@(l0,r0,p) root)
+    | ql > qr + 1        = error "updateRangeLSTM: bad range"
+    | ql < l0 || r0 < qr = error "updateRangeLSTM: outside range"
+    | otherwise          = LazySegTree lrp (go root l0 (l0+p-1) mempty)
   where
     go n l r pu
         | r < ql || qr < l   = applyLSN n pu
         | ql <= l && r <= qr = applyLSN n (pu <> qu)
-    go ~(LSBin _ u lt rt) l r pu = makeLSN (go lt l m u') (go rt (m + 1) r u') where
-        m = (l + r) `div` 2
+    go (LSBin _ u lt rt) l r pu = makeLSN (go lt l m u') (go rt (m+1) r u') where
+        m = (l+r) `div` 2
         u' = u <> pu
+    go _ _ _ _ = error "impossible"
 
 foldRangeLST :: Action u a => Int -> Int -> LazySegTree u a -> a
-foldRangeLST ql qr _ | ql > qr + 1 = error "invalid range"
-foldRangeLST ql qr (LazySegTree (l, _, p) root) = go root l (l + p - 1) mempty mempty where
+foldRangeLST ql qr (LazySegTree (l0,_,p) root)
+    | ql > qr + 1 = error "foldRangeLST: bad range"
+    | otherwise   = go root l0 (l0+p-1) mempty mempty
+  where
     go _ l r _ acc | r < ql || qr < l = acc
     go (LSLeaf x) _ _ pu acc = acc <> act x pu
     go (LSBin x u lt rt) l r pu acc
         | ql <= l && r <= qr = acc <> act x pu
-        | otherwise          = go rt (m + 1) r u' $! go lt l m u' acc
+        | otherwise          = go rt (m+1) r u' $! go lt l m u' acc
       where
-        m = (l + r) `div` 2
+        m = (l+r) `div` 2
         u' = u <> pu
 
 foldrLST :: Action u a => (a -> b -> b) -> b -> LazySegTree u a -> b
-foldrLST f z (LazySegTree (l, r', p) root) = go root l (l + p - 1) mempty z where
-    go _ l _ _ | l > r' = id
+foldrLST f z (LazySegTree (l0,r0,p) root) = go root l0 (l0+p-1) mempty z where
+    go _ l _ _ | l > r0 = id
     go (LSLeaf x)        _ _ pu = f (act x pu)
-    go (LSBin _ u lt rt) l r pu = go lt l m u' . go rt (m + 1) r u' where
-        m = (l + r) `div` 2
+    go (LSBin _ u lt rt) l r pu = go lt l m u' . go rt (m+1) r u' where
+        m = (l+r) `div` 2
         u' = u <> pu
 
 --------------------------------------------------------------------------------

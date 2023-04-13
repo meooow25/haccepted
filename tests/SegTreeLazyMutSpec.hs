@@ -18,7 +18,7 @@ import SegTreeLazyMut
     , foldrLSTM
     , updateRangeLSTM
     )
-import SegTreeSpec ( pointUpds, rangeQry )
+import SegTreeSpec ( genBounds, pointUpds, rangeQry )
 import SegTreeLazySpec ( SumLen, rangeUpds )
 
 spec :: Spec
@@ -67,12 +67,6 @@ spec = do
 
 -- Can add a value to all elements in a range
 type RangeAddSegTree = LazySegTreeMut IOArray IOArray (Sum Int) SumLen
-
-genBounds :: Gen (Int, Int)
-genBounds = sized $ \n' -> do
-    n <- choose (0, n')
-    l <- arbitrary
-    pure (l, l+n-1)
 
 emptyST :: (Int, Int) -> IO RangeAddSegTree
 emptyST bnds = fromListLSTM bnds $ repeat (0,1)

@@ -33,9 +33,6 @@ fromListF
 Builds a Fenwick tree on (l, r) where the elements are taken from a list. If the list is shorter
 than the range, the remaining elements are mempty. O(n).
 
-boundsF
-The bounds of the Fenwick tree. O(1).
-
 mappendF
 mappends to the element at an index. O(log n).
 
@@ -62,7 +59,6 @@ module Fenwick
     ( FTree
     , emptyF
     , fromListF
-    , boundsF
     , mappendF
     , foldPrefixF
     , foldRangeF
@@ -107,9 +103,6 @@ fromListF bnds xs = buildF bnds (fst . flip evalState xs . go) where
             x'' = x' <> rx
             n   = FBin x' lt rt
         x'' `seq` n `seq` pure (n, x'')
-
-boundsF :: FTree a -> (Int, Int)
-boundsF (FTree (l, r, _) _) = (l, r)
 
 mappendF :: Commutative a => Int -> a -> FTree a -> FTree a
 mappendF i y (FTree lrh@(l, r, ht) rt)

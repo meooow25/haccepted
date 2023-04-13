@@ -12,53 +12,47 @@ import Test.QuickCheck
 import SegTreeLazy
     ( LazySegTree
     , adjustLST
-    , boundsLST
     , foldRangeLST
     , fromListLST
     , foldrLST
     , updateRangeLST
     )
-import SegTreeSpec ( pointUpds, rangeQry )
+import SegTreeSpec ( genBounds, pointUpds, rangeQry )
 import Misc ( Action(..) )
 import Util ( genSortedIntPair )
 
 spec :: Spec
 spec = do
-    prop "multiple adjustLST then foldRangeLST works ok" $
-        forAll genSt $ \st -> do
-            let bnds = boundsLST st
+    prop "many adjustLST then foldRangeLST" $
+        forAll genBounds $ \bnds ->
             forAll (pointUpds bnds) $ \ivs -> do
-                let st' = adjustMany st ivs
+                let st = adjustMany (emptyST bnds) ivs
                 forAll (rangeQry bnds) $ \(i, j) ->
-                    fst (foldRangeLST i j st') `shouldBe` naive ivs i j
+                    fst (foldRangeLST i j st) `shouldBe` naive ivs i j
 
-    prop "elements are as expected after multiple adjustLST" $
-        forAll genSt $ \st -> do
-            let bnds = boundsLST st
+    prop "many adjustLST then foldrLST" $
+        forAll genBounds $ \bnds ->
             forAll (pointUpds bnds) $ \ivs -> do
-                let st' = adjustMany st ivs
+                let st = adjustMany (emptyST bnds) ivs
                     xs = elems $ accumArray (<>) mempty bnds ivs
-                foldrLST ((:) . fst) [] st' `shouldBe` xs
+                foldrLST ((:) . fst) [] st `shouldBe` xs
 
-    prop "multiple updateRangeLST then foldRangeLST works ok" $
-        forAll genSt $ \st -> do
-            let (l, r) = boundsLST st
-            forAll (rangeUpds (l, r)) $ \ijvs -> do
-                let st' = applyRangeUpdates st ijvs
+    prop "many updateRangeLST then foldRangeLST" $
+        forAll genBounds $ \bnds ->
+            forAll (rangeUpds bnds) $ \ijvs -> do
+                let st = applyRangeUpdates (emptyST bnds) ijvs
                     ivs = do
                         (i, j, v) <- ijvs
                         map (,v) [i..j]
-                forAll (rangeQry (l, r)) $ \(i, j) ->
-                    fst (foldRangeLST i j st') `shouldBe` naive ivs i j
+                forAll (rangeQry bnds) $ \(i,j) ->
+                    fst (foldRangeLST i j st) `shouldBe` naive ivs i j
 
-    prop "fromListLST is same as multiple adjustLST" $
-        forAll genSt $ \st -> do
-            let (l, r) = boundsLST st
-                n = r - l + 1
-            forAll (vector n :: Gen [Sum Int]) $ \xs -> do
-                let st' = fromListLST (l, r) $ map (,1) xs :: RangeAddSegTree
-                    st'' = adjustMany st (zip [l..] xs)
-                foldrLST (:) [] st' `shouldBe` foldrLST (:) [] st''
+    prop "fromListLST is same as many adjustLST" $
+        forAll genBounds $ \bnds@(l,h) ->
+            forAll (vector (h-l+1)) $ \xs -> do
+                let st = fromListLST bnds $ map (,1) xs :: RangeAddSegTree
+                    st' = adjustMany (emptyST bnds) (zip [l..] xs)
+                foldrLST (:) [] st `shouldBe` foldrLST (:) [] st'
 
   where
     naive ivs i j = fold [v | (k, v) <- ivs, i <= k && k <= j]
@@ -73,11 +67,8 @@ type SumLen = (Sum Int, Sum Int)
 instance Action (Sum Int) SumLen where
     act (s, l) u = (s + u * l, l)
 
-genSt :: Gen RangeAddSegTree
-genSt = sized $ \n -> do
-    n' <- choose (0, n)
-    l <- arbitrary
-    pure $ fromListLST (l, l + n' - 1) $ repeat (0, 1)
+emptyST :: (Int, Int) -> RangeAddSegTree
+emptyST bnds = fromListLST bnds $ repeat (0, 1)
 
 rangeUpds :: (Int, Int) -> Gen [(Int, Int, Sum Int)]
 rangeUpds (l, h)
