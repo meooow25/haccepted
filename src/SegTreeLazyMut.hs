@@ -1,5 +1,32 @@
 {-|
-Segment tree with lazy propagation
+Mutable segment tree with lazy propagation
+
+See LazySegTree. LazySegTreeMut is just that, but backed by mutable arrays.
+When the arrays are unboxed, LazySegTreeMut is a few times faster than LazySegTree (see benchmarks).
+However, this comes at the cost of purity.
+
+Implementation notes:
+* INLINE on setLSNM and applyLSNM is critical!
+
+emptyLSTM
+Builds a segment tree on range (l, r) where each element is mempty. O(n).
+
+fromListLSTM
+Builds a segment tree on (l, r) where the elements are taken from a list. If the list is shorter
+than the range, the remaining elements are mempty. O(n).
+
+adjustLSTM
+Adjusts the element at index i. O(log n).
+
+updateRangeLSTM
+Applies an update on elements in the range (ql, qr). O(log n).
+
+foldRangeLSTM
+Folds the elements in the range (ql, qr). Elements outside (l, r) are considered to be mempty.
+O(log n).
+
+foldrLSTM
+Right fold over the elements of the segment tree. O(n).
 -}
 
 module SegTreeLazyMut
