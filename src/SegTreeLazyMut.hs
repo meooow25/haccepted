@@ -25,6 +25,10 @@ foldRangeLSTM
 Folds the elements in the range (ql, qr). Elements outside (l, r) are considered to be mempty.
 O(log n).
 
+binSearchLSTM
+Binary search in the intersection of (l, r) and (ql, qr) for the shortest prefix whose fold
+satisfies the given monotonic predicate. Returns the end index and the fold. O(log n).
+
 foldrLSTM
 Right fold over the elements of the segment tree. O(n).
 -}
@@ -36,6 +40,7 @@ module SegTreeLazyMut
     , adjustLSTM
     , updateRangeLSTM
     , foldRangeLSTM
+    , binSearchLSTM
     , foldrLSTM
     ) where
 
@@ -143,6 +148,31 @@ foldRangeLSTM (LSTM l0 r0 ua aa) ql qr
             let m = (l+r) `div` 2
             go (2*i) l m acc >>= go (2*i+1) (m+1) r
 
+binSearchLSTM :: (Action u a, MArray marru u m, MArray marra a m)
+              => LazySegTreeMut marru marra u a -> Int -> Int -> (a -> Bool) -> m (Maybe (Int, a))
+binSearchLSTM (LSTM l0 r0 ua aa) ql qr p
+    | ql > qr + 1 = error "binSearchLSTM: bad range"
+    | l0 > r0     = pure Nothing
+    | otherwise   = either (const Nothing) Just <$> go 1 l0 r0 mempty
+  where
+    go i l r acc
+        | r < ql || qr < l = pure (Left acc)
+        | ql <= l && r <= qr = do
+            a <- readArray aa i
+            let acc' = acc <> a
+            case () of
+                _ | not (p acc') -> pure (Left acc')
+                  | l == r       -> pure (Right (l, acc'))
+                  | otherwise    -> goLR i l r acc
+        | otherwise = goLR i l r acc
+    goLR i l r acc = do
+        pushLSNM ua aa i l r
+        let m = (l+r) `div` 2
+        lres <- go (2*i) l m acc
+        case lres of
+            Left acc' -> go (2*i+1) (m+1) r acc'
+            _         -> pure lres
+
 foldrLSTM :: (Action u a, MArray marru u m, MArray marra a m)
           => LazySegTreeMut marru marra u a -> (a -> b -> b) -> b -> m b
 foldrLSTM (LSTM l0 r0 ua aa) f z0
@@ -164,3 +194,4 @@ foldrLSTM (LSTM l0 r0 ua aa) f z0
 {-# INLINABLE adjustLSTM #-}
 {-# INLINABLE updateRangeLSTM #-}
 {-# INLINABLE foldRangeLSTM #-}
+{-# INLINABLE binSearchLSTM #-}
