@@ -6,9 +6,8 @@ Arrays
 Array type for element types isomorphic to other element types with existing array support.
 
 Primarily useful for unboxed arrays.
-As an example, define "instance Unbox (Sum Int) where type Unboxed (Sum Int) = Int" and use
-UArr i (Sum Int) as an unboxed array for Sum Int. It works similarly with mutable arrays IOUArr
-and STUArr.
+As an example, if you have "newtype N = N Int", define "instance Unbox N where type Unboxed N = Int"
+and use UArr i N as an unboxed array for N. Also works with mutable arrays, IOUArr and STUArr.
 
 Implementation notes:
 * The problem: Unboxed array types (UArray, STUArray, IOUArray) have the element type role as
@@ -38,6 +37,7 @@ import Control.DeepSeq
 import Data.Array.Base
 import Data.Array.IO
 import Data.Coerce
+import Data.Monoid
 
 class Unbox a where
     type Unboxed a
@@ -73,6 +73,9 @@ instance (Unbox a, Monad m, MArray marr (Unboxed a) m) => MArray (Arr marr) a m 
 type UArr = Arr UArray
 type IOUArr = Arr IOUArray
 type STUArr s = Arr (STUArray s)
+
+instance Unbox (Sum a) where
+    type Unboxed (Sum a) = a
 
 --------------------------------------------------------------------------------
 -- For tests

@@ -3,6 +3,7 @@ Fenwick tree, or binary indexed tree
 
 A data structure supporting point updates and range queries, or the opposite.
 Large ranges, beyond typical memory limits, are supported.
+See FenwickMut.hs for a mutable (and more commonly seen) version.
 
 Sources:
 * https://en.wikipedia.org/wiki/Fenwick_tree

@@ -27,6 +27,7 @@ library
       Dinic
       DSU
       Fenwick
+      FenwickMut
       FloydWarshall
       Geometry
       KMP
@@ -116,6 +117,7 @@ test-suite test-all
       DijkstraSpec
       DinicSpec
       DSUSpec
+      FenwickMutSpec
       FenwickSpec
       FloydWarshallSpec
       KMPSpec
@@ -171,6 +173,7 @@ benchmark bench-all
       DinicBench
       DSUBench
       FenwickBench
+      FenwickMutBench
       FloydWarshallBench
       KMPBench
       KruskalBench
