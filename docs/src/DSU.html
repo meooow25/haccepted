@@ -36,89 +36,89 @@ Implementation notes:
 </span><span id="line-36"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Array.MArray</span></span><span>
 </span><span id="line-37"></span><span>
 </span><span id="line-38"></span><span class="hs-comment">-- | Creates a new DSU structure with elements in the range (l, r), each in its own set. O(n).</span><span>
-</span><span id="line-39"></span><span id="local-6989586621679068419"><span id="local-6989586621679068420"><span class="annot"><a href="DSU.html#newD"><span class="hs-identifier hs-type">newD</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068420"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="#local-6989586621679068419"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068419"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679068420"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-39"></span><span id="local-6989586621679070347"><span id="local-6989586621679070348"><span class="annot"><a href="DSU.html#newD"><span class="hs-identifier hs-type">newD</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679070348"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="#local-6989586621679070347"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679070347"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679070348"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span></span></span><span>
 </span><span id="line-40"></span><span id="newD"><span class="annot"><span class="annottext">newD :: (Int, Int) -&gt; m (a Int Int)
-</span><a href="DSU.html#newD"><span class="hs-identifier hs-var hs-var">newD</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679068418"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068418"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="DSU.html#newD"><span class="hs-identifier hs-var hs-var">newD</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679070346"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070346"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068418"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679070346"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; m (a Int Int)
 forall a. HasCallStack =&gt; [Char] -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">[Char]
 </span><span class="hs-string">&quot;negative range&quot;</span></span><span>
-</span><span id="line-41"></span><span class="annot"><a href="DSU.html#newD"><span class="hs-identifier hs-var">newD</span></a></span><span> </span><span id="local-6989586621679068415"><span class="annot"><span class="annottext">(Int, Int)
-</span><a href="#local-6989586621679068415"><span class="hs-identifier hs-var">bnds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int) -&gt; Int -&gt; m (a Int Int)
+</span><span id="line-41"></span><span class="annot"><a href="DSU.html#newD"><span class="hs-identifier hs-var">newD</span></a></span><span> </span><span id="local-6989586621679070343"><span class="annot"><span class="annottext">(Int, Int)
+</span><a href="#local-6989586621679070343"><span class="hs-identifier hs-var">bnds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int) -&gt; Int -&gt; m (a Int Int)
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 (i, i) -&gt; e -&gt; m (a i e)
 </span><span class="hs-identifier hs-var">newArray</span></span><span> </span><span class="annot"><span class="annottext">(Int, Int)
-</span><a href="#local-6989586621679068415"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">-</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070343"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">-</span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
 </span><span id="line-42"></span><span>
-</span><span id="line-43"></span><span id="local-6989586621679068436"><span id="local-6989586621679068437"><span class="annot"><a href="DSU.html#findD"><span class="hs-identifier hs-type">findD</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068437"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="#local-6989586621679068436"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068437"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068436"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span></span></span><span>
+</span><span id="line-43"></span><span id="local-6989586621679070364"><span id="local-6989586621679070365"><span class="annot"><a href="DSU.html#findD"><span class="hs-identifier hs-type">findD</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679070365"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="#local-6989586621679070364"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679070365"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679070364"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span></span></span><span>
 </span><span id="line-44"></span><span id="findD"><span class="annot"><span class="annottext">findD :: a Int Int -&gt; Int -&gt; m Int
-</span><a href="DSU.html#findD"><span class="hs-identifier hs-var hs-var">findD</span></a></span></span><span> </span><span id="local-6989586621679068412"><span class="annot"><span class="annottext">a Int Int
-</span><a href="#local-6989586621679068412"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; m Int
+</span><a href="DSU.html#findD"><span class="hs-identifier hs-var hs-var">findD</span></a></span></span><span> </span><span id="local-6989586621679070340"><span class="annot"><span class="annottext">a Int Int
+</span><a href="#local-6989586621679070340"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; m Int
 forall (m :: * -&gt; *). MArray a Int m =&gt; Int -&gt; m Int
-</span><a href="#local-6989586621679068411"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-45"></span><span>    </span><span id="local-6989586621679068411"><span class="annot"><span class="annottext">go :: Int -&gt; m Int
-</span><a href="#local-6989586621679068411"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679068410"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068410"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a Int Int -&gt; Int -&gt; m Int
+</span><a href="#local-6989586621679070339"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-45"></span><span>    </span><span id="local-6989586621679070339"><span class="annot"><span class="annottext">go :: Int -&gt; m Int
+</span><a href="#local-6989586621679070339"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679070338"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070338"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a Int Int -&gt; Int -&gt; m Int
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; m e
 </span><span class="hs-identifier hs-var">readArray</span></span><span> </span><span class="annot"><span class="annottext">a Int Int
-</span><a href="#local-6989586621679068412"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068410"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">m Int -&gt; (Int -&gt; m Int) -&gt; m Int
+</span><a href="#local-6989586621679070340"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070338"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">m Int -&gt; (Int -&gt; m Int) -&gt; m Int
 forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
-</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679068408"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068408"><span class="hs-identifier hs-var">j</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679070336"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070336"><span class="hs-identifier hs-var">j</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-46"></span><span>        </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068408"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679070336"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Int -&gt; m Int
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068410"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">a Int Int -&gt; Int -&gt; m Int
+</span><a href="#local-6989586621679070338"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">a Int Int -&gt; Int -&gt; m Int
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; m e
 </span><span class="hs-identifier hs-var">readArray</span></span><span> </span><span class="annot"><span class="annottext">a Int Int
-</span><a href="#local-6989586621679068412"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068408"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">m Int -&gt; (Int -&gt; m Int) -&gt; m Int
+</span><a href="#local-6989586621679070340"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070336"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">m Int -&gt; (Int -&gt; m Int) -&gt; m Int
 forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
-</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679068407"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068407"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679070335"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070335"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-47"></span><span>            </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068407"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679070335"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Int -&gt; m Int
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068408"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">a Int Int -&gt; Int -&gt; Int -&gt; m ()
+</span><a href="#local-6989586621679070336"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">a Int Int -&gt; Int -&gt; Int -&gt; m ()
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; e -&gt; m ()
 </span><span class="hs-identifier hs-var">writeArray</span></span><span> </span><span class="annot"><span class="annottext">a Int Int
-</span><a href="#local-6989586621679068412"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068410"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068407"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">m () -&gt; m Int -&gt; m Int
+</span><a href="#local-6989586621679070340"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070338"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070335"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">m () -&gt; m Int -&gt; m Int
 forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; m b -&gt; m b
 </span><span class="hs-operator hs-var">&gt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; m Int
-</span><a href="#local-6989586621679068411"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068407"><span class="hs-identifier hs-var">k</span></a></span><span>
+</span><a href="#local-6989586621679070339"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070335"><span class="hs-identifier hs-var">k</span></a></span><span>
 </span><span id="line-48"></span><span>
 </span><span id="line-49"></span><span class="hs-comment">-- | Returns whether the two elements are in the same set. Amortized O(&#945;(n)).</span><span>
-</span><span id="line-50"></span><span id="local-6989586621679068404"><span id="local-6989586621679068405"><span class="annot"><a href="DSU.html#sameSetD"><span class="hs-identifier hs-type">sameSetD</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068405"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="#local-6989586621679068404"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068405"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068404"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span></span><span>
+</span><span id="line-50"></span><span id="local-6989586621679070332"><span id="local-6989586621679070333"><span class="annot"><a href="DSU.html#sameSetD"><span class="hs-identifier hs-type">sameSetD</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679070333"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="#local-6989586621679070332"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679070333"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679070332"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span></span><span>
 </span><span id="line-51"></span><span id="sameSetD"><span class="annot"><span class="annottext">sameSetD :: a Int Int -&gt; Int -&gt; Int -&gt; m Bool
-</span><a href="DSU.html#sameSetD"><span class="hs-identifier hs-var hs-var">sameSetD</span></a></span></span><span> </span><span id="local-6989586621679068403"><span class="annot"><span class="annottext">a Int Int
-</span><a href="#local-6989586621679068403"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span id="local-6989586621679068402"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068402"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679068401"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068401"><span class="hs-identifier hs-var">j</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="DSU.html#sameSetD"><span class="hs-identifier hs-var hs-var">sameSetD</span></a></span></span><span> </span><span id="local-6989586621679070331"><span class="annot"><span class="annottext">a Int Int
+</span><a href="#local-6989586621679070331"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span id="local-6989586621679070330"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070330"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679070329"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070329"><span class="hs-identifier hs-var">j</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">(==)</span></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Int -&gt; Bool) -&gt; m Int -&gt; m (Int -&gt; Bool)
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
@@ -127,54 +127,54 @@ forall (a :: * -&gt; * -&gt; *) (m :: * -&gt; *).
 MArray a Int m =&gt;
 a Int Int -&gt; Int -&gt; m Int
 </span><a href="DSU.html#findD"><span class="hs-identifier hs-var">findD</span></a></span><span> </span><span class="annot"><span class="annottext">a Int Int
-</span><a href="#local-6989586621679068403"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068402"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">m (Int -&gt; Bool) -&gt; m Int -&gt; m Bool
+</span><a href="#local-6989586621679070331"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070330"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">m (Int -&gt; Bool) -&gt; m Int -&gt; m Bool
 forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;*&gt;</span></span><span> </span><span class="annot"><span class="annottext">a Int Int -&gt; Int -&gt; m Int
 forall (a :: * -&gt; * -&gt; *) (m :: * -&gt; *).
 MArray a Int m =&gt;
 a Int Int -&gt; Int -&gt; m Int
 </span><a href="DSU.html#findD"><span class="hs-identifier hs-var">findD</span></a></span><span> </span><span class="annot"><span class="annottext">a Int Int
-</span><a href="#local-6989586621679068403"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068401"><span class="hs-identifier hs-var">j</span></a></span><span>
+</span><a href="#local-6989586621679070331"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070329"><span class="hs-identifier hs-var">j</span></a></span><span>
 </span><span id="line-52"></span><span>
 </span><span id="line-53"></span><span class="hs-comment">-- | Unites the sets containing the two elements. If they are already in the same set, returns False,</span><span>
 </span><span id="line-54"></span><span class="hs-comment">-- otherwise performs the union and returns True. Amortized O(&#945;(n)).</span><span>
-</span><span id="line-55"></span><span id="local-6989586621679068398"><span id="local-6989586621679068399"><span class="annot"><a href="DSU.html#unionD"><span class="hs-identifier hs-type">unionD</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679068399"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="#local-6989586621679068398"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068399"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679068398"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span></span><span>
+</span><span id="line-55"></span><span id="local-6989586621679070326"><span id="local-6989586621679070327"><span class="annot"><a href="DSU.html#unionD"><span class="hs-identifier hs-type">unionD</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679070327"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><a href="#local-6989586621679070326"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679070327"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679070326"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span></span><span>
 </span><span id="line-56"></span><span id="unionD"><span class="annot"><span class="annottext">unionD :: a Int Int -&gt; Int -&gt; Int -&gt; m Bool
-</span><a href="DSU.html#unionD"><span class="hs-identifier hs-var hs-var">unionD</span></a></span></span><span> </span><span id="local-6989586621679068397"><span class="annot"><span class="annottext">a Int Int
-</span><a href="#local-6989586621679068397"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span id="local-6989586621679068396"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068396"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679068395"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068395"><span class="hs-identifier hs-var">j</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m (m Bool) -&gt; m Bool
+</span><a href="DSU.html#unionD"><span class="hs-identifier hs-var hs-var">unionD</span></a></span></span><span> </span><span id="local-6989586621679070325"><span class="annot"><span class="annottext">a Int Int
+</span><a href="#local-6989586621679070325"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span id="local-6989586621679070324"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070324"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679070323"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070323"><span class="hs-identifier hs-var">j</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">m (m Bool) -&gt; m Bool
 forall (m :: * -&gt; *) a. Monad m =&gt; m (m a) -&gt; m a
 </span><span class="hs-identifier hs-var">join</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; m Bool
 forall (f :: * -&gt; *). MArray a Int f =&gt; Int -&gt; Int -&gt; f Bool
-</span><a href="#local-6989586621679068394"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Int -&gt; m Bool) -&gt; m Int -&gt; m (Int -&gt; m Bool)
+</span><a href="#local-6989586621679070322"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Int -&gt; m Bool) -&gt; m Int -&gt; m (Int -&gt; m Bool)
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">a Int Int -&gt; Int -&gt; m Int
 forall (a :: * -&gt; * -&gt; *) (m :: * -&gt; *).
 MArray a Int m =&gt;
 a Int Int -&gt; Int -&gt; m Int
 </span><a href="DSU.html#findD"><span class="hs-identifier hs-var">findD</span></a></span><span> </span><span class="annot"><span class="annottext">a Int Int
-</span><a href="#local-6989586621679068397"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068396"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">m (Int -&gt; m Bool) -&gt; m Int -&gt; m (m Bool)
+</span><a href="#local-6989586621679070325"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070324"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">m (Int -&gt; m Bool) -&gt; m Int -&gt; m (m Bool)
 forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;*&gt;</span></span><span> </span><span class="annot"><span class="annottext">a Int Int -&gt; Int -&gt; m Int
 forall (a :: * -&gt; * -&gt; *) (m :: * -&gt; *).
 MArray a Int m =&gt;
 a Int Int -&gt; Int -&gt; m Int
 </span><a href="DSU.html#findD"><span class="hs-identifier hs-var">findD</span></a></span><span> </span><span class="annot"><span class="annottext">a Int Int
-</span><a href="#local-6989586621679068397"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068395"><span class="hs-identifier hs-var">j</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-57"></span><span>    </span><span id="local-6989586621679068394"><span class="annot"><span class="annottext">go :: Int -&gt; Int -&gt; f Bool
-</span><a href="#local-6989586621679068394"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679068393"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068393"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679068392"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068392"><span class="hs-identifier hs-var">j</span></a></span></span><span>
+</span><a href="#local-6989586621679070325"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070323"><span class="hs-identifier hs-var">j</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-57"></span><span>    </span><span id="local-6989586621679070322"><span class="annot"><span class="annottext">go :: Int -&gt; Int -&gt; f Bool
+</span><a href="#local-6989586621679070322"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679070321"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070321"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679070320"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070320"><span class="hs-identifier hs-var">j</span></a></span></span><span>
 </span><span id="line-58"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068393"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679070321"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068392"><span class="hs-identifier hs-var">j</span></a></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; f Bool
+</span><a href="#local-6989586621679070320"><span class="hs-identifier hs-var">j</span></a></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Bool -&gt; f Bool
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">False</span></span><span>
@@ -188,62 +188,62 @@ forall (m :: * -&gt; *) a. Monad m =&gt; m (m a) -&gt; m a
 forall (m :: * -&gt; *).
 MArray a Int m =&gt;
 Int -&gt; Int -&gt; Int -&gt; Int -&gt; m ()
-</span><a href="#local-6989586621679068390"><span class="hs-identifier hs-var">upd</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068393"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068392"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Int -&gt; f ()) -&gt; f Int -&gt; f (Int -&gt; f ())
+</span><a href="#local-6989586621679070318"><span class="hs-identifier hs-var">upd</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070321"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070320"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Int -&gt; f ()) -&gt; f Int -&gt; f (Int -&gt; f ())
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">a Int Int -&gt; Int -&gt; f Int
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; m e
 </span><span class="hs-identifier hs-var">readArray</span></span><span> </span><span class="annot"><span class="annottext">a Int Int
-</span><a href="#local-6989586621679068397"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068393"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">f (Int -&gt; f ()) -&gt; f Int -&gt; f (f ())
+</span><a href="#local-6989586621679070325"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070321"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">f (Int -&gt; f ()) -&gt; f Int -&gt; f (f ())
 forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;*&gt;</span></span><span> </span><span class="annot"><span class="annottext">a Int Int -&gt; Int -&gt; f Int
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; m e
 </span><span class="hs-identifier hs-var">readArray</span></span><span> </span><span class="annot"><span class="annottext">a Int Int
-</span><a href="#local-6989586621679068397"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068392"><span class="hs-identifier hs-var">j</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-60"></span><span>    </span><span id="local-6989586621679068390"><span class="annot"><span class="annottext">upd :: Int -&gt; Int -&gt; Int -&gt; Int -&gt; m ()
-</span><a href="#local-6989586621679068390"><span class="hs-identifier hs-var hs-var">upd</span></a></span></span><span> </span><span id="local-6989586621679068389"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068389"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679068388"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068388"><span class="hs-identifier hs-var">j</span></a></span></span><span> </span><span id="local-6989586621679068387"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068387"><span class="hs-identifier hs-var">si</span></a></span></span><span> </span><span id="local-6989586621679068386"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068386"><span class="hs-identifier hs-var">sj</span></a></span></span><span>
+</span><a href="#local-6989586621679070325"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070320"><span class="hs-identifier hs-var">j</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-60"></span><span>    </span><span id="local-6989586621679070318"><span class="annot"><span class="annottext">upd :: Int -&gt; Int -&gt; Int -&gt; Int -&gt; m ()
+</span><a href="#local-6989586621679070318"><span class="hs-identifier hs-var hs-var">upd</span></a></span></span><span> </span><span id="local-6989586621679070317"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070317"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679070316"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070316"><span class="hs-identifier hs-var">j</span></a></span></span><span> </span><span id="local-6989586621679070315"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070315"><span class="hs-identifier hs-var">si</span></a></span></span><span> </span><span id="local-6989586621679070314"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070314"><span class="hs-identifier hs-var">sj</span></a></span></span><span>
 </span><span id="line-61"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068387"><span class="hs-identifier hs-var">si</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679070315"><span class="hs-identifier hs-var">si</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&gt;</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068386"><span class="hs-identifier hs-var">sj</span></a></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int -&gt; Int -&gt; m ()
-</span><a href="#local-6989586621679068390"><span class="hs-identifier hs-var">upd</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068388"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068389"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068386"><span class="hs-identifier hs-var">sj</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068387"><span class="hs-identifier hs-var">si</span></a></span><span>
+</span><a href="#local-6989586621679070314"><span class="hs-identifier hs-var">sj</span></a></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int -&gt; Int -&gt; m ()
+</span><a href="#local-6989586621679070318"><span class="hs-identifier hs-var">upd</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070316"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070317"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070314"><span class="hs-identifier hs-var">sj</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070315"><span class="hs-identifier hs-var">si</span></a></span><span>
 </span><span id="line-62"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a Int Int -&gt; Int -&gt; Int -&gt; m ()
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; e -&gt; m ()
 </span><span class="hs-identifier hs-var">writeArray</span></span><span> </span><span class="annot"><span class="annottext">a Int Int
-</span><a href="#local-6989586621679068397"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068389"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068387"><span class="hs-identifier hs-var">si</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679070325"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070317"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070315"><span class="hs-identifier hs-var">si</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068386"><span class="hs-identifier hs-var">sj</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">m () -&gt; m () -&gt; m ()
+</span><a href="#local-6989586621679070314"><span class="hs-identifier hs-var">sj</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">m () -&gt; m () -&gt; m ()
 forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; m b -&gt; m b
 </span><span class="hs-operator hs-var">&gt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">a Int Int -&gt; Int -&gt; Int -&gt; m ()
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; e -&gt; m ()
 </span><span class="hs-identifier hs-var">writeArray</span></span><span> </span><span class="annot"><span class="annottext">a Int Int
-</span><a href="#local-6989586621679068397"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068388"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679068389"><span class="hs-identifier hs-var">i</span></a></span><span>
+</span><a href="#local-6989586621679070325"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070316"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679070317"><span class="hs-identifier hs-var">i</span></a></span><span>
 </span><span id="line-63"></span><span>
 </span><span id="line-64"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-65"></span><span class="hs-comment">-- For tests</span><span>

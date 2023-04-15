@@ -426,6 +426,11 @@ invert :: Group a => a -> a
 -- | A semigroup where the elements are idempotent. a &lt;&gt; a = a
 class Semigroup a => Idempotent a
 
+-- | A right monoid action of u on a. (x <a>act</a> u1) <a>act</a> u2 = x
+--   <a>act</a> (u1 &lt;&gt; u2) x <a>act</a> mempty = x
+class (Monoid u, Monoid a) => Action u a
+act :: Action u a => a -> u -> a
+
 -- | Returns the number of bits required to represent the value.
 bitLength :: FiniteBits b => b -> Int
 
@@ -516,9 +521,6 @@ emptyF :: Monoid a => (Int, Int) -> FTree a
 --   list. If the list is shorter than the range, the remaining elements
 --   are mempty. O(n).
 fromListF :: Monoid a => (Int, Int) -> [a] -> FTree a
-
--- | The bounds of the Fenwick tree. O(1).
-boundsF :: FTree a -> (Int, Int)
 
 -- | mappends to the element at an index. O(log n).
 mappendF :: Commutative a => Int -> a -> FTree a -> FTree a
@@ -830,9 +832,6 @@ emptyST :: Monoid a => (Int, Int) -> SegTree a
 --   are mempty. O(n).
 fromListST :: Monoid a => (Int, Int) -> [a] -> SegTree a
 
--- | The bounds of the segment tree. O(1).
-boundsST :: SegTree a -> (Int, Int)
-
 -- | Adjusts the element at index i. O(log n).
 adjustST :: Monoid a => (a -> a) -> Int -> SegTree a -> SegTree a
 
@@ -863,25 +862,15 @@ instance Control.DeepSeq.NFData a => Control.DeepSeq.NFData (SegTree.SegNode a)
 --   </ul>
 --   
 --   LazySegTree u a is a segment tree on elements of type a and updates of
---   type u. a and u must be monoids. An instance of Action u a must exist,
---   which specifies a (right) monoid action of u on a. The following laws
---   hold for a monoid action:
---   
---   <ul>
---   <li>(x <a>act</a> u1) <a>act</a> u2 = x <a>act</a> (u1 &lt;&gt;
---   u2)</li>
---   <li>x <a>act</a> mempty = x The segment tree requires an additional
---   law:</li>
---   <li>(x1 &lt;&gt; x2) <a>act</a> u = (x1 <a>act</a> u) &lt;&gt; (x2
---   <a>act</a> u)</li>
---   </ul>
+--   type u. The instance of Action u a determines the behavior of the
+--   tree. In addition to Action's laws, the segment tree requires (x1
+--   &lt;&gt; x2) <a>act</a> u = (x1 <a>act</a> u) &lt;&gt; (x2 <a>act</a>
+--   u)
 --   
 --   The complexities below assume &lt;&gt; for u, &lt;&gt; for a and act
 --   all take O(1) time. Let n = r - l + 1 in all instances below.
 module SegTreeLazy
 data LazySegTree u a
-class (Monoid u, Monoid a) => Action u a
-act :: Action u a => a -> u -> a
 
 -- | Builds a segment tree on range (l, r) where each element is mempty.
 --   O(log n).
@@ -891,9 +880,6 @@ emptyLST :: Action u a => (Int, Int) -> LazySegTree u a
 --   list. If the list is shorter than the range, the remaining elements
 --   are mempty. O(n).
 fromListLST :: Action u a => (Int, Int) -> [a] -> LazySegTree u a
-
--- | The bounds of the segment tree. O(1).
-boundsLST :: LazySegTree u a -> (Int, Int)
 
 -- | Adjusts the element at index i. O(log n).
 adjustLST :: Action u a => (a -> a) -> Int -> LazySegTree u a -> LazySegTree u a
@@ -912,6 +898,38 @@ instance (GHC.Show.Show a, GHC.Show.Show u) => GHC.Show.Show (SegTreeLazy.LSegNo
 instance (GHC.Show.Show a, GHC.Show.Show u) => GHC.Show.Show (SegTreeLazy.LazySegTree u a)
 instance (Control.DeepSeq.NFData u, Control.DeepSeq.NFData a) => Control.DeepSeq.NFData (SegTreeLazy.LazySegTree u a)
 instance (Control.DeepSeq.NFData u, Control.DeepSeq.NFData a) => Control.DeepSeq.NFData (SegTreeLazy.LSegNode u a)
+
+
+-- | <h2>Mutable segment tree with lazy propagation</h2>
+--   
+--   See LazySegTree. LazySegTreeMut is just that, but backed by mutable
+--   arrays. When the arrays are unboxed, LazySegTreeMut is a few times
+--   faster than LazySegTree (see benchmarks). However, this comes at the
+--   cost of purity.
+module SegTreeLazyMut
+data LazySegTreeMut marru marra u a
+
+-- | Builds a segment tree on range (l, r) where each element is mempty.
+--   O(n).
+emptyLSTM :: (Action u a, MArray marru u m, MArray marra a m) => (Int, Int) -> m (LazySegTreeMut marru marra u a)
+
+-- | Builds a segment tree on (l, r) where the elements are taken from a
+--   list. If the list is shorter than the range, the remaining elements
+--   are mempty. O(n).
+fromListLSTM :: (Action u a, MArray marru u m, MArray marra a m) => (Int, Int) -> [a] -> m (LazySegTreeMut marru marra u a)
+
+-- | Adjusts the element at index i. O(log n).
+adjustLSTM :: (Action u a, MArray marru u m, MArray marra a m) => LazySegTreeMut marru marra u a -> Int -> (a -> a) -> m ()
+
+-- | Applies an update on elements in the range (ql, qr). O(log n).
+updateRangeLSTM :: (Action u a, MArray marru u m, MArray marra a m) => LazySegTreeMut marru marra u a -> Int -> Int -> u -> m ()
+
+-- | Folds the elements in the range (ql, qr). Elements outside (l, r) are
+--   considered to be mempty. O(log n).
+foldRangeLSTM :: (Action u a, MArray marru u m, MArray marra a m) => LazySegTreeMut marru marra u a -> Int -> Int -> m a
+
+-- | Right fold over the elements of the segment tree. O(n).
+foldrLSTM :: (Action u a, MArray marru u m, MArray marra a m) => LazySegTreeMut marru marra u a -> (a -> b -> b) -> b -> m b
 
 
 -- | <h2>Sorting</h2>

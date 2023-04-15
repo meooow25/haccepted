@@ -35,16 +35,15 @@ Implementation notes:
 </span><span id="line-35"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier">SegTree</span></a></span><span>
 </span><span id="line-36"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="SegTree.html#emptyST"><span class="hs-identifier">emptyST</span></a></span><span>
 </span><span id="line-37"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="SegTree.html#fromListST"><span class="hs-identifier">fromListST</span></a></span><span>
-</span><span id="line-38"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="SegTree.html#boundsST"><span class="hs-identifier">boundsST</span></a></span><span>
-</span><span id="line-39"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="SegTree.html#adjustST"><span class="hs-identifier">adjustST</span></a></span><span>
-</span><span id="line-40"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="SegTree.html#foldRangeST"><span class="hs-identifier">foldRangeST</span></a></span><span>
-</span><span id="line-41"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-42"></span><span>
-</span><span id="line-43"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.DeepSeq</span></span><span>
-</span><span id="line-44"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.State</span></span><span>
-</span><span id="line-45"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Bits</span></span><span>
-</span><span id="line-46"></span><span>
-</span><span id="line-47"></span><span class="hs-keyword">data</span><span> </span><span id="SegTree"><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-var">SegTree</span></a></span></span><span> </span><span id="local-6989586621679071389"><span class="annot"><a href="#local-6989586621679071389"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="SegTree"><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-var">SegTree</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071389"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679071284"><span id="local-6989586621679071286"><span id="local-6989586621679071288"><span class="annot"><span class="annottext">Int -&gt; SegTree a -&gt; ShowS
+</span><span id="line-38"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="SegTree.html#adjustST"><span class="hs-identifier">adjustST</span></a></span><span>
+</span><span id="line-39"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="SegTree.html#foldRangeST"><span class="hs-identifier">foldRangeST</span></a></span><span>
+</span><span id="line-40"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-41"></span><span>
+</span><span id="line-42"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.DeepSeq</span></span><span>
+</span><span id="line-43"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.State</span></span><span>
+</span><span id="line-44"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Bits</span></span><span>
+</span><span id="line-45"></span><span>
+</span><span id="line-46"></span><span class="hs-keyword">data</span><span> </span><span id="SegTree"><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-var">SegTree</span></a></span></span><span> </span><span id="local-6989586621679073311"><span class="annot"><a href="#local-6989586621679073311"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="SegTree"><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-var">SegTree</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073311"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679073208"><span id="local-6989586621679073210"><span id="local-6989586621679073212"><span class="annot"><span class="annottext">Int -&gt; SegTree a -&gt; ShowS
 [SegTree a] -&gt; ShowS
 SegTree a -&gt; String
 (Int -&gt; SegTree a -&gt; ShowS)
@@ -63,7 +62,7 @@ $cshow :: forall a. Show a =&gt; SegTree a -&gt; String
 showsPrec :: Int -&gt; SegTree a -&gt; ShowS
 $cshowsPrec :: forall a. Show a =&gt; Int -&gt; SegTree a -&gt; ShowS
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span>
-</span><span id="line-48"></span><span class="hs-keyword">data</span><span> </span><span id="SegNode"><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-var">SegNode</span></a></span></span><span> </span><span id="local-6989586621679071388"><span class="annot"><a href="#local-6989586621679071388"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="SLeaf"><span class="annot"><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-var">SLeaf</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="#local-6989586621679071388"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="SBin"><span class="annot"><a href="SegTree.html#SBin"><span class="hs-identifier hs-var">SBin</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="#local-6989586621679071388"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071388"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071388"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679071275"><span id="local-6989586621679071277"><span id="local-6989586621679071279"><span class="annot"><span class="annottext">Int -&gt; SegNode a -&gt; ShowS
+</span><span id="line-47"></span><span class="hs-keyword">data</span><span> </span><span id="SegNode"><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-var">SegNode</span></a></span></span><span> </span><span id="local-6989586621679073310"><span class="annot"><a href="#local-6989586621679073310"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="SLeaf"><span class="annot"><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-var">SLeaf</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="#local-6989586621679073310"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="SBin"><span class="annot"><a href="SegTree.html#SBin"><span class="hs-identifier hs-var">SBin</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="#local-6989586621679073310"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073310"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073310"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679073199"><span id="local-6989586621679073201"><span id="local-6989586621679073203"><span class="annot"><span class="annottext">Int -&gt; SegNode a -&gt; ShowS
 [SegNode a] -&gt; ShowS
 SegNode a -&gt; String
 (Int -&gt; SegNode a -&gt; ShowS)
@@ -82,507 +81,496 @@ $cshow :: forall a. Show a =&gt; SegNode a -&gt; String
 showsPrec :: Int -&gt; SegNode a -&gt; ShowS
 $cshowsPrec :: forall a. Show a =&gt; Int -&gt; SegNode a -&gt; ShowS
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span>
-</span><span id="line-49"></span><span>
-</span><span id="line-50"></span><span id="local-6989586621679071380"><span class="annot"><a href="SegTree.html#buildST"><span class="hs-identifier hs-type">buildST</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679071380"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071380"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071380"><span class="hs-identifier hs-type">a</span></a></span></span><span>
-</span><span id="line-51"></span><span id="buildST"><span class="annot"><span class="annottext">buildST :: (Int, Int) -&gt; (Int -&gt; SegNode a) -&gt; SegTree a
-</span><a href="SegTree.html#buildST"><span class="hs-identifier hs-var hs-var">buildST</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679071273"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071273"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679071272"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071272"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679071271"><span class="annot"><span class="annottext">Int -&gt; SegNode a
-</span><a href="#local-6989586621679071271"><span class="hs-identifier hs-var">f</span></a></span></span><span>
-</span><span id="line-52"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071270"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><span id="line-48"></span><span>
+</span><span id="line-49"></span><span id="local-6989586621679073302"><span class="annot"><a href="SegTree.html#buildST"><span class="hs-identifier hs-type">buildST</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679073302"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073302"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073302"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-50"></span><span id="buildST"><span class="annot"><span class="annottext">buildST :: (Int, Int) -&gt; (Int -&gt; SegNode a) -&gt; SegTree a
+</span><a href="SegTree.html#buildST"><span class="hs-identifier hs-var hs-var">buildST</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679073197"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073197"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073196"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073196"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679073195"><span class="annot"><span class="annottext">Int -&gt; SegNode a
+</span><a href="#local-6989586621679073195"><span class="hs-identifier hs-var">f</span></a></span></span><span>
+</span><span id="line-51"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073194"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="hs-glyph">-</span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; SegTree a
 forall a. HasCallStack =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;invalid range&quot;</span></span><span>
-</span><span id="line-53"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071270"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><span id="line-52"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073194"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="hs-glyph">-</span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int, Int) -&gt; SegNode a -&gt; SegTree a
 forall a. (Int, Int, Int) -&gt; SegNode a -&gt; SegTree a
 </span><a href="SegTree.html#SegTree"><span class="hs-identifier hs-var">SegTree</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071273"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071272"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073197"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073196"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; SegNode a
 forall a. a -&gt; SegNode a
 </span><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-var">SLeaf</span></a></span><span> </span><span class="annot"><span class="annottext">a
 forall a. Monoid a =&gt; a
 </span><span class="hs-identifier hs-var">mempty</span></span><span class="hs-special">)</span><span>
-</span><span id="line-54"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span id="line-53"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int, Int) -&gt; SegNode a -&gt; SegTree a
 forall a. (Int, Int, Int) -&gt; SegNode a -&gt; SegTree a
 </span><a href="SegTree.html#SegTree"><span class="hs-identifier hs-var">SegTree</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071273"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071272"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int
+</span><a href="#local-6989586621679073197"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073196"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int
 forall a. Bits a =&gt; Int -&gt; a
 </span><span class="hs-identifier hs-var">bit</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071266"><span class="hs-identifier hs-var">ht</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; SegNode a
-</span><a href="#local-6989586621679071271"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071266"><span class="hs-identifier hs-var">ht</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-55"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-56"></span><span>    </span><span id="local-6989586621679071270"><span class="annot"><span class="annottext">n :: Int
-</span><a href="#local-6989586621679071270"><span class="hs-identifier hs-var hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071272"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073190"><span class="hs-identifier hs-var">ht</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; SegNode a
+</span><a href="#local-6989586621679073195"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073190"><span class="hs-identifier hs-var">ht</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-54"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-55"></span><span>    </span><span id="local-6989586621679073194"><span class="annot"><span class="annottext">n :: Int
+</span><a href="#local-6989586621679073194"><span class="hs-identifier hs-var hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073196"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071273"><span class="hs-identifier hs-var">l</span></a></span><span>
-</span><span id="line-57"></span><span>    </span><span id="local-6989586621679071266"><span class="annot"><span class="annottext">ht :: Int
-</span><a href="#local-6989586621679071266"><span class="hs-identifier hs-var hs-var">ht</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int
+</span><a href="#local-6989586621679073197"><span class="hs-identifier hs-var">l</span></a></span><span>
+</span><span id="line-56"></span><span>    </span><span id="local-6989586621679073190"><span class="annot"><span class="annottext">ht :: Int
+</span><a href="#local-6989586621679073190"><span class="hs-identifier hs-var hs-var">ht</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int
 forall b. FiniteBits b =&gt; b -&gt; Int
 </span><span class="hs-identifier hs-var">finiteBitSize</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071270"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073194"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int
 forall b. FiniteBits b =&gt; b -&gt; Int
 </span><span class="hs-identifier hs-var">countLeadingZeros</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071270"><span class="hs-identifier hs-var">n</span></a></span><span>
-</span><span id="line-58"></span><span>
-</span><span id="line-59"></span><span class="hs-comment">-- | Builds a segment tree on range (l, r) where each element is mempty. O(log n).</span><span>
-</span><span id="line-60"></span><span id="local-6989586621679071263"><span class="annot"><a href="SegTree.html#emptyST"><span class="hs-identifier hs-type">emptyST</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679071263"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071263"><span class="hs-identifier hs-type">a</span></a></span></span><span>
-</span><span id="line-61"></span><span id="emptyST"><span class="annot"><span class="annottext">emptyST :: (Int, Int) -&gt; SegTree a
-</span><a href="SegTree.html#emptyST"><span class="hs-identifier hs-var hs-var">emptyST</span></a></span></span><span> </span><span id="local-6989586621679071262"><span class="annot"><span class="annottext">(Int, Int)
-</span><a href="#local-6989586621679071262"><span class="hs-identifier hs-var">bnds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int) -&gt; (Int -&gt; SegNode a) -&gt; SegTree a
+</span><a href="#local-6989586621679073194"><span class="hs-identifier hs-var">n</span></a></span><span>
+</span><span id="line-57"></span><span>
+</span><span id="line-58"></span><span class="hs-comment">-- | Builds a segment tree on range (l, r) where each element is mempty. O(log n).</span><span>
+</span><span id="line-59"></span><span id="local-6989586621679073187"><span class="annot"><a href="SegTree.html#emptyST"><span class="hs-identifier hs-type">emptyST</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679073187"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073187"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-60"></span><span id="emptyST"><span class="annot"><span class="annottext">emptyST :: (Int, Int) -&gt; SegTree a
+</span><a href="SegTree.html#emptyST"><span class="hs-identifier hs-var hs-var">emptyST</span></a></span></span><span> </span><span id="local-6989586621679073186"><span class="annot"><span class="annottext">(Int, Int)
+</span><a href="#local-6989586621679073186"><span class="hs-identifier hs-var">bnds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int) -&gt; (Int -&gt; SegNode a) -&gt; SegTree a
 forall a. Monoid a =&gt; (Int, Int) -&gt; (Int -&gt; SegNode a) -&gt; SegTree a
 </span><a href="SegTree.html#buildST"><span class="hs-identifier hs-var">buildST</span></a></span><span> </span><span class="annot"><span class="annottext">(Int, Int)
-</span><a href="#local-6989586621679071262"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; SegNode a
+</span><a href="#local-6989586621679073186"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; SegNode a
 forall a a. (Eq a, Monoid a, Num a) =&gt; a -&gt; SegNode a
-</span><a href="#local-6989586621679071261"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-62"></span><span>    </span><span id="local-6989586621679071261"><span class="annot"><span class="annottext">go :: a -&gt; SegNode a
-</span><a href="#local-6989586621679071261"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073185"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-61"></span><span>    </span><span id="local-6989586621679073185"><span class="annot"><span class="annottext">go :: a -&gt; SegNode a
+</span><a href="#local-6989586621679073185"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="annot"><span class="annottext">a
 </span><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; SegNode a
 forall a. a -&gt; SegNode a
 </span><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-var">SLeaf</span></a></span><span> </span><span class="annot"><span class="annottext">a
 forall a. Monoid a =&gt; a
 </span><span class="hs-identifier hs-var">mempty</span></span><span>
-</span><span id="line-63"></span><span>    </span><span class="annot"><a href="#local-6989586621679071261"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679071260"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071260"><span class="hs-identifier hs-var">j</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; SegNode a -&gt; SegNode a -&gt; SegNode a
+</span><span id="line-62"></span><span>    </span><span class="annot"><a href="#local-6989586621679073185"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679073184"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073184"><span class="hs-identifier hs-var">j</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; SegNode a -&gt; SegNode a -&gt; SegNode a
 forall a. a -&gt; SegNode a -&gt; SegNode a -&gt; SegNode a
 </span><a href="SegTree.html#SBin"><span class="hs-identifier hs-var">SBin</span></a></span><span> </span><span class="annot"><span class="annottext">a
 forall a. Monoid a =&gt; a
 </span><span class="hs-identifier hs-var">mempty</span></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071259"><span class="hs-identifier hs-var">lr</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071259"><span class="hs-identifier hs-var">lr</span></a></span><span> </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679071259"><span class="annot"><span class="annottext">lr :: SegNode a
-</span><a href="#local-6989586621679071259"><span class="hs-identifier hs-var hs-var">lr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; SegNode a
-</span><a href="#local-6989586621679071261"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071260"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><a href="#local-6989586621679073183"><span class="hs-identifier hs-var">lr</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073183"><span class="hs-identifier hs-var">lr</span></a></span><span> </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679073183"><span class="annot"><span class="annottext">lr :: SegNode a
+</span><a href="#local-6989586621679073183"><span class="hs-identifier hs-var hs-var">lr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; SegNode a
+</span><a href="#local-6989586621679073185"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073184"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">a
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
-</span><span id="line-64"></span><span>
-</span><span id="line-65"></span><span id="local-6989586621679071352"><span class="annot"><a href="SegTree.html#makeSN"><span class="hs-identifier hs-type">makeSN</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679071352"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071352"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071352"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071352"><span class="hs-identifier hs-type">a</span></a></span></span><span>
-</span><span id="line-66"></span><span id="makeSN"><span class="annot"><span class="annottext">makeSN :: SegNode a -&gt; SegNode a -&gt; SegNode a
-</span><a href="SegTree.html#makeSN"><span class="hs-identifier hs-var hs-var">makeSN</span></a></span></span><span> </span><span id="local-6989586621679071257"><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071257"><span class="hs-identifier hs-var">lt</span></a></span></span><span> </span><span id="local-6989586621679071256"><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071256"><span class="hs-identifier hs-var">rt</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; SegNode a -&gt; SegNode a -&gt; SegNode a
+</span><span id="line-63"></span><span>
+</span><span id="line-64"></span><span id="local-6989586621679073274"><span class="annot"><a href="SegTree.html#makeSN"><span class="hs-identifier hs-type">makeSN</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679073274"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073274"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073274"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073274"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-65"></span><span id="makeSN"><span class="annot"><span class="annottext">makeSN :: SegNode a -&gt; SegNode a -&gt; SegNode a
+</span><a href="SegTree.html#makeSN"><span class="hs-identifier hs-var hs-var">makeSN</span></a></span></span><span> </span><span id="local-6989586621679073181"><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073181"><span class="hs-identifier hs-var">lt</span></a></span></span><span> </span><span id="local-6989586621679073180"><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073180"><span class="hs-identifier hs-var">rt</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; SegNode a -&gt; SegNode a -&gt; SegNode a
 forall a. a -&gt; SegNode a -&gt; SegNode a -&gt; SegNode a
 </span><a href="SegTree.html#SBin"><span class="hs-identifier hs-var">SBin</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SegNode a -&gt; a
 forall p. SegNode p -&gt; p
-</span><a href="#local-6989586621679071255"><span class="hs-identifier hs-var">getx</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071257"><span class="hs-identifier hs-var">lt</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><a href="#local-6989586621679073179"><span class="hs-identifier hs-var">getx</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073181"><span class="hs-identifier hs-var">lt</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; a
 forall p. SegNode p -&gt; p
-</span><a href="#local-6989586621679071255"><span class="hs-identifier hs-var">getx</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071256"><span class="hs-identifier hs-var">rt</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071257"><span class="hs-identifier hs-var">lt</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071256"><span class="hs-identifier hs-var">rt</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-67"></span><span>    </span><span id="local-6989586621679071255"><span class="annot"><span class="annottext">getx :: SegNode p -&gt; p
-</span><a href="#local-6989586621679071255"><span class="hs-identifier hs-var hs-var">getx</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-type">SLeaf</span></a></span><span> </span><span id="local-6989586621679071254"><span class="annot"><span class="annottext">p
-</span><a href="#local-6989586621679071254"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">p
-</span><a href="#local-6989586621679071254"><span class="hs-identifier hs-var">x</span></a></span><span>
-</span><span id="line-68"></span><span>    </span><span class="annot"><a href="#local-6989586621679071255"><span class="hs-identifier hs-var">getx</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SBin"><span class="hs-identifier hs-type">SBin</span></a></span><span> </span><span id="local-6989586621679071253"><span class="annot"><span class="annottext">p
-</span><a href="#local-6989586621679071253"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="annot"><span class="annottext">SegNode p
+</span><a href="#local-6989586621679073179"><span class="hs-identifier hs-var">getx</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073180"><span class="hs-identifier hs-var">rt</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073181"><span class="hs-identifier hs-var">lt</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073180"><span class="hs-identifier hs-var">rt</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-66"></span><span>    </span><span id="local-6989586621679073179"><span class="annot"><span class="annottext">getx :: SegNode p -&gt; p
+</span><a href="#local-6989586621679073179"><span class="hs-identifier hs-var hs-var">getx</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-type">SLeaf</span></a></span><span> </span><span id="local-6989586621679073178"><span class="annot"><span class="annottext">p
+</span><a href="#local-6989586621679073178"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">p
+</span><a href="#local-6989586621679073178"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-67"></span><span>    </span><span class="annot"><a href="#local-6989586621679073179"><span class="hs-identifier hs-var">getx</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SBin"><span class="hs-identifier hs-type">SBin</span></a></span><span> </span><span id="local-6989586621679073177"><span class="annot"><span class="annottext">p
+</span><a href="#local-6989586621679073177"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="annot"><span class="annottext">SegNode p
 </span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">SegNode p
 </span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">p
-</span><a href="#local-6989586621679071253"><span class="hs-identifier hs-var">x</span></a></span><span>
-</span><span id="line-69"></span><span>
-</span><span id="line-70"></span><span class="hs-comment">-- | Builds a segment tree on (l, r) where the elements are taken from a list. If the list is shorter</span><span>
-</span><span id="line-71"></span><span class="hs-comment">-- than the range, the remaining elements are mempty. O(n).</span><span>
-</span><span id="line-72"></span><span id="local-6989586621679071252"><span class="annot"><a href="SegTree.html#fromListST"><span class="hs-identifier hs-type">fromListST</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679071252"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679071252"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071252"><span class="hs-identifier hs-type">a</span></a></span></span><span>
-</span><span id="line-73"></span><span id="fromListST"><span class="annot"><span class="annottext">fromListST :: (Int, Int) -&gt; [a] -&gt; SegTree a
-</span><a href="SegTree.html#fromListST"><span class="hs-identifier hs-var hs-var">fromListST</span></a></span></span><span> </span><span id="local-6989586621679071251"><span class="annot"><span class="annottext">(Int, Int)
-</span><a href="#local-6989586621679071251"><span class="hs-identifier hs-var">bnds</span></a></span></span><span> </span><span id="local-6989586621679071250"><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679071250"><span class="hs-identifier hs-var">xs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int) -&gt; (Int -&gt; SegNode a) -&gt; SegTree a
+</span><a href="#local-6989586621679073177"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-68"></span><span>
+</span><span id="line-69"></span><span class="hs-comment">-- | Builds a segment tree on (l, r) where the elements are taken from a list. If the list is shorter</span><span>
+</span><span id="line-70"></span><span class="hs-comment">-- than the range, the remaining elements are mempty. O(n).</span><span>
+</span><span id="line-71"></span><span id="local-6989586621679073176"><span class="annot"><a href="SegTree.html#fromListST"><span class="hs-identifier hs-type">fromListST</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679073176"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679073176"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073176"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-72"></span><span id="fromListST"><span class="annot"><span class="annottext">fromListST :: (Int, Int) -&gt; [a] -&gt; SegTree a
+</span><a href="SegTree.html#fromListST"><span class="hs-identifier hs-var hs-var">fromListST</span></a></span></span><span> </span><span id="local-6989586621679073175"><span class="annot"><span class="annottext">(Int, Int)
+</span><a href="#local-6989586621679073175"><span class="hs-identifier hs-var">bnds</span></a></span></span><span> </span><span id="local-6989586621679073174"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679073174"><span class="hs-identifier hs-var">xs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int) -&gt; (Int -&gt; SegNode a) -&gt; SegTree a
 forall a. Monoid a =&gt; (Int, Int) -&gt; (Int -&gt; SegNode a) -&gt; SegTree a
 </span><a href="SegTree.html#buildST"><span class="hs-identifier hs-var">buildST</span></a></span><span> </span><span class="annot"><span class="annottext">(Int, Int)
-</span><a href="#local-6989586621679071251"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(State [a] (SegNode a) -&gt; [a] -&gt; SegNode a)
+</span><a href="#local-6989586621679073175"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(State [a] (SegNode a) -&gt; [a] -&gt; SegNode a)
 -&gt; [a] -&gt; State [a] (SegNode a) -&gt; SegNode a
 forall a b c. (a -&gt; b -&gt; c) -&gt; b -&gt; a -&gt; c
 </span><span class="hs-identifier hs-var">flip</span></span><span> </span><span class="annot"><span class="annottext">State [a] (SegNode a) -&gt; [a] -&gt; SegNode a
 forall s a. State s a -&gt; s -&gt; a
 </span><span class="hs-identifier hs-var">evalState</span></span><span> </span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679071250"><span class="hs-identifier hs-var">xs</span></a></span><span> </span><span class="annot"><span class="annottext">(State [a] (SegNode a) -&gt; SegNode a)
+</span><a href="#local-6989586621679073174"><span class="hs-identifier hs-var">xs</span></a></span><span> </span><span class="annot"><span class="annottext">(State [a] (SegNode a) -&gt; SegNode a)
 -&gt; (Int -&gt; State [a] (SegNode a)) -&gt; Int -&gt; SegNode a
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; State [a] (SegNode a)
 forall a. (Eq a, Num a) =&gt; a -&gt; State [a] (SegNode a)
-</span><a href="#local-6989586621679071246"><span class="hs-identifier hs-var">go</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-74"></span><span>    </span><span id="local-6989586621679071245"><span class="annot"><span class="annottext">pop :: StateT [a] Identity a
-</span><a href="#local-6989586621679071245"><span class="hs-identifier hs-var hs-var">pop</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">([a] -&gt; (a, [a])) -&gt; StateT [a] Identity a
+</span><a href="#local-6989586621679073170"><span class="hs-identifier hs-var">go</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-73"></span><span>    </span><span id="local-6989586621679073169"><span class="annot"><span class="annottext">pop :: StateT [a] Identity a
+</span><a href="#local-6989586621679073169"><span class="hs-identifier hs-var hs-var">pop</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">([a] -&gt; (a, [a])) -&gt; StateT [a] Identity a
 forall s (m :: * -&gt; *) a. MonadState s m =&gt; (s -&gt; (a, s)) -&gt; m a
 </span><span class="hs-identifier hs-var">state</span></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; (a, [a])
 forall a. Monoid a =&gt; [a] -&gt; (a, [a])
-</span><a href="#local-6989586621679071243"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-75"></span><span>        </span><span id="local-6989586621679071243"><span class="annot"><span class="annottext">go :: [a] -&gt; (a, [a])
-</span><a href="#local-6989586621679071243"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>     </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073167"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-74"></span><span>        </span><span id="local-6989586621679073167"><span class="annot"><span class="annottext">go :: [a] -&gt; (a, [a])
+</span><a href="#local-6989586621679073167"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>     </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
 forall a. Monoid a =&gt; a
 </span><span class="hs-identifier hs-var">mempty</span></span><span class="hs-special">,</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span>
-</span><span id="line-76"></span><span>        </span><span class="annot"><a href="#local-6989586621679071243"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679071242"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071242"><span class="hs-identifier hs-var">x</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679071241"><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679071241"><span class="hs-identifier hs-var">xs</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071242"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">,</span><span>      </span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679071241"><span class="hs-identifier hs-var">xs</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-77"></span><span>    </span><span id="local-6989586621679071246"><span class="annot"><span class="annottext">go :: a -&gt; State [a] (SegNode a)
-</span><a href="#local-6989586621679071246"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="annot"><span class="annottext">a
+</span><span id="line-75"></span><span>        </span><span class="annot"><a href="#local-6989586621679073167"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679073166"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073166"><span class="hs-identifier hs-var">x</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679073165"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679073165"><span class="hs-identifier hs-var">xs</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073166"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">,</span><span>      </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679073165"><span class="hs-identifier hs-var">xs</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-76"></span><span>    </span><span id="local-6989586621679073170"><span class="annot"><span class="annottext">go :: a -&gt; State [a] (SegNode a)
+</span><a href="#local-6989586621679073170"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="annot"><span class="annottext">a
 </span><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; SegNode a
 forall a. a -&gt; SegNode a
 </span><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-var">SLeaf</span></a></span><span> </span><span class="annot"><span class="annottext">(a -&gt; SegNode a) -&gt; StateT [a] Identity a -&gt; State [a] (SegNode a)
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">StateT [a] Identity a
-</span><a href="#local-6989586621679071245"><span class="hs-identifier hs-var">pop</span></a></span><span>
-</span><span id="line-78"></span><span>    </span><span class="annot"><a href="#local-6989586621679071246"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679071239"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071239"><span class="hs-identifier hs-var">j</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; SegNode a -&gt; SegNode a
+</span><a href="#local-6989586621679073169"><span class="hs-identifier hs-var">pop</span></a></span><span>
+</span><span id="line-77"></span><span>    </span><span class="annot"><a href="#local-6989586621679073170"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679073163"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073163"><span class="hs-identifier hs-var">j</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; SegNode a -&gt; SegNode a
 forall a. Monoid a =&gt; SegNode a -&gt; SegNode a -&gt; SegNode a
 </span><a href="SegTree.html#makeSN"><span class="hs-identifier hs-var">makeSN</span></a></span><span> </span><span class="annot"><span class="annottext">(SegNode a -&gt; SegNode a -&gt; SegNode a)
 -&gt; State [a] (SegNode a)
 -&gt; StateT [a] Identity (SegNode a -&gt; SegNode a)
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; State [a] (SegNode a)
-</span><a href="#local-6989586621679071246"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071239"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><a href="#local-6989586621679073170"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073163"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">a
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">StateT [a] Identity (SegNode a -&gt; SegNode a)
 -&gt; State [a] (SegNode a) -&gt; State [a] (SegNode a)
 forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;*&gt;</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; State [a] (SegNode a)
-</span><a href="#local-6989586621679071246"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071239"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><a href="#local-6989586621679073170"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073163"><span class="hs-identifier hs-var">j</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">a
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
-</span><span id="line-79"></span><span>
-</span><span id="line-80"></span><span class="hs-comment">-- | The bounds of the segment tree. O(1).</span><span>
-</span><span id="line-81"></span><span id="local-6989586621679071238"><span class="annot"><a href="SegTree.html#boundsST"><span class="hs-identifier hs-type">boundsST</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071238"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span></span><span>
-</span><span id="line-82"></span><span id="boundsST"><span class="annot"><span class="annottext">boundsST :: SegTree a -&gt; (Int, Int)
-</span><a href="SegTree.html#boundsST"><span class="hs-identifier hs-var hs-var">boundsST</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679071237"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071237"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679071236"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071236"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
-</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071237"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071236"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-83"></span><span>
-</span><span id="line-84"></span><span class="hs-comment">-- | Adjusts the element at index i. O(log n).</span><span>
-</span><span id="line-85"></span><span id="local-6989586621679071235"><span class="annot"><a href="SegTree.html#adjustST"><span class="hs-identifier hs-type">adjustST</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679071235"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679071235"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071235"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071235"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071235"><span class="hs-identifier hs-type">a</span></a></span></span><span>
-</span><span id="line-86"></span><span id="adjustST"><span class="annot"><span class="annottext">adjustST :: (a -&gt; a) -&gt; Int -&gt; SegTree a -&gt; SegTree a
-</span><a href="SegTree.html#adjustST"><span class="hs-identifier hs-var hs-var">adjustST</span></a></span></span><span> </span><span id="local-6989586621679071234"><span class="annot"><span class="annottext">a -&gt; a
-</span><a href="#local-6989586621679071234"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679071233"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071233"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span id="local-6989586621679071232"><span class="annot"><span class="annottext">lrp :: (Int, Int, Int)
-</span><a href="#local-6989586621679071232"><span class="hs-identifier hs-var">lrp</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span id="local-6989586621679071231"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071231"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679071230"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071230"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679071229"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071229"><span class="hs-identifier hs-var">p</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679071228"><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071228"><span class="hs-identifier hs-var">root</span></a></span></span><span class="hs-special">)</span><span>
-</span><span id="line-87"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071233"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><span id="line-78"></span><span>
+</span><span id="line-79"></span><span class="hs-comment">-- | Adjusts the element at index i. O(log n).</span><span>
+</span><span id="line-80"></span><span id="local-6989586621679073162"><span class="annot"><a href="SegTree.html#adjustST"><span class="hs-identifier hs-type">adjustST</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679073162"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679073162"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679073162"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073162"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073162"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-81"></span><span id="adjustST"><span class="annot"><span class="annottext">adjustST :: (a -&gt; a) -&gt; Int -&gt; SegTree a -&gt; SegTree a
+</span><a href="SegTree.html#adjustST"><span class="hs-identifier hs-var hs-var">adjustST</span></a></span></span><span> </span><span id="local-6989586621679073161"><span class="annot"><span class="annottext">a -&gt; a
+</span><a href="#local-6989586621679073161"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679073160"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073160"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span id="local-6989586621679073159"><span class="annot"><span class="annottext">lrp :: (Int, Int, Int)
+</span><a href="#local-6989586621679073159"><span class="hs-identifier hs-var">lrp</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span id="local-6989586621679073158"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073158"><span class="hs-identifier hs-var">l0</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679073157"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073157"><span class="hs-identifier hs-var">r0</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679073156"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073156"><span class="hs-identifier hs-var">p</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679073155"><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073155"><span class="hs-identifier hs-var">root</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-82"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073160"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071231"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><a href="#local-6989586621679073158"><span class="hs-identifier hs-var">l0</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
 </span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071230"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679073157"><span class="hs-identifier hs-var">r0</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071233"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; SegTree a
+</span><a href="#local-6989586621679073160"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; SegTree a
 forall a. HasCallStack =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><span class="hs-string">&quot;outside range&quot;</span></span><span>
-</span><span id="line-88"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
-</span><span class="hs-identifier hs-var">otherwise</span></span><span>      </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int, Int) -&gt; SegNode a -&gt; SegTree a
+</span><span class="hs-string">&quot;adjustST: outside range&quot;</span></span><span>
+</span><span id="line-83"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span>        </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int, Int) -&gt; SegNode a -&gt; SegTree a
 forall a. (Int, Int, Int) -&gt; SegNode a -&gt; SegTree a
 </span><a href="SegTree.html#SegTree"><span class="hs-identifier hs-var">SegTree</span></a></span><span> </span><span class="annot"><span class="annottext">(Int, Int, Int)
-</span><a href="#local-6989586621679071232"><span class="hs-identifier hs-var">lrp</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SegNode a -&gt; Int -&gt; Int -&gt; SegNode a
-</span><a href="#local-6989586621679071226"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071228"><span class="hs-identifier hs-var">root</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071231"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071231"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073159"><span class="hs-identifier hs-var">lrp</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SegNode a -&gt; Int -&gt; Int -&gt; SegNode a
+</span><a href="#local-6989586621679073153"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073155"><span class="hs-identifier hs-var">root</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073158"><span class="hs-identifier hs-var">l0</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073158"><span class="hs-identifier hs-var">l0</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071229"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><span class="hs-operator hs-var">+</span></span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073156"><span class="hs-identifier hs-var">p</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-glyph hs-var">-</span></span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-89"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-90"></span><span>    </span><span id="local-6989586621679071226"><span class="annot"><span class="annottext">go :: SegNode a -&gt; Int -&gt; Int -&gt; SegNode a
-</span><a href="#local-6989586621679071226"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679071224"><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071224"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span id="local-6989586621679071223"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071223"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679071222"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071222"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071233"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><span id="line-84"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-85"></span><span>    </span><span id="local-6989586621679073153"><span class="annot"><span class="annottext">go :: SegNode a -&gt; Int -&gt; Int -&gt; SegNode a
+</span><a href="#local-6989586621679073153"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679073151"><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073151"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span id="local-6989586621679073150"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073150"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679073149"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073149"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073160"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071223"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><a href="#local-6989586621679073150"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
 </span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071222"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679073149"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071233"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071224"><span class="hs-identifier hs-var">n</span></a></span><span>
-</span><span id="line-91"></span><span>    </span><span class="annot"><a href="#local-6989586621679071226"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-type">SLeaf</span></a></span><span> </span><span id="local-6989586621679071221"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071221"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span>      </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073160"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073151"><span class="hs-identifier hs-var">n</span></a></span><span>
+</span><span id="line-86"></span><span>    </span><span class="annot"><a href="#local-6989586621679073153"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-type">SLeaf</span></a></span><span> </span><span id="local-6989586621679073148"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073148"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span>      </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; SegNode a
 forall a. a -&gt; SegNode a
 </span><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-var">SLeaf</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; a
-</span><a href="#local-6989586621679071234"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071221"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-92"></span><span>    </span><span class="annot"><a href="#local-6989586621679071226"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SBin"><span class="hs-identifier hs-type">SBin</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679071220"><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071220"><span class="hs-identifier hs-var">lt</span></a></span></span><span> </span><span id="local-6989586621679071219"><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071219"><span class="hs-identifier hs-var">rt</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679071218"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071218"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679071217"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071217"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; SegNode a -&gt; SegNode a
+</span><a href="#local-6989586621679073161"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073148"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-87"></span><span>    </span><span class="annot"><a href="#local-6989586621679073153"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SBin"><span class="hs-identifier hs-type">SBin</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679073147"><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073147"><span class="hs-identifier hs-var">lt</span></a></span></span><span> </span><span id="local-6989586621679073146"><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073146"><span class="hs-identifier hs-var">rt</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679073145"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073145"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679073144"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073144"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; SegNode a -&gt; SegNode a
 forall a. Monoid a =&gt; SegNode a -&gt; SegNode a -&gt; SegNode a
 </span><a href="SegTree.html#makeSN"><span class="hs-identifier hs-var">makeSN</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SegNode a -&gt; Int -&gt; Int -&gt; SegNode a
-</span><a href="#local-6989586621679071226"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071220"><span class="hs-identifier hs-var">lt</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071218"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071216"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SegNode a -&gt; Int -&gt; Int -&gt; SegNode a
-</span><a href="#local-6989586621679071226"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071219"><span class="hs-identifier hs-var">rt</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071216"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073153"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073147"><span class="hs-identifier hs-var">lt</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073145"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073143"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SegNode a -&gt; Int -&gt; Int -&gt; SegNode a
+</span><a href="#local-6989586621679073153"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073146"><span class="hs-identifier hs-var">rt</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073143"><span class="hs-identifier hs-var">m</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-operator hs-var">+</span></span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071217"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679071216"><span class="annot"><span class="annottext">m :: Int
-</span><a href="#local-6989586621679071216"><span class="hs-identifier hs-var hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071218"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073144"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679073143"><span class="annot"><span class="annottext">m :: Int
+</span><a href="#local-6989586621679073143"><span class="hs-identifier hs-var hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073145"><span class="hs-identifier hs-var">l</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071217"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><span class="hs-operator hs-var">+</span></span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073144"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Integral a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">`div`</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">2</span></span><span>
-</span><span id="line-93"></span><span>
-</span><span id="line-94"></span><span class="hs-comment">-- | Folds the elements in the range (ql, qr). Elements outside (l, r) are considered to be mempty.</span><span>
-</span><span id="line-95"></span><span class="hs-comment">-- O(log n).</span><span>
-</span><span id="line-96"></span><span id="local-6989586621679071214"><span class="annot"><a href="SegTree.html#foldRangeST"><span class="hs-identifier hs-type">foldRangeST</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679071214"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071214"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679071214"><span class="hs-identifier hs-type">a</span></a></span></span><span>
-</span><span id="line-97"></span><span id="foldRangeST"><span class="annot"><span class="annottext">foldRangeST :: Int -&gt; Int -&gt; SegTree a -&gt; a
-</span><a href="SegTree.html#foldRangeST"><span class="hs-identifier hs-var hs-var">foldRangeST</span></a></span></span><span> </span><span id="local-6989586621679071213"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071213"><span class="hs-identifier hs-var">ql</span></a></span></span><span> </span><span id="local-6989586621679071212"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071212"><span class="hs-identifier hs-var">qr</span></a></span></span><span> </span><span class="annot"><span class="annottext">SegTree a
-</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071213"><span class="hs-identifier hs-var">ql</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><span id="line-88"></span><span>
+</span><span id="line-89"></span><span class="hs-comment">-- | Folds the elements in the range (ql, qr). Elements outside (l, r) are considered to be mempty.</span><span>
+</span><span id="line-90"></span><span class="hs-comment">-- O(log n).</span><span>
+</span><span id="line-91"></span><span id="local-6989586621679073141"><span class="annot"><a href="SegTree.html#foldRangeST"><span class="hs-identifier hs-type">foldRangeST</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Monoid</span></span><span> </span><span class="annot"><a href="#local-6989586621679073141"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073141"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679073141"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-92"></span><span id="foldRangeST"><span class="annot"><span class="annottext">foldRangeST :: Int -&gt; Int -&gt; SegTree a -&gt; a
+</span><a href="SegTree.html#foldRangeST"><span class="hs-identifier hs-var hs-var">foldRangeST</span></a></span></span><span> </span><span id="local-6989586621679073140"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073140"><span class="hs-identifier hs-var">ql</span></a></span></span><span> </span><span id="local-6989586621679073139"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073139"><span class="hs-identifier hs-var">qr</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679073138"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073138"><span class="hs-identifier hs-var">l0</span></a></span></span><span class="hs-special">,</span><span class="annot"><span class="annottext">Int
+</span><span class="hs-identifier">_</span></span><span class="hs-special">,</span><span id="local-6989586621679073137"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073137"><span class="hs-identifier hs-var">p</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679073136"><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073136"><span class="hs-identifier hs-var">root</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-93"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073140"><span class="hs-identifier hs-var">ql</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&gt;</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071212"><span class="hs-identifier hs-var">qr</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073139"><span class="hs-identifier hs-var">qr</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; a
 forall a. HasCallStack =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><span class="hs-string">&quot;invalid range&quot;</span></span><span>
-</span><span id="line-98"></span><span class="annot"><a href="SegTree.html#foldRangeST"><span class="hs-identifier hs-var">foldRangeST</span></a></span><span> </span><span id="local-6989586621679071210"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071210"><span class="hs-identifier hs-var">ql</span></a></span></span><span> </span><span id="local-6989586621679071209"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071209"><span class="hs-identifier hs-var">qr</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679071208"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071208"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
-</span><span class="hs-identifier">_</span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679071207"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071207"><span class="hs-identifier hs-var">p</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679071206"><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071206"><span class="hs-identifier hs-var">root</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; Int -&gt; Int -&gt; a -&gt; a
+</span><span class="hs-string">&quot;foldRangeST: bad range&quot;</span></span><span>
+</span><span id="line-94"></span><span>    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; Int -&gt; Int -&gt; a -&gt; a
 forall a. Semigroup a =&gt; SegNode a -&gt; Int -&gt; Int -&gt; a -&gt; a
-</span><a href="#local-6989586621679071205"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071206"><span class="hs-identifier hs-var">root</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071208"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071208"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073134"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073136"><span class="hs-identifier hs-var">root</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073138"><span class="hs-identifier hs-var">l0</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073138"><span class="hs-identifier hs-var">l0</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071207"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><span class="hs-operator hs-var">+</span></span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073137"><span class="hs-identifier hs-var">p</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-glyph hs-var">-</span></span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">a
 forall a. Monoid a =&gt; a
-</span><span class="hs-identifier hs-var">mempty</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-99"></span><span>    </span><span id="local-6989586621679071205"><span class="annot"><span class="annottext">go :: SegNode a -&gt; Int -&gt; Int -&gt; a -&gt; a
-</span><a href="#local-6989586621679071205"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679071204"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071204"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679071203"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071203"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679071202"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071202"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071203"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><span class="hs-identifier hs-var">mempty</span></span><span>
+</span><span id="line-95"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-96"></span><span>    </span><span id="local-6989586621679073134"><span class="annot"><span class="annottext">go :: SegNode a -&gt; Int -&gt; Int -&gt; a -&gt; a
+</span><a href="#local-6989586621679073134"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679073133"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073133"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679073132"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073132"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679073131"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073131"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073132"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071210"><span class="hs-identifier hs-var">ql</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><a href="#local-6989586621679073140"><span class="hs-identifier hs-var">ql</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
 </span><span class="hs-operator hs-var">||</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071209"><span class="hs-identifier hs-var">qr</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679073139"><span class="hs-identifier hs-var">qr</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071204"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071202"><span class="hs-identifier hs-var">acc</span></a></span><span>
-</span><span id="line-100"></span><span>    </span><span class="annot"><a href="#local-6989586621679071205"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-type">SLeaf</span></a></span><span> </span><span id="local-6989586621679071201"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071201"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073133"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073131"><span class="hs-identifier hs-var">acc</span></a></span><span>
+</span><span id="line-97"></span><span>    </span><span class="annot"><a href="#local-6989586621679073134"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-type">SLeaf</span></a></span><span> </span><span id="local-6989586621679073130"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073130"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679071200"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071200"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071200"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679073129"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073129"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073129"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071201"><span class="hs-identifier hs-var">x</span></a></span><span>
-</span><span id="line-101"></span><span>    </span><span class="annot"><a href="#local-6989586621679071205"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SBin"><span class="hs-identifier hs-type">SBin</span></a></span><span> </span><span id="local-6989586621679071199"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071199"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679071198"><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071198"><span class="hs-identifier hs-var">lt</span></a></span></span><span> </span><span id="local-6989586621679071197"><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071197"><span class="hs-identifier hs-var">rt</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679071196"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071196"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679071195"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071195"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679071194"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071194"><span class="hs-identifier hs-var">acc</span></a></span></span><span>
-</span><span id="line-102"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071210"><span class="hs-identifier hs-var">ql</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679073130"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-98"></span><span>    </span><span class="annot"><a href="#local-6989586621679073134"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SBin"><span class="hs-identifier hs-type">SBin</span></a></span><span> </span><span id="local-6989586621679073128"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073128"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679073127"><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073127"><span class="hs-identifier hs-var">lt</span></a></span></span><span> </span><span id="local-6989586621679073126"><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073126"><span class="hs-identifier hs-var">rt</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679073125"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073125"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679073124"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073124"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679073123"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073123"><span class="hs-identifier hs-var">acc</span></a></span></span><span>
+</span><span id="line-99"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073140"><span class="hs-identifier hs-var">ql</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;=</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071196"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><a href="#local-6989586621679073125"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
 </span><span class="hs-operator hs-var">&amp;&amp;</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071195"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679073124"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;=</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071209"><span class="hs-identifier hs-var">qr</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071194"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><a href="#local-6989586621679073139"><span class="hs-identifier hs-var">qr</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073123"><span class="hs-identifier hs-var">acc</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071199"><span class="hs-identifier hs-var">x</span></a></span><span>
-</span><span id="line-103"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679073128"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-100"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">otherwise</span></span><span>          </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; Int -&gt; Int -&gt; a -&gt; a
-</span><a href="#local-6989586621679071205"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071197"><span class="hs-identifier hs-var">rt</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071191"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073134"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073126"><span class="hs-identifier hs-var">rt</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073120"><span class="hs-identifier hs-var">m</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-operator hs-var">+</span></span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071195"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">(a -&gt; a) -&gt; a -&gt; a
+</span><a href="#local-6989586621679073124"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">(a -&gt; a) -&gt; a -&gt; a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$!</span></span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; Int -&gt; Int -&gt; a -&gt; a
-</span><a href="#local-6989586621679071205"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071198"><span class="hs-identifier hs-var">lt</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071196"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071191"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071194"><span class="hs-identifier hs-var">acc</span></a></span><span>
-</span><span id="line-104"></span><span>        </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679071191"><span class="annot"><span class="annottext">m :: Int
-</span><a href="#local-6989586621679071191"><span class="hs-identifier hs-var hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071196"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073134"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073127"><span class="hs-identifier hs-var">lt</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073125"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073120"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073123"><span class="hs-identifier hs-var">acc</span></a></span><span>
+</span><span id="line-101"></span><span>        </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679073120"><span class="annot"><span class="annottext">m :: Int
+</span><a href="#local-6989586621679073120"><span class="hs-identifier hs-var hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073125"><span class="hs-identifier hs-var">l</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071195"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><span class="hs-operator hs-var">+</span></span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073124"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Integral a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">`div`</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">2</span></span><span>
-</span><span id="line-105"></span><span>
-</span><span id="line-106"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679071157"><span id="local-6989586621679071159"><span id="local-6989586621679071161"><span id="local-6989586621679071163"><span id="local-6989586621679071165"><span id="local-6989586621679071167"><span id="local-6989586621679071169"><span id="local-6989586621679071171"><span id="local-6989586621679071173"><span id="local-6989586621679071175"><span id="local-6989586621679071177"><span id="local-6989586621679071179"><span id="local-6989586621679071181"><span id="local-6989586621679071184"><span id="local-6989586621679071186"><span id="local-6989586621679071188"><span class="annot"><span class="hs-identifier hs-type">Foldable</span></span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-107"></span><span>    </span><span id="local-6989586621679071155"><span class="annot"><span class="annottext">foldr :: (a -&gt; b -&gt; b) -&gt; b -&gt; SegTree a -&gt; b
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">foldr</span></span></span><span> </span><span id="local-6989586621679071153"><span class="annot"><span class="annottext">a -&gt; b -&gt; b
-</span><a href="#local-6989586621679071153"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679071152"><span class="annot"><span class="annottext">b
-</span><a href="#local-6989586621679071152"><span class="hs-identifier hs-var">z</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679071151"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071151"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679071150"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071150"><span class="hs-identifier hs-var">r'</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679071149"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071149"><span class="hs-identifier hs-var">p</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679071148"><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071148"><span class="hs-identifier hs-var">root</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; Int -&gt; Int -&gt; b -&gt; b
-</span><a href="#local-6989586621679071147"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071148"><span class="hs-identifier hs-var">root</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071151"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071151"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><span id="line-102"></span><span>
+</span><span id="line-103"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679073086"><span id="local-6989586621679073088"><span id="local-6989586621679073090"><span id="local-6989586621679073092"><span id="local-6989586621679073094"><span id="local-6989586621679073096"><span id="local-6989586621679073098"><span id="local-6989586621679073100"><span id="local-6989586621679073102"><span id="local-6989586621679073104"><span id="local-6989586621679073106"><span id="local-6989586621679073108"><span id="local-6989586621679073110"><span id="local-6989586621679073113"><span id="local-6989586621679073115"><span id="local-6989586621679073117"><span class="annot"><span class="hs-identifier hs-type">Foldable</span></span><span> </span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-104"></span><span>    </span><span id="local-6989586621679073084"><span class="annot"><span class="annottext">foldr :: (a -&gt; b -&gt; b) -&gt; b -&gt; SegTree a -&gt; b
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">foldr</span></span></span><span> </span><span id="local-6989586621679073082"><span class="annot"><span class="annottext">a -&gt; b -&gt; b
+</span><a href="#local-6989586621679073082"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679073081"><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679073081"><span class="hs-identifier hs-var">z</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679073080"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073080"><span class="hs-identifier hs-var">l0</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679073079"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073079"><span class="hs-identifier hs-var">r0</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679073078"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073078"><span class="hs-identifier hs-var">p</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679073077"><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073077"><span class="hs-identifier hs-var">root</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; Int -&gt; Int -&gt; b -&gt; b
+</span><a href="#local-6989586621679073076"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073077"><span class="hs-identifier hs-var">root</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073080"><span class="hs-identifier hs-var">l0</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073080"><span class="hs-identifier hs-var">l0</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071149"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><span class="hs-operator hs-var">+</span></span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073078"><span class="hs-identifier hs-var">p</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-glyph hs-var">-</span></span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">b
-</span><a href="#local-6989586621679071152"><span class="hs-identifier hs-var">z</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-108"></span><span>        </span><span id="local-6989586621679071147"><span class="annot"><span class="annottext">go :: SegNode a -&gt; Int -&gt; Int -&gt; b -&gt; b
-</span><a href="#local-6989586621679071147"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679071146"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071146"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073081"><span class="hs-identifier hs-var">z</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-105"></span><span>        </span><span id="local-6989586621679073076"><span class="annot"><span class="annottext">go :: SegNode a -&gt; Int -&gt; Int -&gt; b -&gt; b
+</span><a href="#local-6989586621679073076"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679073075"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073075"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071146"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679073075"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&gt;</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071150"><span class="hs-identifier hs-var">r'</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">b -&gt; b
+</span><a href="#local-6989586621679073079"><span class="hs-identifier hs-var">r0</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">b -&gt; b
 forall a. a -&gt; a
 </span><span class="hs-identifier hs-var">id</span></span><span>
-</span><span id="line-109"></span><span>        </span><span class="annot"><a href="#local-6989586621679071147"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-type">SLeaf</span></a></span><span> </span><span id="local-6989586621679071144"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071144"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span>      </span><span class="annot"><span class="annottext">Int
+</span><span id="line-106"></span><span>        </span><span class="annot"><a href="#local-6989586621679073076"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-type">SLeaf</span></a></span><span> </span><span id="local-6989586621679073073"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073073"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span>      </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; b -&gt; b
-</span><a href="#local-6989586621679071153"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071144"><span class="hs-identifier hs-var">x</span></a></span><span>
-</span><span id="line-110"></span><span>        </span><span class="annot"><a href="#local-6989586621679071147"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SBin"><span class="hs-identifier hs-type">SBin</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679071143"><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071143"><span class="hs-identifier hs-var">lt</span></a></span></span><span> </span><span id="local-6989586621679071142"><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071142"><span class="hs-identifier hs-var">rt</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679071141"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071141"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679071140"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071140"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; Int -&gt; Int -&gt; b -&gt; b
-</span><a href="#local-6989586621679071147"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071143"><span class="hs-identifier hs-var">lt</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071141"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071139"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">(b -&gt; b) -&gt; (b -&gt; b) -&gt; b -&gt; b
+</span><a href="#local-6989586621679073082"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073073"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-107"></span><span>        </span><span class="annot"><a href="#local-6989586621679073076"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SBin"><span class="hs-identifier hs-type">SBin</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679073072"><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073072"><span class="hs-identifier hs-var">lt</span></a></span></span><span> </span><span id="local-6989586621679073071"><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073071"><span class="hs-identifier hs-var">rt</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679073070"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073070"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679073069"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073069"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; Int -&gt; Int -&gt; b -&gt; b
+</span><a href="#local-6989586621679073076"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073072"><span class="hs-identifier hs-var">lt</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073070"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073068"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">(b -&gt; b) -&gt; (b -&gt; b) -&gt; b -&gt; b
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; Int -&gt; Int -&gt; b -&gt; b
-</span><a href="#local-6989586621679071147"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071142"><span class="hs-identifier hs-var">rt</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071139"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073076"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073071"><span class="hs-identifier hs-var">rt</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073068"><span class="hs-identifier hs-var">m</span></a></span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
-</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-operator hs-var">+</span></span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071140"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679071139"><span class="annot"><span class="annottext">m :: Int
-</span><a href="#local-6989586621679071139"><span class="hs-identifier hs-var hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071141"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073069"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679073068"><span class="annot"><span class="annottext">m :: Int
+</span><a href="#local-6989586621679073068"><span class="hs-identifier hs-var hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073070"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679071140"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073069"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Integral a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">`div`</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">2</span></span><span>
+</span><span id="line-108"></span><span>
+</span><span id="line-109"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-110"></span><span class="hs-comment">-- For tests</span><span>
 </span><span id="line-111"></span><span>
-</span><span id="line-112"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
-</span><span id="line-113"></span><span class="hs-comment">-- For tests</span><span>
-</span><span id="line-114"></span><span>
-</span><span id="line-115"></span><span class="hs-comment">-- Allows specialization across modules</span><span>
-</span><span id="line-116"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="SegTree.html#fromListST"><span class="hs-pragma hs-type">fromListST</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
-</span><span id="line-117"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="SegTree.html#adjustST"><span class="hs-pragma hs-type">adjustST</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
-</span><span id="line-118"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="SegTree.html#foldRangeST"><span class="hs-pragma hs-type">foldRangeST</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
-</span><span id="line-119"></span><span>
-</span><span id="line-120"></span><span id="local-6989586621679071138"><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="#local-6989586621679071138"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071138"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-121"></span><span>    </span><span id="local-6989586621679071135"><span class="annot"><span class="annottext">rnf :: SegTree a -&gt; ()
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span id="local-6989586621679071133"><span class="annot"><span class="annottext">(Int, Int, Int)
-</span><a href="#local-6989586621679071133"><span class="hs-identifier hs-var">lrp</span></a></span></span><span> </span><span id="local-6989586621679071132"><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071132"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int, Int) -&gt; ()
+</span><span id="line-112"></span><span class="hs-comment">-- Allows specialization across modules</span><span>
+</span><span id="line-113"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="SegTree.html#fromListST"><span class="hs-pragma hs-type">fromListST</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-114"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="SegTree.html#adjustST"><span class="hs-pragma hs-type">adjustST</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-115"></span><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="annot"><a href="SegTree.html#foldRangeST"><span class="hs-pragma hs-type">foldRangeST</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-116"></span><span>
+</span><span id="line-117"></span><span id="local-6989586621679073067"><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="#local-6989586621679073067"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073067"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-118"></span><span>    </span><span id="local-6989586621679073064"><span class="annot"><span class="annottext">rnf :: SegTree a -&gt; ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegTree"><span class="hs-identifier hs-type">SegTree</span></a></span><span> </span><span id="local-6989586621679073062"><span class="annot"><span class="annottext">(Int, Int, Int)
+</span><a href="#local-6989586621679073062"><span class="hs-identifier hs-var">lrp</span></a></span></span><span> </span><span id="local-6989586621679073061"><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073061"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int, Int) -&gt; ()
 forall a. NFData a =&gt; a -&gt; ()
 </span><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="annot"><span class="annottext">(Int, Int, Int)
-</span><a href="#local-6989586621679071133"><span class="hs-identifier hs-var">lrp</span></a></span><span> </span><span class="annot"><span class="annottext">() -&gt; () -&gt; ()
+</span><a href="#local-6989586621679073062"><span class="hs-identifier hs-var">lrp</span></a></span><span> </span><span class="annot"><span class="annottext">() -&gt; () -&gt; ()
 </span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; ()
 forall a. NFData a =&gt; a -&gt; ()
 </span><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071132"><span class="hs-identifier hs-var">n</span></a></span></span><span>
-</span><span id="line-122"></span><span>
-</span><span id="line-123"></span><span id="local-6989586621679071131"><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="#local-6989586621679071131"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679071131"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-124"></span><span>    </span><span id="local-6989586621679071129"><span class="annot"><span class="annottext">rnf :: SegNode a -&gt; ()
-</span><a href="#local-6989586621679071129"><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-type">SLeaf</span></a></span><span> </span><span id="local-6989586621679071128"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071128"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span>      </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; ()
+</span><a href="#local-6989586621679073061"><span class="hs-identifier hs-var">n</span></a></span></span><span>
+</span><span id="line-119"></span><span>
+</span><span id="line-120"></span><span id="local-6989586621679073060"><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="#local-6989586621679073060"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SegNode"><span class="hs-identifier hs-type">SegNode</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073060"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-121"></span><span>    </span><span id="local-6989586621679073058"><span class="annot"><span class="annottext">rnf :: SegNode a -&gt; ()
+</span><a href="#local-6989586621679073058"><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SLeaf"><span class="hs-identifier hs-type">SLeaf</span></a></span><span> </span><span id="local-6989586621679073057"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073057"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span>      </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; ()
 forall a. NFData a =&gt; a -&gt; ()
 </span><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071128"><span class="hs-identifier hs-var">x</span></a></span><span>
-</span><span id="line-125"></span><span>    </span><span class="annot"><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SBin"><span class="hs-identifier hs-type">SBin</span></a></span><span> </span><span id="local-6989586621679071127"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071127"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679071126"><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071126"><span class="hs-identifier hs-var">lt</span></a></span></span><span> </span><span id="local-6989586621679071125"><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071125"><span class="hs-identifier hs-var">rt</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; ()
+</span><a href="#local-6989586621679073057"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-122"></span><span>    </span><span class="annot"><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="SegTree.html#SBin"><span class="hs-identifier hs-type">SBin</span></a></span><span> </span><span id="local-6989586621679073056"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679073056"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679073055"><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073055"><span class="hs-identifier hs-var">lt</span></a></span></span><span> </span><span id="local-6989586621679073054"><span class="annot"><span class="annottext">SegNode a
+</span><a href="#local-6989586621679073054"><span class="hs-identifier hs-var">rt</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; ()
 forall a. NFData a =&gt; a -&gt; ()
 </span><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679071127"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">() -&gt; () -&gt; ()
+</span><a href="#local-6989586621679073056"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">() -&gt; () -&gt; ()
 </span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; ()
 forall a. NFData a =&gt; a -&gt; ()
 </span><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071126"><span class="hs-identifier hs-var">lt</span></a></span><span> </span><span class="annot"><span class="annottext">() -&gt; () -&gt; ()
+</span><a href="#local-6989586621679073055"><span class="hs-identifier hs-var">lt</span></a></span><span> </span><span class="annot"><span class="annottext">() -&gt; () -&gt; ()
 </span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="annot"><span class="annottext">SegNode a -&gt; ()
 forall a. NFData a =&gt; a -&gt; ()
 </span><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="annot"><span class="annottext">SegNode a
-</span><a href="#local-6989586621679071125"><span class="hs-identifier hs-var">rt</span></a></span></span><span>
-</span><span id="line-126"></span></pre></body></html>
+</span><a href="#local-6989586621679073054"><span class="hs-identifier hs-var">rt</span></a></span></span><span>
+</span><span id="line-123"></span></pre></body></html>
