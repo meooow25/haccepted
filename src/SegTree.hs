@@ -32,9 +32,6 @@ fromListST
 Builds a segment tree on (l, r) where the elements are taken from a list. If the list is shorter
 than the range, the remaining elements are mempty. O(n).
 
-boundsST
-The bounds of the segment tree. O(1).
-
 adjustST
 Adjusts the element at index i. O(log n).
 
@@ -49,7 +46,6 @@ module SegTree
     ( SegTree
     , emptyST
     , fromListST
-    , boundsST
     , adjustST
     , foldRangeST
     ) where
@@ -88,33 +84,32 @@ fromListST bnds xs = buildST bnds (flip evalState xs . go) where
     go 0 = SLeaf <$> pop
     go j = makeSN <$> go (j - 1) <*> go (j - 1)
 
-boundsST :: SegTree a -> (Int, Int)
-boundsST (SegTree (l, r, _) _) = (l, r)
-
 adjustST :: Monoid a => (a -> a) -> Int -> SegTree a -> SegTree a
-adjustST f i (SegTree lrp@(l, r, p) root)
-    | i < l || r < i = error "outside range"
-    | otherwise      = SegTree lrp (go root l (l + p - 1))
+adjustST f i (SegTree lrp@(l0,r0,p) root)
+    | i < l0 || r0 < i = error "adjustST: outside range"
+    | otherwise        = SegTree lrp (go root l0 (l0+p-1))
   where
     go n l r | i < l || r < i = n
     go (SLeaf x)      _ _ = SLeaf (f x)
-    go (SBin _ lt rt) l r = makeSN (go lt l m) (go rt (m + 1) r) where m = (l + r) `div` 2
+    go (SBin _ lt rt) l r = makeSN (go lt l m) (go rt (m+1) r) where m = (l+r) `div` 2
 
 foldRangeST :: Monoid a => Int -> Int -> SegTree a -> a
-foldRangeST ql qr _ | ql > qr + 1 = error "invalid range"
-foldRangeST ql qr (SegTree (l, _, p) root) = go root l (l + p - 1) mempty where
+foldRangeST ql qr (SegTree (l0,_,p) root)
+    | ql > qr + 1 = error "foldRangeST: bad range"
+    | otherwise   = go root l0 (l0+p-1) mempty
+  where
     go _ l r acc | r < ql || qr < l = acc
     go (SLeaf x) _ _ acc = acc <> x
     go (SBin x lt rt) l r acc
         | ql <= l && r <= qr = acc <> x
-        | otherwise          = go rt (m + 1) r $! go lt l m acc
-        where m = (l + r) `div` 2
+        | otherwise          = go rt (m+1) r $! go lt l m acc
+        where m = (l+r) `div` 2
 
 instance Foldable SegTree where
-    foldr f z (SegTree (l, r', p) root) = go root l (l + p - 1) z where
-        go _ l _ | l > r' = id
+    foldr f z (SegTree (l0,r0,p) root) = go root l0 (l0+p-1) z where
+        go _ l _ | l > r0 = id
         go (SLeaf x)      _ _ = f x
-        go (SBin _ lt rt) l r = go lt l m . go rt (m + 1) r where m = (l + r) `div` 2
+        go (SBin _ lt rt) l r = go lt l m . go rt (m+1) r where m = (l + r) `div` 2
 
 --------------------------------------------------------------------------------
 -- For tests

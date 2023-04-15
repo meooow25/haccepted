@@ -12,7 +12,6 @@ import Test.QuickCheck
 import Fenwick
     ( FTree
     , binSearchF
-    , boundsF
     , emptyF
     , foldPrefixF
     , foldRangeF
@@ -26,40 +25,34 @@ import Util ( genSortedIntPair )
 spec :: Spec
 spec = do
     prop "updates, queries" $
-        forAll genFt $ \ft -> do
-            let (l, h) = boundsF ft
-            forAll (pointUpds (l, h)) $ \ivs -> do
-                let ft' = applyUpdates ivs ft
-                forAll (pointQry (l, h)) $ \j ->
-                    foldPrefixF j ft' `shouldBe` naive ivs l j
+        forAll genBounds $ \bnds@(l,_) ->
+            forAll (pointUpds bnds) $ \ivs -> do
+                let ft = applyUpdates ivs (emptyF bnds)
+                forAll (pointQry bnds) $ \j ->
+                    foldPrefixF j ft `shouldBe` naive ivs l j
 
     prop "updates, range queries" $
-        forAll genFt $ \ft -> do
-            let (l, h) = boundsF ft
-            forAll (pointUpds (l, h)) $ \ivs -> do
-                let ft' = applyUpdates ivs ft
-                forAll (genSortedIntPair (l, h)) $ \(i, j) ->
-                    foldRangeF i j ft' `shouldBe` naive ivs i j
+        forAll genBounds $ \bnds ->
+            forAll (pointUpds bnds) $ \ivs -> do
+                let ft = applyUpdates ivs (emptyF bnds)
+                forAll (genSortedIntPair bnds) $ \(i, j) ->
+                    foldRangeF i j ft `shouldBe` naive ivs i j
 
     prop "range updates, queries" $
-        forAll genFt $ \ft -> do
-            let (l, h) = boundsF ft
-            forAll (rangeUpds (l, h)) $ \ijvs -> do
-                let ft' = applyRangeUpdates ijvs ft
+        forAll genBounds $ \bnds@(l,h) ->
+            forAll (rangeUpds bnds) $ \ijvs -> do
+                let ft = applyRangeUpdates ijvs (emptyF bnds)
                     ivs = do
                         (i, j, v) <- ijvs
                         (i, v) : [(j + 1, -v) | j < h]
-                forAll (pointQry (l, h)) $ \i ->
-                    foldPrefixF i ft' `shouldBe` naive ivs l i
+                forAll (pointQry bnds) $ \i ->
+                    foldPrefixF i ft `shouldBe` naive ivs l i
 
     prop "fromListF" $
-        forAll genFt $ \ft -> do
-            let (l, h) = boundsF ft
-                n = h - l + 1
-                v = vector n :: Gen [Int]
-            forAll (map Sum <$> v) $ \xs -> do
-                let ft' = fromListF (l, h) xs
-                toScanl1F ft' `shouldBe` scanl1 (<>) xs
+        forAll genBounds $ \bnds@(l,h) ->
+            forAll (vector (h-l+1)) $ \xs -> do
+                let ft = fromListF bnds xs :: FTree (Sum Int)
+                toScanl1F ft `shouldBe` scanl1 (<>) xs
 
     prop "binSearchF" $
         \(xs :: [NonNegative (Sum Int)], l, x) -> do
@@ -81,25 +74,22 @@ spec = do
     applyUpdates ivs ft = foldl' (\ft (i, x) -> mappendF i x ft) ft ivs
     applyRangeUpdates ijvs ft = foldl' (\ft (i, j, x) -> mappendRangeF i j x ft) ft ijvs
 
-genFt :: Gen (FTree (Sum Int))
-genFt = sized $ \n -> do
-    n' <- choose (0, n)
+genBounds :: Gen (Int, Int)
+genBounds = sized $ \n' -> do
+    n <- choose (0, n')
     l <- arbitrary
-    pure $ emptyF (l, l + n' - 1)
+    pure (l, l+n-1)
 
 pointUpds :: (Int, Int) -> Gen [(Int, Sum Int)]
-pointUpds (l, h)
+pointUpds (l,h)
     | l == h + 1 = pure []
-    | otherwise = listOf1 $ do
-        i <- choose (l, h)
-        v <- arbitrary
-        pure (i, Sum v)
+    | otherwise  = listOf $ (,) <$> choose (l,h) <*> arbitrary
 
 rangeUpds :: (Int, Int) -> Gen [(Int, Int, Sum Int)]
-rangeUpds (l, h)
+rangeUpds (l,h)
     | l == h + 1 = pure []
-    | otherwise = listOf1 $ do
-        (i, j) <- genSortedIntPair (l, h)
+    | otherwise = listOf $ do
+        (i, j) <- genSortedIntPair (l,h)
         v <- arbitrary
         pure (i, j, Sum v)
 

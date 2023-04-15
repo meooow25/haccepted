@@ -23,6 +23,7 @@ import qualified PQTreeBench
 import qualified PruferBench
 import qualified SegTreeBench
 import qualified SegTreeLazyBench
+import qualified SegTreeLazyMutBench
 import qualified SortBench
 import qualified SparseTableBench
 import qualified SuffixArrayBench
@@ -55,6 +56,7 @@ main = defaultMain
     , PruferBench.benchmark
     , SegTreeBench.benchmark
     , SegTreeLazyBench.benchmark
+    , SegTreeLazyMutBench.benchmark
     , SortBench.benchmark
     , SparseTableBench.benchmark
     , SuffixArrayBench.benchmark
