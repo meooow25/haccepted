@@ -6,7 +6,7 @@ When the arrays are unboxed, LazySegTreeMut is a few times faster than LazySegTr
 However, this comes at the cost of purity.
 
 Implementation notes:
-* INLINE on setLSNM and applyLSNM is critical!
+* INLINE on setLSNM, applyLSNM and pushLSNM is critical!
 
 emptyLSTM
 Builds a segment tree on range (l, r) where each element is mempty. O(n).
@@ -55,11 +55,8 @@ emptyLSTM (l,r) = do
     aa <- newArray (1, 4*n) mempty
     pure $! LSTM l r ua aa
 
-setLSNM :: (Action u a, MArray marru u m, MArray marra a m)
-        => marru Int u -> marra Int a -> Int -> m ()
-setLSNM ua aa i = do
-    writeArray ua i $! mempty
-    (<>) <$> readArray aa (2*i) <*> readArray aa (2*i+1) >>= (writeArray aa i $!)
+setLSNM :: (Monoid a, MArray marra a m) => marra Int a -> Int -> m ()
+setLSNM aa i = (<>) <$> readArray aa (2*i) <*> readArray aa (2*i+1) >>= (writeArray aa i $!)
 {-# INLINE setLSNM #-}
 
 fromListLSTM :: (Action u a, MArray marru u m, MArray marra a m)
@@ -77,7 +74,7 @@ fromListLSTM (l0,r0) xs = do
             let m = (l+r) `div` 2
             go (2*i) l m
             go (2*i+1) (m+1) r
-            lift (setLSNM ua aa i)
+            lift (setLSNM aa i)
     when (n > 0) $ evalStateT (go 1 l0 r0) xs
     pure $! LSTM l0 r0 ua aa
 
@@ -88,70 +85,76 @@ applyLSNM ua aa i l r u
     | otherwise = modifyArray' aa i (`act` u) *> modifyArray' ua i (<> u)
 {-# INLINE applyLSNM #-}
 
+pushLSNM :: (Action u a, MArray marru u m, MArray marra a m)
+         => marru Int u -> marra Int a -> Int -> Int -> Int -> m ()
+pushLSNM ua aa i l r = do
+    u <- readArray ua i
+    writeArray ua i $! mempty
+    let m = (l+r) `div` 2
+    applyLSNM ua aa (2*i) l m u
+    applyLSNM ua aa (2*i+1) (m+1) r u
+{-# INLINE pushLSNM #-}
+
 adjustLSTM :: (Action u a, MArray marru u m, MArray marra a m)
            => LazySegTreeMut marru marra u a -> Int -> (a -> a) -> m ()
 adjustLSTM (LSTM l0 r0 ua aa) qi f
     | qi < l0 || r0 < qi = error "adjustLSTM: outside range"
-    | otherwise          = go 1 l0 r0 mempty
+    | otherwise          = go 1 l0 r0
   where
-    go i l r pu
-        | qi < l || r < qi = applyLSNM ua aa i l r pu
-        | l == r           = modifyArray' aa i (f . (`act` pu))
+    go i l r
+        | qi < l || r < qi = pure ()
+        | l == r           = modifyArray' aa i f
         | otherwise = do
-            u <- readArray ua i
+            pushLSNM ua aa i l r
             let m = (l+r) `div` 2
-                u' = u <> pu
-            go (2*i) l m u'
-            go (2*i+1) (m+1) r u'
-            setLSNM ua aa i
+            go (2*i) l m
+            go (2*i+1) (m+1) r
+            setLSNM aa i
 
 updateRangeLSTM :: (Action u a, MArray marru u m, MArray marra a m)
                 => LazySegTreeMut marru marra u a -> Int -> Int -> u -> m ()
 updateRangeLSTM (LSTM l0 r0 ua aa) ql qr qu
     | ql > qr + 1        = error "updateRangeLSTM: bad range"
     | ql < l0 || r0 < qr = error "updateRangeLSTM: outside range"
-    | otherwise          = go 1 l0 r0 mempty
+    | otherwise          = go 1 l0 r0
   where
-    go i l r pu
-        | r < ql || qr < l   = applyLSNM ua aa i l r pu
-        | ql <= l && r <= qr = applyLSNM ua aa i l r (pu <> qu)
+    go i l r
+        | r < ql || qr < l   = pure ()
+        | ql <= l && r <= qr = applyLSNM ua aa i l r qu
         | otherwise = do
-            u <- readArray ua i
+            pushLSNM ua aa i l r
             let m = (l+r) `div` 2
-                u' = u <> pu
-            go (2*i) l m u'
-            go (2*i+1) (m+1) r u'
-            setLSNM ua aa i
+            go (2*i) l m
+            go (2*i+1) (m+1) r
+            setLSNM aa i
 
 foldRangeLSTM :: (Action u a, MArray marru u m, MArray marra a m)
               => LazySegTreeMut marru marra u a -> Int -> Int -> m a
 foldRangeLSTM (LSTM l0 r0 ua aa) ql qr
     | ql > qr + 1 = error "foldRangeLSTM: bad range"
     | l0 > r0     = pure mempty
-    | otherwise   = go 1 l0 r0 mempty mempty
+    | otherwise   = go 1 l0 r0 mempty
   where
-    go i l r pu acc
+    go i l r acc
         | r < ql || qr < l   = pure acc
-        | ql <= l && r <= qr = (acc <>) . (`act` pu) <$!> readArray aa i
+        | ql <= l && r <= qr = (acc <>) <$!> readArray aa i
         | otherwise = do
-            u <- readArray ua i
+            pushLSNM ua aa i l r
             let m = (l+r) `div` 2
-                u' = u <> pu
-            go (2*i) l m u' acc >>= go (2*i+1) (m+1) r u'
+            go (2*i) l m acc >>= go (2*i+1) (m+1) r
 
 foldrLSTM :: (Action u a, MArray marru u m, MArray marra a m)
           => LazySegTreeMut marru marra u a -> (a -> b -> b) -> b -> m b
 foldrLSTM (LSTM l0 r0 ua aa) f z0
     | l0 > r0   = pure z0
-    | otherwise = go 1 l0 r0 mempty z0
+    | otherwise = go 1 l0 r0 z0
   where
-    go i l r pu z
-        | l == r = (`f` z) . (`act` pu) <$> readArray aa i
+    go i l r z
+        | l == r = (`f` z) <$> readArray aa i
         | otherwise = do
-            u <- readArray ua i
+            pushLSNM ua aa i l r
             let m = (l+r) `div` 2
-                u' = u <> pu
-            go (2*i+1) (m+1) r u' z >>= go (2*i) l m u'
+            go (2*i+1) (m+1) r z >>= go (2*i) l m
 
 --------------------------------------------------------------------------------
 -- For tests
