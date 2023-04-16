@@ -11,6 +11,7 @@ import qualified DinicBench
 import qualified DSUBench
 import qualified DijkstraBench
 import qualified FenwickBench
+import qualified FenwickMutBench
 import qualified FloydWarshallBench
 import qualified KMPBench
 import qualified KruskalBench
@@ -44,6 +45,7 @@ main = defaultMain
     , DSUBench.benchmark
     , DijkstraBench.benchmark
     , FenwickBench.benchmark
+    , FenwickMutBench.benchmark
     , FloydWarshallBench.benchmark
     , KMPBench.benchmark
     , KruskalBench.benchmark

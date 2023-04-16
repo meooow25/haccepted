@@ -47,9 +47,6 @@ sizes = [100, 10000, 200000]
 -- Can add a value to all elements in a range
 type RangeAddSegTree = LazySegTreeMut IOUArr (Arr (Arr2 IOUArray IOUArray)) (Sum Int) SumLen
 
-instance Unbox (Sum a) where
-    type Unboxed (Sum a) = a
-
 instance Unbox SumLen where
     type Unboxed SumLen = (Int, Int)
     toU (SumLen s n) = (s, n)
