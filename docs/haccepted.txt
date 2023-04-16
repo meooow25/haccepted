@@ -928,6 +928,11 @@ updateRangeLSTM :: (Action u a, MArray marru u m, MArray marra a m) => LazySegTr
 --   considered to be mempty. O(log n).
 foldRangeLSTM :: (Action u a, MArray marru u m, MArray marra a m) => LazySegTreeMut marru marra u a -> Int -> Int -> m a
 
+-- | Binary search in the intersection of (l, r) and (ql, qr) for the
+--   shortest prefix whose fold satisfies the given monotonic predicate.
+--   Returns the end index and the fold. O(log n).
+binSearchLSTM :: (Action u a, MArray marru u m, MArray marra a m) => LazySegTreeMut marru marra u a -> Int -> Int -> (a -> Bool) -> m (Maybe (Int, a))
+
 -- | Right fold over the elements of the segment tree. O(n).
 foldrLSTM :: (Action u a, MArray marru u m, MArray marra a m) => LazySegTreeMut marru marra u a -> (a -> b -> b) -> b -> m b
 
