@@ -12,6 +12,7 @@ import Criterion
 import SegTreeLazyMut
     ( LazySegTreeMut
     , adjustLSTM
+    , binSearchLSTM
     , emptyLSTM
     , foldRangeLSTM
     , fromListLSTM
@@ -35,6 +36,9 @@ benchmark = bgroup "SegTreeLazyMut"
 
       -- n queries on a segment tree of size n
     , bgroup "foldRangeLSTM" $ map benchFoldRangeLSTM sizes
+
+      -- n binary searches on a segment tree of size n
+    , bgroup "binSearchLSTM" $ map benchBinSearchLSTM sizes
     ]
 
 sizes :: [Int]
@@ -81,3 +85,14 @@ benchFoldRangeLSTM n = sizedBenchIO n gen $ \ ~(st, qs) -> whnfIO (go st qs) whe
     gen = (,) <$> emptyLSTM (1, n) <*> pure (evalR $ randSortedIntPairsR (1, n) n)
     go :: RangeAddSegTree -> [(Int, Int)] -> IO ()
     go st = traverse_ (\(i,j) -> id <$!> foldRangeLSTM st i j)
+
+benchBinSearchLSTM :: Int -> Benchmark
+benchBinSearchLSTM n = sizedBenchIO n gen $ \ ~(st, qs) -> whnfIO (go st qs) where
+    gen = do
+        let (xs, qrys) = evalR $ (,) <$>
+                                 randIntsR (1,n) n <*>
+                                 (zip <$> randSortedIntPairsR (1,n) n <*> randInts n)
+        st <- fromListLSTM (1,n) $ map (\x -> SumLen x 1) xs
+        pure (st, qrys)
+    go :: RangeAddSegTree -> [((Int, Int), Int)] -> IO ()
+    go st = traverse_ (\((i,j),x) -> id <$!> binSearchLSTM st i j (\(SumLen s _) -> s >= x))
