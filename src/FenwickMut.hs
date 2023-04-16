@@ -1,4 +1,4 @@
-{-
+{-|
 Mutable Fenwick tree, or binary indexed tree
 
 A data structure supporting point updates and range queries, or the opposite.
