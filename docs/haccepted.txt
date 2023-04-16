@@ -74,10 +74,10 @@ instance Control.DeepSeq.NFData a => Control.DeepSeq.NFData (AhoCorasick.ACNode 
 --   Array type for element types isomorphic to other element types with
 --   existing array support.
 --   
---   Primarily useful for unboxed arrays. As an example, define "instance
---   Unbox (Sum Int) where type Unboxed (Sum Int) = Int" and use UArr i
---   (Sum Int) as an unboxed array for Sum Int. It works similarly with
---   mutable arrays IOUArr and STUArr.
+--   Primarily useful for unboxed arrays. As an example, if you have
+--   "newtype N = N Int", define "instance Unbox N where type Unboxed N =
+--   Int" and use UArr i N as an unboxed array for N. Also works with
+--   mutable arrays, IOUArr and STUArr.
 module Array
 class Unbox a where {
     type family Unboxed a;
@@ -94,6 +94,7 @@ instance (Array.Unbox a, Data.Array.Base.IArray arr (Array.Unboxed a)) => Data.A
 instance (Data.Array.Base.IArray (Array.Arr arr) a, GHC.Ix.Ix i, GHC.Show.Show i, GHC.Show.Show a) => GHC.Show.Show (Array.Arr arr i a)
 instance (Array.Unbox a, GHC.Base.Monad m, Data.Array.Base.MArray marr (Array.Unboxed a) m) => Data.Array.Base.MArray (Array.Arr marr) a m
 instance Control.DeepSeq.NFData (arr i (Array.Unboxed a)) => Control.DeepSeq.NFData (Array.Arr arr i a)
+instance Array.Unbox (Data.Semigroup.Internal.Sum a)
 
 
 -- | <h2>Arrays for 2-tuples</h2>
@@ -490,10 +491,52 @@ instance GHC.Show.Show FloydWarshall.WEdge
 instance GHC.Classes.Eq FloydWarshall.WEdge
 
 
+-- | <h2>Mutable Fenwick tree, or binary indexed tree</h2>
+--   
+--   A data structure supporting point updates and range queries, or the
+--   opposite. See Fenwick.hs for a purely functional version. FenwickMut
+--   is multiple times faster when used with unboxed arrays (see
+--   benchmarks).
+--   
+--   Sources:
+--   
+--   <ul>
+--   <li>Peter M. Fenwick, "A New Data Structure for Cumulative Frequency
+--   Tables", 1994
+--   <a>https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.14.8917</a></li>
+--   <li><a>https://en.wikipedia.org/wiki/Fenwick_tree</a></li>
+--   </ul>
+--   
+--   Let n = r - l + 1 where (l, r) is the range of the Fenwick tree. The
+--   complexities assume (&lt;&gt;) takes O(1) time.
+module FenwickMut
+type FenwickMut marr a = marr Int a
+
+-- | Builds a Fenwick tree on range (l, r) where each element is mempty.
+--   O(n).
+emptyFM :: (Monoid a, MArray marr a m) => (Int, Int) -> m (FenwickMut marr a)
+
+-- | mappends to the element at an index. O(log n).
+mappendFM :: (Monoid a, MArray marr a m) => FenwickMut marr a -> Int -> a -> m ()
+
+-- | The result of folding the prefix upto the given index. Indices outside
+--   the tree range are allowed, it is assumed elements there are mempty.
+--   O(log n).
+foldPrefixFM :: (Monoid a, MArray marr a m) => FenwickMut marr a -> Int -> m a
+
+-- | Folds the elements in the range (l, r). O(log n).
+foldRangeFM :: (Commutative a, Group a, MArray marr a m) => FenwickMut marr a -> Int -> Int -> m a
+
+-- | mappends to all elements in the range (l, r). Can be used with
+--   foldPrefixFM for point queries. O(log n).
+mappendRangeFM :: (Commutative a, Group a, MArray marr a m) => FenwickMut marr a -> Int -> Int -> a -> m ()
+
+
 -- | <h2>Fenwick tree, or binary indexed tree</h2>
 --   
 --   A data structure supporting point updates and range queries, or the
 --   opposite. Large ranges, beyond typical memory limits, are supported.
+--   See FenwickMut.hs for a mutable (and more commonly seen) version.
 --   
 --   Sources:
 --   
