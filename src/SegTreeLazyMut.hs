@@ -7,6 +7,8 @@ However, this comes at the cost of purity.
 
 Implementation notes:
 * INLINE on setLSNM, applyLSNM and pushLSNM is critical!
+* All functions are pretty much the same as SegTreeMut except for a call to pushLSNM. See if the
+  code can be shared :thonk:
 
 emptyLSTM
 Builds a segment tree on range (l, r) where each element is mempty. O(n).

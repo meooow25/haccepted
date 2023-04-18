@@ -22,7 +22,7 @@ import SegTreeLazyMut
     )
 import SegTreeSpec ( genBounds, pointUpds, rangeQry )
 import SegTreeLazySpec ( SumLen, rangeUpds )
-import Util ( genPossiblyEmptyRange )
+import SegTreeMutSpec ( binSearchQry )
 
 spec :: Spec
 spec = do
@@ -90,6 +90,3 @@ type RangeAddSegTree = LazySegTreeMut IOArray IOArray (Sum Int) SumLen
 
 emptyST :: (Int, Int) -> IO RangeAddSegTree
 emptyST bnds = fromListLSTM bnds $ repeat (0,1)
-
-binSearchQry :: (Int, Int) -> Gen ((Int, Int), Sum Int)
-binSearchQry (l,r) = (,) <$> genPossiblyEmptyRange (l-10, r+10) <*> arbitrary
