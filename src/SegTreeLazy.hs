@@ -58,7 +58,7 @@ import Control.DeepSeq
 import Control.Monad.State
 import Data.Bits
 
-import Misc ( Action(..) )
+import Misc ( Action(..), bitLength )
 
 data LazySegTree u a = LazySegTree !(Int, Int, Int) !(LSegNode u a) deriving Show
 data LSegNode u a = LSLeaf !a | LSBin !a !u !(LSegNode u a) !(LSegNode u a) deriving Show
@@ -70,7 +70,7 @@ buildLST (l, r) f
     | otherwise = LazySegTree (l, r, bit ht) (f ht)
   where
     n = r - l
-    ht = finiteBitSize n - countLeadingZeros n
+    ht = bitLength n
 
 emptyLST :: Action u a => (Int, Int) -> LazySegTree u a
 emptyLST bnds = buildLST bnds go where

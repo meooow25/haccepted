@@ -42,8 +42,9 @@ module SegTreeMut
 
 import Control.Monad.State
 import Data.Array.MArray
+import Data.Bits
 
-import Misc ( modifyArray' )
+import Misc ( bitLength, modifyArray' )
 
 data SegTreeMut marr a = LSTM !Int !Int !(marr Int a)
 
@@ -51,7 +52,7 @@ emptySTM :: (Monoid a, MArray marr a m) => (Int, Int) -> m (SegTreeMut marr a)
 emptySTM (l,r) | l > r + 1 = error "emptySTM: bad range"
 emptySTM (l,r) = do
     let n = r - l + 1
-    xa <- newArray (1, 4*n) mempty
+    xa <- newArray (1, bit (1 + bitLength (n-1))) mempty
     pure $! LSTM l r xa
 
 setSNM :: (Monoid a, MArray marr a m) => marr Int a -> Int -> m ()
@@ -62,7 +63,7 @@ fromListSTM :: (Monoid a, MArray marr a m) => (Int, Int) -> [a] -> m (SegTreeMut
 fromListSTM (l0,r0) _ | l0 > r0 + 1 = error "fromListSTM: bad range"
 fromListSTM (l0,r0) xs = do
     let n = r0 - l0 + 1
-    xa <- newArray (1, 4*n) mempty
+    xa <- newArray (1, bit (1 + bitLength (n-1))) mempty
     let pop = StateT go' where
             go' []     = pure (mempty, [])
             go' (y:ys) = pure (y,      ys)
