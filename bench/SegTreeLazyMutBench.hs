@@ -63,14 +63,14 @@ benchfromListLSTM n = sizedBench n gen $ whnfIO . go (1, n) where
     go = fromListLSTM
 
 benchAdjustLSTM :: Int -> Benchmark
-benchAdjustLSTM n = sizedBenchIO n gen $ \ ~(st, us) -> whnfIO (go st us) where
+benchAdjustLSTM n = sizedBenchIO n gen $ \(st, us) -> whnfIO (go st us) where
     gen = (,) <$> emptyLSTM (1, n) <*> pure (evalR $ zip <$> randIntsR (1, n) n <*> randInts n)
     addToSingle x (SumLen s _) = SumLen (s + x) 1
     go :: RangeAddSegTree -> [(Int, Int)] -> IO ()
     go st = traverse_ (\(i,x) -> adjustLSTM st i (addToSingle x))
 
 benchUpdateRangeLSTM :: Int -> Benchmark
-benchUpdateRangeLSTM n = sizedBenchIO n gen $ \ ~(st, qs) -> whnfIO (go st qs) where
+benchUpdateRangeLSTM n = sizedBenchIO n gen $ \(st, qs) -> whnfIO (go st qs) where
     gen = (,) <$>
           emptyLSTM (1, n) <*>
           pure (evalR $ zip <$> randSortedIntPairsR (1, n) n <*> (map Sum <$> randInts n))
@@ -79,12 +79,15 @@ benchUpdateRangeLSTM n = sizedBenchIO n gen $ \ ~(st, qs) -> whnfIO (go st qs) w
 
 benchFoldRangeLSTM :: Int -> Benchmark
 benchFoldRangeLSTM n = sizedBenchIO n gen $ \ ~(st, qs) -> whnfIO (go st qs) where
-    gen = (,) <$> emptyLSTM (1, n) <*> pure (evalR $ randSortedIntPairsR (1, n) n)
+    gen = do
+        let (xs, qrys) = evalR $ (,) <$> randIntsR (1,n) n <*> randSortedIntPairsR (1,n) n
+        st <- fromListLSTM (1,n) $ map (\x -> SumLen x 1) xs
+        pure (st, qrys)
     go :: RangeAddSegTree -> [(Int, Int)] -> IO ()
     go st = traverse_ (\(i,j) -> id <$!> foldRangeLSTM st i j)
 
 benchBinSearchLSTM :: Int -> Benchmark
-benchBinSearchLSTM n = sizedBenchIO n gen $ \ ~(st, qs) -> whnfIO (go st qs) where
+benchBinSearchLSTM n = sizedBenchIO n gen $ \(st, qs) -> whnfIO (go st qs) where
     gen = do
         let (xs, qrys) = evalR $ (,) <$>
                                  randIntsR (1,n) n <*>

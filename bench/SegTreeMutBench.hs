@@ -57,7 +57,10 @@ benchAdjustSTM n = sizedBenchIO n gen $ \(st, us) -> whnfIO (go st us) where
 
 benchFoldRangeSTM :: Int -> Benchmark
 benchFoldRangeSTM n = sizedBenchIO n gen $ \(st, qs) -> whnfIO (go st qs) where
-    gen = (,) <$> emptySTM (1, n) <*> pure (evalR $ randSortedIntPairsR (1, n) n)
+    gen = do
+        let (xs, qrys) = evalR $ (,) <$> randIntsR (1,n) n <*> randSortedIntPairsR (1,n) n
+        st <- fromListSTM (1,n) $ map Sum xs
+        pure (st, qrys)
     go :: SumSegTree -> [(Int, Int)] -> IO ()
     go st = traverse_ (\(i,j) -> id <$!> foldRangeSTM st i j)
 
