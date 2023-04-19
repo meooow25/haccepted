@@ -2,10 +2,11 @@
 {-|
 Arrays for 2-tuples
 
-Primarily useful for unboxed arrays.
-If a and b can be put in UArrays, Arr2 UArray UArray i (a,b) works as an unboxed array for (a,b).
-This is much better than a boxed Array i (a,b). It works similarly with mutable IOUArray/STUArray.
-Can be nested to store n-tuples. Use with Unbox to store your own defined types.
+Primarily intended as a way to get unboxed arrays.
+If a and b can be put in UArrays, UArr2 i (a,b) works as an unboxed array for (a,b).
+This is a lot more performant than a boxed Array i (a,b). Also works with mutable arrays, STUArr2
+and IOUArr2.
+Can be nested to get UArr3, UArr4, etc. Use with Unbox and Arr to store your own types.
 
 Implementation notes:
 * unsafeAccum and unsafeAccumArray are optional but explicity error for Arr2 because the default
@@ -17,11 +18,20 @@ Implementation notes:
 
 module Array2
     ( Arr2
+    , UArr2
+    , UArr3
+    , UArr4
+    , STUArr2
+    , STUArr3
+    , STUArr4
+    , IOUArr2
+    , IOUArr3
+    , IOUArr4
     ) where
 
 import Control.DeepSeq
 import Data.Array.Base
-import Data.Ix
+import Data.Array.IO
 
 data Arr2 arra arrb i ab where
     Arr2 :: !(arra i a) -> !(arrb i b) -> Arr2 arra arrb i (a, b)
@@ -45,6 +55,18 @@ instance (Monad m, MArray marra a m, MArray marrb b m) => MArray (Arr2 marra mar
     newArray_ b                       = Arr2 <$> newArray_ b <*> newArray_ b
     unsafeRead (Arr2 xa ya) i         = (,) <$> unsafeRead xa i <*> unsafeRead ya i
     unsafeWrite (Arr2 xa ya) i (x, y) = unsafeWrite xa i x *> unsafeWrite ya i y
+
+type UArr2 = Arr2 UArray UArray
+type UArr3 = Arr2 UArray UArr2
+type UArr4 = Arr2 UArr2 UArr2
+
+type STUArr2 s = Arr2 (STUArray s) (STUArray s)
+type STUArr3 s = Arr2 (STUArray s) (STUArr2 s)
+type STUArr4 s = Arr2 (STUArr2 s) (STUArr2 s)
+
+type IOUArr2 = Arr2 IOUArray IOUArray
+type IOUArr3 = Arr2 IOUArray IOUArr2
+type IOUArr4 = Arr2 IOUArr2 IOUArr2
 
 --------------------------------------------------------------------------------
 -- For tests

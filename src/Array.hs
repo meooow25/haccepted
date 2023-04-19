@@ -5,9 +5,10 @@ Arrays
 
 Array type for element types isomorphic to other element types with existing array support.
 
-Primarily useful for unboxed arrays.
+Primarily intended as a way to get unboxed arrays.
 As an example, if you have "newtype N = N Int", define "instance Unbox N where type Unboxed N = Int"
-and use UArr i N as an unboxed array for N. Also works with mutable arrays, IOUArr and STUArr.
+and use UArr i N as an unboxed array for N. This is a lot more performant than a boxed Array i N.
+Also works with mutable arrays, IOUArr and STUArr.
 
 Implementation notes:
 * The problem: Unboxed array types (UArray, STUArray, IOUArray) have the element type role as
