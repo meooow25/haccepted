@@ -60,7 +60,7 @@ benchfromListLST n = sizedBench n gen $ nf $ go (1, n) where
     go = fromListLST
 
 benchAdjustLST :: Int -> Benchmark
-benchAdjustLST n = sizedBench n gen $ \ ~(st, us) -> nf (go st) us where
+benchAdjustLST n = sizedBench n gen $ \(st, us) -> nf (go st) us where
     gen =
         ( emptyLST (1, n) :: RangeAddSegTree
         , evalR $ zip <$> randIntsR (1, n) n <*> randInts n
@@ -70,7 +70,7 @@ benchAdjustLST n = sizedBench n gen $ \ ~(st, us) -> nf (go st) us where
     go = foldl' (\st (i, x) -> adjustLST (addToSingle x) i st)
 
 benchUpdateRangeLST :: Int -> Benchmark
-benchUpdateRangeLST n = sizedBench n gen $ \ ~(st, qs) -> nf (go st) qs where
+benchUpdateRangeLST n = sizedBench n gen $ \(st, qs) -> nf (go st) qs where
     gen =
         ( emptyLST (1, n) :: RangeAddSegTree
         , evalR $ zip <$> randSortedIntPairsR (1, n) n <*> (map Sum <$> randInts n)
@@ -78,9 +78,9 @@ benchUpdateRangeLST n = sizedBench n gen $ \ ~(st, qs) -> nf (go st) qs where
     go = foldl' (\st ((i, j), u) -> updateRangeLST u i j st)
 
 benchFoldRangeLST :: Int -> Benchmark
-benchFoldRangeLST n = sizedBench n gen $ \ ~(st, qs) -> whnf (go st) qs where
-    gen =
-        ( emptyLST (1, n) :: RangeAddSegTree
-        , evalR $ randSortedIntPairsR (1, n) n
-        )
+benchFoldRangeLST n = sizedBench n gen $ \(st, qs) -> whnf (go st) qs where
+    gen = evalR $ (,) <$>
+                  (fromListLST (1, n) . map (\x -> SumLen x 1) <$> randIntsR (1,n) n) <*>
+                  randSortedIntPairsR (1, n) n
+    go :: RangeAddSegTree -> [(Int, Int)] -> ()
     go st = foldl' (\_ (i, j) -> foldRangeLST i j st `seq` ()) ()

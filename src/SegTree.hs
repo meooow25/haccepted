@@ -54,6 +54,8 @@ import Control.DeepSeq
 import Control.Monad.State
 import Data.Bits
 
+import Misc ( bitLength )
+
 data SegTree a = SegTree !(Int, Int, Int) !(SegNode a) deriving Show
 data SegNode a = SLeaf !a | SBin !a !(SegNode a) !(SegNode a) deriving Show
 
@@ -64,7 +66,7 @@ buildST (l, r) f
     | otherwise = SegTree (l, r, bit ht) (f ht)
   where
     n = r - l
-    ht = finiteBitSize n - countLeadingZeros n
+    ht = bitLength n
 
 emptyST :: Monoid a => (Int, Int) -> SegTree a
 emptyST bnds = buildST bnds go where

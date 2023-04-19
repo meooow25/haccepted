@@ -73,7 +73,7 @@ import Control.DeepSeq
 import Control.Monad.State
 import Data.Bits
 
-import Misc ( Commutative, Group(..) )
+import Misc ( Commutative, Group(..), bitLength )
 
 data FTree a = FTree !(Int, Int, Int) !(FNode a) deriving Show
 data FNode a = FTip | FBin !a !(FNode a) !(FNode a) deriving Show
@@ -83,7 +83,7 @@ buildF (l, r) _ | l > r + 1 = error "buildF: invalid range"
 buildF (l, r) f = FTree (l, r, ht) (f ht)
   where
     n = r - l + 1
-    ht = finiteBitSize n - countLeadingZeros n - 1
+    ht = bitLength n - 1
 
 emptyF :: Monoid a => (Int, Int) -> FTree a
 emptyF bnds = buildF bnds go where

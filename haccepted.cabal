@@ -44,6 +44,7 @@ library
       SegTree
       SegTreeLazy
       SegTreeLazyMut
+      SegTreeMut
       Sort
       SparseTable
       SuffixArray
@@ -132,6 +133,7 @@ test-suite test-all
       PruferSpec
       SegTreeLazyMutSpec
       SegTreeLazySpec
+      SegTreeMutSpec
       SegTreeSpec
       SortSpec
       SparseTableSpec
@@ -187,6 +189,7 @@ benchmark bench-all
       SegTreeBench
       SegTreeLazyBench
       SegTreeLazyMutBench
+      SegTreeMutBench
       SortBench
       SparseTableBench
       SuffixArrayBench

@@ -7,6 +7,8 @@ However, this comes at the cost of purity.
 
 Implementation notes:
 * INLINE on setLSNM, applyLSNM and pushLSNM is critical!
+* All functions are pretty much the same as SegTreeMut except for a call to pushLSNM. See if the
+  code can be shared :thonk:
 
 emptyLSTM
 Builds a segment tree on range (l, r) where each element is mempty. O(n).
@@ -46,8 +48,9 @@ module SegTreeLazyMut
 
 import Control.Monad.State
 import Data.Array.MArray
+import Data.Bits
 
-import Misc ( modifyArray', Action(..) )
+import Misc ( Action(..), bitLength, modifyArray' )
 
 data LazySegTreeMut marru marra u a = LSTM !Int !Int !(marru Int u) !(marra Int a)
 
@@ -56,8 +59,8 @@ emptyLSTM :: (Action u a, MArray marru u m, MArray marra a m)
 emptyLSTM (l,r) | l > r + 1 = error "emptyLSTM: bad range"
 emptyLSTM (l,r) = do
     let n = r - l + 1
-    ua <- newArray (1, 4*n) mempty
-    aa <- newArray (1, 4*n) mempty
+    ua <- newArray (1, bit (1 + bitLength (n-1))) mempty
+    aa <- newArray (1, bit (1 + bitLength (n-1))) mempty
     pure $! LSTM l r ua aa
 
 setLSNM :: (Monoid a, MArray marra a m) => marra Int a -> Int -> m ()
@@ -69,8 +72,8 @@ fromListLSTM :: (Action u a, MArray marru u m, MArray marra a m)
 fromListLSTM (l0,r0) _ | l0 > r0 + 1 = error "fromListLSTM: bad range"
 fromListLSTM (l0,r0) xs = do
     let n = r0 - l0 + 1
-    ua <- newArray (1, 4*n) mempty
-    aa <- newArray (1, 4*n) mempty
+    ua <- newArray (1, bit (1 + bitLength (n-1))) mempty
+    aa <- newArray (1, bit (1 + bitLength (n-1))) mempty
     let pop = StateT go' where
             go' []     = pure (mempty, [])
             go' (y:ys) = pure (y,      ys)
