@@ -18,95 +18,95 @@ Primarily intended for debugging.
 </span><span id="line-18"></span><span class="hs-comment">-- &#9474;        &#9500;&#9472;&#9472; d</span><span>
 </span><span id="line-19"></span><span class="hs-comment">-- &#9474;        &#9492;&#9472;&#9472; e</span><span>
 </span><span id="line-20"></span><span class="hs-comment">-- &#9492;&#9472;&#9472; 3 &#9472;&#9472; f</span><span>
-</span><span id="line-21"></span><span id="local-6989586621679075705"><span class="annot"><a href="TreeDraw.html#draw"><span class="hs-identifier hs-type">draw</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679075705"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679075705"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679075705"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679075705"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span></span><span>
+</span><span id="line-21"></span><span id="local-6989586621679077486"><span class="annot"><a href="TreeDraw.html#draw"><span class="hs-identifier hs-type">draw</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679077486"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679077486"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679077486"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679077486"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span></span><span>
 </span><span id="line-22"></span><span id="draw"><span class="annot"><span class="annottext">draw :: (a -&gt; String) -&gt; (a -&gt; [(Maybe String, a)]) -&gt; a -&gt; String
-</span><a href="TreeDraw.html#draw"><span class="hs-identifier hs-var hs-var">draw</span></a></span></span><span> </span><span id="local-6989586621679075704"><span class="annot"><span class="annottext">a -&gt; String
-</span><a href="#local-6989586621679075704"><span class="hs-identifier hs-var">showa</span></a></span></span><span> </span><span id="local-6989586621679075703"><span class="annot"><span class="annottext">a -&gt; [(Maybe String, a)]
-</span><a href="#local-6989586621679075703"><span class="hs-identifier hs-var">edges</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[String] -&gt; String
+</span><a href="TreeDraw.html#draw"><span class="hs-identifier hs-var hs-var">draw</span></a></span></span><span> </span><span id="local-6989586621679077485"><span class="annot"><span class="annottext">a -&gt; String
+</span><a href="#local-6989586621679077485"><span class="hs-identifier hs-var">showa</span></a></span></span><span> </span><span id="local-6989586621679077484"><span class="annot"><span class="annottext">a -&gt; [(Maybe String, a)]
+</span><a href="#local-6989586621679077484"><span class="hs-identifier hs-var">edges</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[String] -&gt; String
 </span><span class="hs-identifier hs-var">unlines</span></span><span> </span><span class="annot"><span class="annottext">([String] -&gt; String) -&gt; (a -&gt; [String]) -&gt; a -&gt; String
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; [String]
-</span><a href="#local-6989586621679075700"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-23"></span><span>    </span><span id="local-6989586621679075700"><span class="annot"><span class="annottext">go :: a -&gt; [String]
-</span><a href="#local-6989586621679075700"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679075699"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679075699"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; String
-</span><a href="#local-6989586621679075704"><span class="hs-identifier hs-var">showa</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679075699"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; [String]
+</span><a href="#local-6989586621679077481"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-23"></span><span>    </span><span id="local-6989586621679077481"><span class="annot"><span class="annottext">go :: a -&gt; [String]
+</span><a href="#local-6989586621679077481"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621679077480"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679077480"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; String
+</span><a href="#local-6989586621679077485"><span class="hs-identifier hs-var">showa</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679077480"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; [String]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[(Maybe String, a)] -&gt; [String]
-</span><a href="#local-6989586621679075698"><span class="hs-identifier hs-var">drawCh</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; [(Maybe String, a)]
-</span><a href="#local-6989586621679075703"><span class="hs-identifier hs-var">edges</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679075699"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-24"></span><span>        </span><span id="local-6989586621679075698"><span class="annot"><span class="annottext">drawCh :: [(Maybe String, a)] -&gt; [String]
-</span><a href="#local-6989586621679075698"><span class="hs-identifier hs-var hs-var">drawCh</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>     </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
-</span><span id="line-25"></span><span>        </span><span class="annot"><a href="#local-6989586621679075698"><span class="hs-identifier hs-var">drawCh</span></a></span><span> </span><span class="hs-special">[</span><span id="local-6989586621679075697"><span class="annot"><span class="annottext">(Maybe String, a)
-</span><a href="#local-6989586621679075697"><span class="hs-identifier hs-var">e</span></a></span></span><span class="hs-special">]</span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; [String] -&gt; [String]
+</span><a href="#local-6989586621679077479"><span class="hs-identifier hs-var">drawCh</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; [(Maybe String, a)]
+</span><a href="#local-6989586621679077484"><span class="hs-identifier hs-var">edges</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679077480"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-24"></span><span>        </span><span id="local-6989586621679077479"><span class="annot"><span class="annottext">drawCh :: [(Maybe String, a)] -&gt; [String]
+</span><a href="#local-6989586621679077479"><span class="hs-identifier hs-var hs-var">drawCh</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>     </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-25"></span><span>        </span><span class="annot"><a href="#local-6989586621679077479"><span class="hs-identifier hs-var">drawCh</span></a></span><span> </span><span class="hs-special">[</span><span id="local-6989586621679077478"><span class="annot"><span class="annottext">(Maybe String, a)
+</span><a href="#local-6989586621679077478"><span class="hs-identifier hs-var">e</span></a></span></span><span class="hs-special">]</span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; [String] -&gt; [String]
 forall a. [a] -&gt; [a] -&gt; [[a]] -&gt; [[a]]
-</span><a href="#local-6989586621679075696"><span class="hs-identifier hs-var">shift</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679077477"><span class="hs-identifier hs-var">shift</span></a></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;&#9492;&quot;</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot; &quot;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Maybe String, a) -&gt; [String]
-</span><a href="#local-6989586621679075695"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">(Maybe String, a)
-</span><a href="#local-6989586621679075697"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-26"></span><span>        </span><span class="annot"><a href="#local-6989586621679075698"><span class="hs-identifier hs-var">drawCh</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679075694"><span class="annot"><span class="annottext">(Maybe String, a)
-</span><a href="#local-6989586621679075694"><span class="hs-identifier hs-var">e</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679075693"><span class="annot"><span class="annottext">[(Maybe String, a)]
-</span><a href="#local-6989586621679075693"><span class="hs-identifier hs-var">es</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; [String] -&gt; [String]
+</span><a href="#local-6989586621679077476"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">(Maybe String, a)
+</span><a href="#local-6989586621679077478"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span>        </span><span class="annot"><a href="#local-6989586621679077479"><span class="hs-identifier hs-var">drawCh</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679077475"><span class="annot"><span class="annottext">(Maybe String, a)
+</span><a href="#local-6989586621679077475"><span class="hs-identifier hs-var">e</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679077474"><span class="annot"><span class="annottext">[(Maybe String, a)]
+</span><a href="#local-6989586621679077474"><span class="hs-identifier hs-var">es</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; [String] -&gt; [String]
 forall a. [a] -&gt; [a] -&gt; [[a]] -&gt; [[a]]
-</span><a href="#local-6989586621679075696"><span class="hs-identifier hs-var">shift</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679077477"><span class="hs-identifier hs-var">shift</span></a></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;&#9500;&quot;</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;&#9474;&quot;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Maybe String, a) -&gt; [String]
-</span><a href="#local-6989586621679075695"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">(Maybe String, a)
-</span><a href="#local-6989586621679075694"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[String] -&gt; [String] -&gt; [String]
+</span><a href="#local-6989586621679077476"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">(Maybe String, a)
+</span><a href="#local-6989586621679077475"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[String] -&gt; [String] -&gt; [String]
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">[(Maybe String, a)] -&gt; [String]
-</span><a href="#local-6989586621679075698"><span class="hs-identifier hs-var">drawCh</span></a></span><span> </span><span class="annot"><span class="annottext">[(Maybe String, a)]
-</span><a href="#local-6989586621679075693"><span class="hs-identifier hs-var">es</span></a></span><span>
-</span><span id="line-27"></span><span>        </span><span id="local-6989586621679075695"><span class="annot"><span class="annottext">f :: (Maybe String, a) -&gt; [String]
-</span><a href="#local-6989586621679075695"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679075692"><span class="annot"><span class="annottext">Maybe String
-</span><a href="#local-6989586621679075692"><span class="hs-identifier hs-var">e</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075691"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679075691"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; [String] -&gt; [String]
+</span><a href="#local-6989586621679077479"><span class="hs-identifier hs-var">drawCh</span></a></span><span> </span><span class="annot"><span class="annottext">[(Maybe String, a)]
+</span><a href="#local-6989586621679077474"><span class="hs-identifier hs-var">es</span></a></span><span>
+</span><span id="line-27"></span><span>        </span><span id="local-6989586621679077476"><span class="annot"><span class="annottext">f :: (Maybe String, a) -&gt; [String]
+</span><a href="#local-6989586621679077476"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679077473"><span class="annot"><span class="annottext">Maybe String
+</span><a href="#local-6989586621679077473"><span class="hs-identifier hs-var">e</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679077472"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679077472"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; [String] -&gt; [String]
 forall a. [a] -&gt; [a] -&gt; [[a]] -&gt; [[a]]
-</span><a href="#local-6989586621679075696"><span class="hs-identifier hs-var">shift</span></a></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679075690"><span class="hs-keyword hs-var">label</span></a></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679075689"><span class="hs-identifier hs-var">padding</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; [String]
-</span><a href="#local-6989586621679075700"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679075691"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-28"></span><span>            </span><span id="local-6989586621679075690"><span class="annot"><span class="annottext">label :: String
-</span><a href="#local-6989586621679075690"><span class="hs-keyword hs-var hs-var">label</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe String -&gt; String
-</span><a href="#local-6989586621679075688"><span class="hs-identifier hs-var">edge</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe String
-</span><a href="#local-6989586621679075692"><span class="hs-identifier hs-var">e</span></a></span><span>
-</span><span id="line-29"></span><span>            </span><span id="local-6989586621679075689"><span class="annot"><span class="annottext">padding :: String
-</span><a href="#local-6989586621679075689"><span class="hs-identifier hs-var hs-var">padding</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Char -&gt; String
+</span><a href="#local-6989586621679077477"><span class="hs-identifier hs-var">shift</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679077471"><span class="hs-keyword hs-var">label</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679077470"><span class="hs-identifier hs-var">padding</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; [String]
+</span><a href="#local-6989586621679077481"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679077472"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-28"></span><span>            </span><span id="local-6989586621679077471"><span class="annot"><span class="annottext">label :: String
+</span><a href="#local-6989586621679077471"><span class="hs-keyword hs-var hs-var">label</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe String -&gt; String
+</span><a href="#local-6989586621679077469"><span class="hs-identifier hs-var">edge</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe String
+</span><a href="#local-6989586621679077473"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-29"></span><span>            </span><span id="local-6989586621679077470"><span class="annot"><span class="annottext">padding :: String
+</span><a href="#local-6989586621679077470"><span class="hs-identifier hs-var hs-var">padding</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Char -&gt; String
 forall a. Int -&gt; a -&gt; [a]
 </span><span class="hs-identifier hs-var">replicate</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Int
 forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Int
 </span><span class="hs-identifier hs-var">length</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679075690"><span class="hs-keyword hs-var">label</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Char
+</span><a href="#local-6989586621679077471"><span class="hs-keyword hs-var">label</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Char
 </span><span class="hs-char">' '</span></span><span>
-</span><span id="line-30"></span><span>    </span><span id="local-6989586621679075688"><span class="annot"><span class="annottext">edge :: Maybe String -&gt; String
-</span><a href="#local-6989586621679075688"><span class="hs-identifier hs-var hs-var">edge</span></a></span></span><span> </span><span class="annot"><span class="annottext">Maybe String
+</span><span id="line-30"></span><span>    </span><span id="local-6989586621679077469"><span class="annot"><span class="annottext">edge :: Maybe String -&gt; String
+</span><a href="#local-6989586621679077469"><span class="hs-identifier hs-var hs-var">edge</span></a></span></span><span> </span><span class="annot"><span class="annottext">Maybe String
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;&#9472;&#9472; &quot;</span></span><span>
-</span><span id="line-31"></span><span>    </span><span class="annot"><a href="#local-6989586621679075688"><span class="hs-identifier hs-var">edge</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679075685"><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679075685"><span class="hs-identifier hs-var">s</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
+</span><span id="line-31"></span><span>    </span><span class="annot"><a href="#local-6989586621679077469"><span class="hs-identifier hs-var">edge</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679077466"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679077466"><span class="hs-identifier hs-var">s</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot;&#9472;&#9472; &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679075685"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><a href="#local-6989586621679077466"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
 </span><span class="hs-string">&quot; &#9472;&#9472; &quot;</span></span><span>
-</span><span id="line-32"></span><span>    </span><span id="local-6989586621679075696"><span class="annot"><span class="annottext">shift :: [a] -&gt; [a] -&gt; [[a]] -&gt; [[a]]
-</span><a href="#local-6989586621679075696"><span class="hs-identifier hs-var hs-var">shift</span></a></span></span><span> </span><span id="local-6989586621679075684"><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679075684"><span class="hs-identifier hs-var">first</span></a></span></span><span> </span><span id="local-6989586621679075683"><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679075683"><span class="hs-identifier hs-var">other</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">([a] -&gt; [a] -&gt; [a]) -&gt; [[a]] -&gt; [[a]] -&gt; [[a]]
+</span><span id="line-32"></span><span>    </span><span id="local-6989586621679077477"><span class="annot"><span class="annottext">shift :: [a] -&gt; [a] -&gt; [[a]] -&gt; [[a]]
+</span><a href="#local-6989586621679077477"><span class="hs-identifier hs-var hs-var">shift</span></a></span></span><span> </span><span id="local-6989586621679077465"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679077465"><span class="hs-identifier hs-var">first</span></a></span></span><span> </span><span id="local-6989586621679077464"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679077464"><span class="hs-identifier hs-var">other</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">([a] -&gt; [a] -&gt; [a]) -&gt; [[a]] -&gt; [[a]] -&gt; [[a]]
 forall a b c. (a -&gt; b -&gt; c) -&gt; [a] -&gt; [b] -&gt; [c]
 </span><span class="hs-identifier hs-var">zipWith</span></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; [a] -&gt; [a]
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">(++)</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679075684"><span class="hs-identifier hs-var">first</span></a></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; [[a]] -&gt; [[a]]
+</span><a href="#local-6989586621679077465"><span class="hs-identifier hs-var">first</span></a></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; [[a]] -&gt; [[a]]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; [[a]]
 forall a. a -&gt; [a]
 </span><span class="hs-identifier hs-var">repeat</span></span><span> </span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679075683"><span class="hs-identifier hs-var">other</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679077464"><span class="hs-identifier hs-var">other</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-33"></span></pre></body></html>

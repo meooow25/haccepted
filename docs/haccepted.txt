@@ -980,6 +980,39 @@ binSearchLSTM :: (Action u a, MArray marru u m, MArray marra a m) => LazySegTree
 foldrLSTM :: (Action u a, MArray marru u m, MArray marra a m) => LazySegTreeMut marru marra u a -> (a -> b -> b) -> b -> m b
 
 
+-- | <h2>Mutable segment tree</h2>
+--   
+--   See SegTree. SegTreeMut is just that, but backed by a mutable array.
+--   When the array is unboxed, SegTreeMut is a few times faster than
+--   SegTree (see benchmarks). However, this comes at the cost of purity.
+module SegTreeMut
+data SegTreeMut marr a
+
+-- | Builds a segment tree on range (l, r) where each element is mempty.
+--   O(n).
+emptySTM :: (Monoid a, MArray marr a m) => (Int, Int) -> m (SegTreeMut marr a)
+
+-- | Builds a segment tree on (l, r) where the elements are taken from a
+--   list. If the list is shorter than the range, the remaining elements
+--   are mempty. O(n).
+fromListSTM :: (Monoid a, MArray marr a m) => (Int, Int) -> [a] -> m (SegTreeMut marr a)
+
+-- | Adjusts the element at index i. O(log n).
+adjustSTM :: (Monoid a, MArray marr a m) => SegTreeMut marr a -> Int -> (a -> a) -> m ()
+
+-- | Folds the elements in the range (ql, qr). Elements outside (l, r) are
+--   considered to be mempty. O(log n).
+foldRangeSTM :: (Monoid a, MArray marr a m) => SegTreeMut marr a -> Int -> Int -> m a
+
+-- | Binary search in the intersection of (l, r) and (ql, qr) for the
+--   shortest prefix whose fold satisfies the given monotonic predicate.
+--   Returns the end index and the fold. O(log n).
+binSearchSTM :: (Monoid a, MArray marr a m) => SegTreeMut marr a -> Int -> Int -> (a -> Bool) -> m (Maybe (Int, a))
+
+-- | Right fold over the elements of the segment tree. O(n).
+foldrSTM :: (Monoid a, MArray marr a m) => SegTreeMut marr a -> (a -> b -> b) -> b -> m b
+
+
 -- | <h2>Sorting</h2>
 --   
 --   Data.List.sort is rather inefficient when we don't care about laziness
