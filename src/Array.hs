@@ -38,7 +38,7 @@ import Control.DeepSeq
 import Data.Array.Base
 import Data.Array.IO
 import Data.Coerce
-import Data.Monoid
+import Data.Semigroup
 
 class Unbox a where
     type Unboxed a
@@ -77,6 +77,12 @@ type STUArr s = Arr (STUArray s)
 
 instance Unbox (Sum a) where
     type Unboxed (Sum a) = a
+
+instance Unbox (Min a) where
+    type Unboxed (Min a) = a
+
+instance Unbox (Max a) where
+    type Unboxed (Max a) = a
 
 --------------------------------------------------------------------------------
 -- For tests
