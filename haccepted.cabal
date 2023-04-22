@@ -18,7 +18,6 @@ library
   exposed-modules:
       AhoCorasick
       Array
-      Array2
       BFS
       BinSearch
       CentroidDecomp
@@ -108,7 +107,6 @@ test-suite test-all
   other-modules:
       AhoCorasickSpec
       ArbitraryInstances
-      Array2Spec
       ArraySpec
       ArrayTests
       BFSSpec
@@ -163,7 +161,6 @@ benchmark bench-all
   main-is: Bench.hs
   other-modules:
       AhoCorasickBench
-      Array2Bench
       ArrayBench
       ArrayBenches
       ArrayNFData
