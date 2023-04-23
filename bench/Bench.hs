@@ -1,7 +1,6 @@
 import Criterion.Main
 
 import qualified AhoCorasickBench
-import qualified Array2Bench
 import qualified ArrayBench
 import qualified BFSBench
 import qualified BinSearchBench
@@ -36,7 +35,6 @@ import qualified ZBench
 main :: IO ()
 main = defaultMain
     [ AhoCorasickBench.benchmark
-    , Array2Bench.benchmark
     , ArrayBench.benchmark
     , BFSBench.benchmark
     , BinSearchBench.benchmark

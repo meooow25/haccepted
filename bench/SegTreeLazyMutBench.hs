@@ -18,8 +18,7 @@ import SegTreeLazyMut
     , fromListLSTM
     , updateRangeLSTM
     )
-import Array ( Arr, Unbox(..), IOUArr )
-import Array2 ( Arr2 )
+import Array ( Arr, Arr2, Unbox(..), IOUArr )
 import SegTreeLazyBench ( SumLen(..) )
 import Util ( evalR, randInts, randIntsR, randSortedIntPairsR, sizedBench, sizedBenchIO )
 
