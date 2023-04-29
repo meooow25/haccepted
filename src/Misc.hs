@@ -29,6 +29,12 @@ Modifies an element in a mutable array.
 modifyArray'
 Modifies an element in a mutable array. Strict version.
 
+ifoldr
+foldr with an index, starting at 0.
+
+ifoldl'
+foldl' with an index, starting at 0.
+
 foldMComp
 Compose a strict left fold function with a mapM function. Useful for foldMs.
 foldM (f `foldMComp` g) z = fmap (foldl' f z) . mapM g
@@ -89,6 +95,8 @@ module Misc
     , foldExclusive
     , modifyArray
     , modifyArray'
+    , ifoldr
+    , ifoldl'
     , foldMComp
     , farthest
     , foldTree'
@@ -148,6 +156,14 @@ modifyArray a i f = readArray a i >>= writeArray a i . f
 modifyArray' :: (MArray a e m, Ix i) => a i e -> i -> (e -> e) -> m ()
 modifyArray' a i f = readArray a i >>= (writeArray a i $!) . f
 {-# INLINE modifyArray' #-}
+
+ifoldr :: Foldable f => (Int -> a -> b -> b) -> b -> f a -> b
+ifoldr f z0 = \xs -> foldr (\x k !i -> f i x (k (i+1))) (const z0) xs 0
+{-# INLINE ifoldr #-}
+
+ifoldl' :: Foldable f => (b -> Int -> a -> b) -> b -> f a -> b
+ifoldl' f z0 = \xs -> foldr (\x k !i !z -> k (i+1) (f z i x)) (const id) xs 0 z0
+{-# INLINE ifoldl' #-}
 
 foldMComp :: Monad m => (b -> a -> b) -> (c -> m a) -> b -> c -> m b
 foldMComp f g = \z x -> f z <$!> g x
