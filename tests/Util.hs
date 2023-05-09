@@ -30,11 +30,11 @@ genPruferSeq = sized $ \n -> do
     return ((l, r), us)
 
 genTreeG :: Gen Graph
-genTreeG = uncurry seqToGraph <$> genPruferSeq
+genTreeG = uncurry seqToGraph <$> (genPruferSeq `suchThat` ((>0) . rangeSize . fst))
 
 genTree :: Gen (Bounds, Tree Vertex)
 genTree = do
-    g <- genTreeG `suchThat` ((>0) . rangeSize . bounds)
+    g <- genTreeG
     let bnds = bounds g
     x <- choose bnds
     let [t] = dfs g [x]
@@ -55,7 +55,7 @@ genLTreeG = do
 
 genLTree :: Gen (Bounds, LTree Int Vertex)
 genLTree = do
-    g <- genLTreeG `suchThat` ((>0) . rangeSize . bounds)
+    g <- genLTreeG
     let bnds = bounds g
     x <- choose bnds
     let t = dfsLTree g x

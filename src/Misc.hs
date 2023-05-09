@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE BangPatterns, MultiParamTypeClasses #-}
 {-|
 Miscellaneous functions/recipes
 
@@ -18,11 +18,10 @@ unique
 Eliminates consecutive duplicate elements. O(n).
 
 foldExclusive
-Folds a list of values such that the ith element of the result contains the folded result of all
-elements in the input list excluding the ith element. The fold is strict. The elements get folded
-in a not-very-simple order, so the following should hold:
+Folds strictly such that the ith element of the output list contains the fold of all elements in the
+input list except for the ith element. The fold function f must be commutative, in the sense that
 (b `f` a1) `f` a2 = (b `f` a2) `f` a1
-O(n log n) assuming f takes O(1).
+f is called O(n log n) times.
 
 modifyArray
 Modifies an element in a mutable array.
@@ -134,13 +133,13 @@ unique = map head . group
 
 foldExclusive :: (b -> a -> b) -> b -> [a] -> [b]
 foldExclusive _ _ [] = []
-foldExclusive f b as = go b (length as) as [] where
-    go b 1 _  = (b:)
-    go b n as = b1 `seq` b2 `seq` go b2 n' as1 . go b1 (n - n') as2 where
+foldExclusive f y0 xs0 = go y0 (length xs0) xs0 [] where
+    go !y 1 _ = (y:)
+    go y n xs = go yr n' xsl . go yl (n - n') xsr where
         n' = n `div` 2
-        (as1, as2) = splitAt n' as
-        b1 = foldl' f b as1
-        b2 = foldl' f b as2
+        (xsl, xsr) = splitAt n' xs
+        yl = foldl' f y xsl
+        yr = foldl' f y xsr
 
 modifyArray :: (MArray a e m, Ix i) => a i e -> i -> (e -> e) -> m ()
 modifyArray a i f = readArray a i >>= writeArray a i . f
