@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE BangPatterns #-}</span><span>
+</span><span id="line-2"></span><span class="hs-comment">{-|
+== Tree reroot fold
+
+Folds of a tree with every node as root.
+Known as &quot;tree rerooting DP&quot;, among other names.
+
+Recall that Data.Tree has foldTree :: (a -&gt; [c] -&gt; c) -&gt; Tree a -&gt; c. foldReroot is similar but
+requires (b -&gt; c -&gt; b) and b to perform strict folds over [c].
+
+g :: b -&gt; c -&gt; b must be commutative, in the sense that
+(b `g` c1) `g` c2 = (b `g` c2) `g` c1
+
+Sources:
+
+* Informal discussions. I am unable to find a good published source for this technique :(
+
+-}</span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span class="hs-comment">{-
+Implementation notes:
+* Thanks to Haskell's laziness it is possible to write a more concise implementation with a single
+  dfs, but this seems to be slower in practice. Here is a possible implementation:
+  https://gist.github.com/meooow25/6460e45327355106cedbcf3bd5166cd6
+* Reroot problems can often be solved in O(n) time, if there is a way to *take way* the contribution
+  of a node from an accumulated value. Avoiding this requirement, it takes O(n log n) but is far
+  simpler.
+-}</span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">RerootFold</span><span>
+</span><span id="line-31"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="RerootFold.html#foldReroot"><span class="hs-identifier">foldReroot</span></a></span><span>
+</span><span id="line-32"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-33"></span><span>
+</span><span id="line-34"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Tree</span></span><span>
+</span><span id="line-35"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.List</span></span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Misc.html"><span class="hs-identifier">Misc</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Misc.html#foldExclusive"><span class="hs-identifier">foldExclusive</span></a></span><span> </span><span class="hs-special">)</span><span>
+</span><span id="line-38"></span><span>
+</span><span id="line-39"></span><span class="hs-comment">-- | Returns the same tree with each vertex accompanied by the fold of the tree if that vertex is made</span><span>
+</span><span id="line-40"></span><span class="hs-comment">-- the root of the tree. f is called O(n) times. g is called O(n log n) times.</span><span>
+</span><span id="line-41"></span><span id="local-6989586621679076076"><span id="local-6989586621679076077"><span id="local-6989586621679076078"><span class="annot"><a href="RerootFold.html#foldReroot"><span class="hs-identifier hs-type">foldReroot</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679076078"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679076077"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679076076"><span class="hs-identifier hs-type">c</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679076077"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679076076"><span class="hs-identifier hs-type">c</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679076077"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679076077"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tree</span></span><span> </span><span class="annot"><a href="#local-6989586621679076078"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tree</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679076078"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679076076"><span class="hs-identifier hs-type">c</span></a></span><span class="hs-special">)</span></span></span></span><span>
+</span><span id="line-42"></span><span id="foldReroot"><span class="annot"><span class="annottext">foldReroot :: (a -&gt; b -&gt; c) -&gt; (b -&gt; c -&gt; b) -&gt; b -&gt; Tree a -&gt; Tree (a, c)
+</span><a href="RerootFold.html#foldReroot"><span class="hs-identifier hs-var hs-var">foldReroot</span></a></span></span><span> </span><span id="local-6989586621679076075"><span class="annot"><span class="annottext">a -&gt; b -&gt; c
+</span><a href="#local-6989586621679076075"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679076074"><span class="annot"><span class="annottext">b -&gt; c -&gt; b
+</span><a href="#local-6989586621679076074"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679076073"><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679076073"><span class="hs-identifier hs-var">y0</span></a></span></span><span> </span><span id="local-6989586621679076072"><span class="annot"><span class="annottext">Tree a
+</span><a href="#local-6989586621679076072"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tree (a, c)
+</span><a href="#local-6989586621679076071"><span class="hs-identifier hs-var">res</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-43"></span><span>    </span><span id="local-6989586621679076071"><span class="annot"><span class="annottext">res :: Tree (a, c)
+</span><a href="#local-6989586621679076071"><span class="hs-identifier hs-var hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(a, c) -&gt; Forest (a, c) -&gt; Tree (a, c)
+forall a. a -&gt; Forest a -&gt; Tree a
+</span><span class="hs-identifier hs-var">Node</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679076069"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">,</span><span class="annot"><span class="annottext">c
+</span><a href="#local-6989586621679076068"><span class="hs-identifier hs-var">z</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(b -&gt; Tree (a, [c]) -&gt; Tree (a, c))
+-&gt; [b] -&gt; [Tree (a, [c])] -&gt; Forest (a, c)
+forall a b c. (a -&gt; b -&gt; c) -&gt; [a] -&gt; [b] -&gt; [c]
+</span><span class="hs-identifier hs-var">zipWith</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">c -&gt; Tree (a, [c]) -&gt; Tree (a, c)
+</span><a href="#local-6989586621679076066"><span class="hs-identifier hs-var">go2</span></a></span><span> </span><span class="annot"><span class="annottext">(c -&gt; Tree (a, [c]) -&gt; Tree (a, c))
+-&gt; (b -&gt; c) -&gt; b -&gt; Tree (a, [c]) -&gt; Tree (a, c)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; b -&gt; c
+</span><a href="#local-6989586621679076075"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679076069"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[b]
+</span><a href="#local-6989586621679076064"><span class="hs-identifier hs-var">ys</span></a></span><span> </span><span class="annot"><span class="annottext">[Tree (a, [c])]
+</span><a href="#local-6989586621679076063"><span class="hs-identifier hs-var">ts</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-44"></span><span>        </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span id="local-6989586621679076068"><span class="annot"><span class="annottext">c
+</span><a href="#local-6989586621679076068"><span class="hs-identifier hs-var">z</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Node</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679076069"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679076069"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679076062"><span class="annot"><span class="annottext">[c]
+</span><a href="#local-6989586621679076062"><span class="hs-identifier hs-var">zs</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679076063"><span class="annot"><span class="annottext">[Tree (a, [c])]
+</span><a href="#local-6989586621679076063"><span class="hs-identifier hs-var">ts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tree a -&gt; (c, Tree (a, [c]))
+</span><a href="#local-6989586621679076061"><span class="hs-identifier hs-var">go1</span></a></span><span> </span><span class="annot"><span class="annottext">Tree a
+</span><a href="#local-6989586621679076072"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-45"></span><span>        </span><span id="local-6989586621679076064"><span class="annot"><span class="annottext">ys :: [b]
+</span><a href="#local-6989586621679076064"><span class="hs-identifier hs-var hs-var">ys</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(b -&gt; c -&gt; b) -&gt; b -&gt; [c] -&gt; [b]
+forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; [a] -&gt; [b]
+</span><a href="Misc.html#foldExclusive"><span class="hs-identifier hs-var">foldExclusive</span></a></span><span> </span><span class="annot"><span class="annottext">b -&gt; c -&gt; b
+</span><a href="#local-6989586621679076074"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679076073"><span class="hs-identifier hs-var">y0</span></a></span><span> </span><span class="annot"><span class="annottext">[c]
+</span><a href="#local-6989586621679076062"><span class="hs-identifier hs-var">zs</span></a></span><span>
+</span><span id="line-46"></span><span>    </span><span id="local-6989586621679076061"><span class="annot"><span class="annottext">go1 :: Tree a -&gt; (c, Tree (a, [c]))
+</span><a href="#local-6989586621679076061"><span class="hs-identifier hs-var hs-var">go1</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Node</span></span><span> </span><span id="local-6989586621679076060"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679076060"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679076059"><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679076059"><span class="hs-identifier hs-var">ts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">c
+</span><a href="#local-6989586621679076058"><span class="hs-identifier hs-var">z</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(a, [c]) -&gt; [Tree (a, [c])] -&gt; Tree (a, [c])
+forall a. a -&gt; Forest a -&gt; Tree a
+</span><span class="hs-identifier hs-var">Node</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679076060"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">,</span><span class="annot"><span class="annottext">[c]
+</span><a href="#local-6989586621679076057"><span class="hs-identifier hs-var">zs</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Tree (a, [c])]
+</span><a href="#local-6989586621679076056"><span class="hs-identifier hs-var">ts'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-47"></span><span>        </span><span class="hs-special">(</span><span id="local-6989586621679076057"><span class="annot"><span class="annottext">[c]
+</span><a href="#local-6989586621679076057"><span class="hs-identifier hs-var">zs</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679076056"><span class="annot"><span class="annottext">[Tree (a, [c])]
+</span><a href="#local-6989586621679076056"><span class="hs-identifier hs-var">ts'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[(c, Tree (a, [c]))] -&gt; ([c], [Tree (a, [c])])
+forall a b. [(a, b)] -&gt; ([a], [b])
+</span><span class="hs-identifier hs-var">unzip</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Tree a -&gt; (c, Tree (a, [c]))) -&gt; Forest a -&gt; [(c, Tree (a, [c]))]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">Tree a -&gt; (c, Tree (a, [c]))
+</span><a href="#local-6989586621679076061"><span class="hs-identifier hs-var">go1</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679076059"><span class="hs-identifier hs-var">ts</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-48"></span><span>        </span><span class="hs-glyph">!</span><span id="local-6989586621679076058"><span class="annot"><span class="annottext">z :: c
+</span><a href="#local-6989586621679076058"><span class="hs-identifier hs-var hs-var">z</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; b -&gt; c
+</span><a href="#local-6989586621679076075"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679076060"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(b -&gt; c -&gt; b) -&gt; b -&gt; [c] -&gt; b
+forall (t :: * -&gt; *) b a.
+Foldable t =&gt;
+(b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b
+</span><span class="hs-identifier hs-var">foldl'</span></span><span> </span><span class="annot"><span class="annottext">b -&gt; c -&gt; b
+</span><a href="#local-6989586621679076074"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679076073"><span class="hs-identifier hs-var">y0</span></a></span><span> </span><span class="annot"><span class="annottext">[c]
+</span><a href="#local-6989586621679076057"><span class="hs-identifier hs-var">zs</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-49"></span><span>    </span><span id="local-6989586621679076066"><span class="annot"><span class="annottext">go2 :: c -&gt; Tree (a, [c]) -&gt; Tree (a, c)
+</span><a href="#local-6989586621679076066"><span class="hs-identifier hs-var hs-var">go2</span></a></span></span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679076053"><span class="annot"><span class="annottext">c
+</span><a href="#local-6989586621679076053"><span class="hs-identifier hs-var">up</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Node</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679076052"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679076052"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679076051"><span class="annot"><span class="annottext">[c]
+</span><a href="#local-6989586621679076051"><span class="hs-identifier hs-var">zs</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679076050"><span class="annot"><span class="annottext">[Tree (a, [c])]
+</span><a href="#local-6989586621679076050"><span class="hs-identifier hs-var">ts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(a, c) -&gt; Forest (a, c) -&gt; Tree (a, c)
+forall a. a -&gt; Forest a -&gt; Tree a
+</span><span class="hs-identifier hs-var">Node</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679076052"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">,</span><span class="annot"><span class="annottext">c
+</span><a href="#local-6989586621679076049"><span class="hs-identifier hs-var">z</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(b -&gt; Tree (a, [c]) -&gt; Tree (a, c))
+-&gt; [b] -&gt; [Tree (a, [c])] -&gt; Forest (a, c)
+forall a b c. (a -&gt; b -&gt; c) -&gt; [a] -&gt; [b] -&gt; [c]
+</span><span class="hs-identifier hs-var">zipWith</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">c -&gt; Tree (a, [c]) -&gt; Tree (a, c)
+</span><a href="#local-6989586621679076066"><span class="hs-identifier hs-var">go2</span></a></span><span> </span><span class="annot"><span class="annottext">(c -&gt; Tree (a, [c]) -&gt; Tree (a, c))
+-&gt; (b -&gt; c) -&gt; b -&gt; Tree (a, [c]) -&gt; Tree (a, c)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; b -&gt; c
+</span><a href="#local-6989586621679076075"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679076052"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[b]
+</span><a href="#local-6989586621679076048"><span class="hs-identifier hs-var">ys</span></a></span><span> </span><span class="annot"><span class="annottext">[Tree (a, [c])]
+</span><a href="#local-6989586621679076050"><span class="hs-identifier hs-var">ts</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-50"></span><span>        </span><span id="local-6989586621679076047"><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679076047"><span class="hs-identifier hs-var">y</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679076048"><span class="annot"><span class="annottext">[b]
+</span><a href="#local-6989586621679076048"><span class="hs-identifier hs-var">ys</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(b -&gt; c -&gt; b) -&gt; b -&gt; [c] -&gt; [b]
+forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; [a] -&gt; [b]
+</span><a href="Misc.html#foldExclusive"><span class="hs-identifier hs-var">foldExclusive</span></a></span><span> </span><span class="annot"><span class="annottext">b -&gt; c -&gt; b
+</span><a href="#local-6989586621679076074"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679076073"><span class="hs-identifier hs-var">y0</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">c
+</span><a href="#local-6989586621679076053"><span class="hs-identifier hs-var">up</span></a></span><span class="annot"><span class="annottext">c -&gt; [c] -&gt; [c]
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span class="annot"><span class="annottext">[c]
+</span><a href="#local-6989586621679076051"><span class="hs-identifier hs-var">zs</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-51"></span><span>        </span><span class="hs-glyph">!</span><span id="local-6989586621679076049"><span class="annot"><span class="annottext">z :: c
+</span><a href="#local-6989586621679076049"><span class="hs-identifier hs-var hs-var">z</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; b -&gt; c
+</span><a href="#local-6989586621679076075"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679076052"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">b -&gt; c -&gt; b
+</span><a href="#local-6989586621679076074"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679076047"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">c
+</span><a href="#local-6989586621679076053"><span class="hs-identifier hs-var">up</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-52"></span></pre></body></html>

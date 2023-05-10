@@ -399,12 +399,11 @@ replicateL :: Int -> [a] -> [a]
 -- | Eliminates consecutive duplicate elements. O(n).
 unique :: Eq a => [a] -> [a]
 
--- | Folds a list of values such that the ith element of the result
---   contains the folded result of all elements in the input list excluding
---   the ith element. The fold is strict. The elements get folded in a
---   not-very-simple order, so the following should hold: (b <tt>f</tt> a1)
---   <tt>f</tt> a2 = (b <tt>f</tt> a2) <tt>f</tt> a1 O(n log n) assuming f
---   takes O(1).
+-- | Folds strictly such that the ith element of the output list contains
+--   the fold of all elements in the input list except for the ith element.
+--   The fold function f must be commutative, in the sense that (b
+--   <tt>f</tt> a1) <tt>f</tt> a2 = (b <tt>f</tt> a2) <tt>f</tt> a1 f is
+--   called O(n log n) times.
 foldExclusive :: (b -> a -> b) -> b -> [a] -> [b]
 
 -- | Modifies an element in a mutable array.
@@ -854,6 +853,32 @@ seqToEdges :: Bounds -> [Vertex] -> [Edge]
 -- | Convert a Prufer sequence to a bidirected Graph. The sequence must be
 --   valid. O(n).
 seqToGraph :: Bounds -> [Vertex] -> Graph
+
+
+-- | <h2>Tree reroot fold</h2>
+--   
+--   Folds of a tree with every node as root. Known as "tree rerooting DP",
+--   among other names.
+--   
+--   Recall that Data.Tree has foldTree :: (a -&gt; [c] -&gt; c) -&gt; Tree
+--   a -&gt; c. foldReroot is similar but requires (b -&gt; c -&gt; b) and
+--   b to perform strict folds over [c].
+--   
+--   g :: b -&gt; c -&gt; b must be commutative, in the sense that (b
+--   <tt>g</tt> c1) <tt>g</tt> c2 = (b <tt>g</tt> c2) <tt>g</tt> c1
+--   
+--   Sources:
+--   
+--   <ul>
+--   <li>Informal discussions. I am unable to find a good published source
+--   for this technique :(</li>
+--   </ul>
+module RerootFold
+
+-- | Returns the same tree with each vertex accompanied by the fold of the
+--   tree if that vertex is made the root of the tree. f is called O(n)
+--   times. g is called O(n log n) times.
+foldReroot :: (a -> b -> c) -> (b -> c -> b) -> b -> Tree a -> Tree (a, c)
 
 
 -- | <h2>Segment tree</h2>

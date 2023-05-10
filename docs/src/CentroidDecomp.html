@@ -34,23 +34,23 @@ Implementation notes:
 </span><span id="line-34"></span><span>
 </span><span id="line-35"></span><span class="hs-comment">-- | Performs centroid decomposition on a tree of n nodes, returning the decomposition as a tree of</span><span>
 </span><span id="line-36"></span><span class="hs-comment">-- n trees. O(n log n).</span><span>
-</span><span id="line-37"></span><span id="local-6989586621679074843"><span class="annot"><a href="CentroidDecomp.html#centroidDecompose"><span class="hs-identifier hs-type">centroidDecompose</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tree</span></span><span> </span><span class="annot"><a href="#local-6989586621679074843"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tree</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Tree</span></span><span> </span><span class="annot"><a href="#local-6989586621679074843"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-37"></span><span id="local-6989586621679075101"><span class="annot"><a href="CentroidDecomp.html#centroidDecompose"><span class="hs-identifier hs-type">centroidDecompose</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tree</span></span><span> </span><span class="annot"><a href="#local-6989586621679075101"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tree</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Tree</span></span><span> </span><span class="annot"><a href="#local-6989586621679075101"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span><span>
 </span><span id="line-38"></span><span id="centroidDecompose"><span class="annot"><span class="annottext">centroidDecompose :: Tree a -&gt; Tree (Tree a)
-</span><a href="CentroidDecomp.html#centroidDecompose"><span class="hs-identifier hs-var hs-var">centroidDecompose</span></a></span></span><span> </span><span id="local-6989586621679074842"><span class="annot"><span class="annottext">Tree a
-</span><a href="#local-6989586621679074842"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tree a -&gt; Tree Int -&gt; Tree (Tree a)
+</span><a href="CentroidDecomp.html#centroidDecompose"><span class="hs-identifier hs-var hs-var">centroidDecompose</span></a></span></span><span> </span><span id="local-6989586621679075100"><span class="annot"><span class="annottext">Tree a
+</span><a href="#local-6989586621679075100"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tree a -&gt; Tree Int -&gt; Tree (Tree a)
 forall a a. (Ord a, Num a) =&gt; Tree a -&gt; Tree a -&gt; Tree (Tree a)
-</span><a href="#local-6989586621679074841"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Tree a
-</span><a href="#local-6989586621679074842"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(a -&gt; [Tree Int] -&gt; Tree Int) -&gt; Tree a -&gt; Tree Int
+</span><a href="#local-6989586621679075099"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Tree a
+</span><a href="#local-6989586621679075100"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(a -&gt; [Tree Int] -&gt; Tree Int) -&gt; Tree a -&gt; Tree Int
 forall a b. (a -&gt; [b] -&gt; b) -&gt; Tree a -&gt; b
 </span><span class="hs-identifier hs-var">foldTree</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; [Tree Int] -&gt; Tree Int
 forall p. p -&gt; [Tree Int] -&gt; Tree Int
-</span><a href="#local-6989586621679074839"><span class="hs-identifier hs-var">szf</span></a></span><span> </span><span class="annot"><span class="annottext">Tree a
-</span><a href="#local-6989586621679074842"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-39"></span><span>    </span><span id="local-6989586621679074839"><span class="annot"><span class="annottext">szf :: p -&gt; [Tree Int] -&gt; Tree Int
-</span><a href="#local-6989586621679074839"><span class="hs-identifier hs-var hs-var">szf</span></a></span></span><span> </span><span class="annot"><span class="annottext">p
-</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679074838"><span class="annot"><span class="annottext">[Tree Int]
-</span><a href="#local-6989586621679074838"><span class="hs-identifier hs-var">szts</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679074837"><span class="annot"><span class="annottext">sz :: Int
-</span><a href="#local-6989586621679074837"><span class="hs-identifier hs-var hs-var">sz</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679075097"><span class="hs-identifier hs-var">szf</span></a></span><span> </span><span class="annot"><span class="annottext">Tree a
+</span><a href="#local-6989586621679075100"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-39"></span><span>    </span><span id="local-6989586621679075097"><span class="annot"><span class="annottext">szf :: p -&gt; [Tree Int] -&gt; Tree Int
+</span><a href="#local-6989586621679075097"><span class="hs-identifier hs-var hs-var">szf</span></a></span></span><span> </span><span class="annot"><span class="annottext">p
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679075096"><span class="annot"><span class="annottext">[Tree Int]
+</span><a href="#local-6989586621679075096"><span class="hs-identifier hs-var">szts</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679075095"><span class="annot"><span class="annottext">sz :: Int
+</span><a href="#local-6989586621679075095"><span class="hs-identifier hs-var hs-var">sz</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; Int
@@ -60,50 +60,50 @@ forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
 </span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">Tree Int -&gt; Int
 forall a. Tree a -&gt; a
 </span><span class="hs-identifier hs-var hs-var">rootLabel</span></span><span> </span><span class="annot"><span class="annottext">[Tree Int]
-</span><a href="#local-6989586621679074838"><span class="hs-identifier hs-var">szts</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679074837"><span class="hs-identifier hs-var">sz</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Tree Int -&gt; Tree Int
+</span><a href="#local-6989586621679075096"><span class="hs-identifier hs-var">szts</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679075095"><span class="hs-identifier hs-var">sz</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Tree Int -&gt; Tree Int
 </span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; [Tree Int] -&gt; Tree Int
 forall a. a -&gt; Forest a -&gt; Tree a
 </span><span class="hs-identifier hs-var">Node</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679074837"><span class="hs-identifier hs-var">sz</span></a></span><span> </span><span class="annot"><span class="annottext">[Tree Int]
-</span><a href="#local-6989586621679074838"><span class="hs-identifier hs-var">szts</span></a></span><span>
-</span><span id="line-40"></span><span>    </span><span id="local-6989586621679074841"><span class="annot"><span class="annottext">go :: Tree a -&gt; Tree a -&gt; Tree (Tree a)
-</span><a href="#local-6989586621679074841"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Node</span></span><span> </span><span id="local-6989586621679074832"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074832"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679074831"><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074831"><span class="hs-identifier hs-var">rts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Node</span></span><span> </span><span id="local-6989586621679074830"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074830"><span class="hs-identifier hs-var">sz</span></a></span></span><span> </span><span id="local-6989586621679074829"><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074829"><span class="hs-identifier hs-var">rszts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">((a, Forest a, Forest a) -&gt; Maybe (a, Forest a, Forest a))
+</span><a href="#local-6989586621679075095"><span class="hs-identifier hs-var">sz</span></a></span><span> </span><span class="annot"><span class="annottext">[Tree Int]
+</span><a href="#local-6989586621679075096"><span class="hs-identifier hs-var">szts</span></a></span><span>
+</span><span id="line-40"></span><span>    </span><span id="local-6989586621679075099"><span class="annot"><span class="annottext">go :: Tree a -&gt; Tree a -&gt; Tree (Tree a)
+</span><a href="#local-6989586621679075099"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Node</span></span><span> </span><span id="local-6989586621679075090"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075090"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679075089"><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075089"><span class="hs-identifier hs-var">rts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Node</span></span><span> </span><span id="local-6989586621679075088"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075088"><span class="hs-identifier hs-var">sz</span></a></span></span><span> </span><span id="local-6989586621679075087"><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075087"><span class="hs-identifier hs-var">rszts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">((a, Forest a, Forest a) -&gt; Maybe (a, Forest a, Forest a))
 -&gt; (a, Forest a, Forest a) -&gt; (a, Forest a, Forest a)
 forall a. (a -&gt; Maybe a) -&gt; a -&gt; a
 </span><a href="Misc.html#farthest"><span class="hs-identifier hs-var">farthest</span></a></span><span> </span><span class="annot"><span class="annottext">(a, Forest a, Forest a) -&gt; Maybe (a, Forest a, Forest a)
 forall a. (a, [Tree a], Forest a) -&gt; Maybe (a, [Tree a], Forest a)
-</span><a href="#local-6989586621679074828"><span class="hs-identifier hs-var">step</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074832"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074831"><span class="hs-identifier hs-var">rts</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074829"><span class="hs-identifier hs-var">rszts</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-41"></span><span>        </span><span class="hs-special">(</span><span id="local-6989586621679074827"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074827"><span class="hs-identifier hs-var">u</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679074826"><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074826"><span class="hs-identifier hs-var">uts</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679074825"><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074825"><span class="hs-identifier hs-var">uszts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Tree a -&gt; Forest (Tree a) -&gt; Tree (Tree a)
+</span><a href="#local-6989586621679075086"><span class="hs-identifier hs-var">step</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075090"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075089"><span class="hs-identifier hs-var">rts</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075087"><span class="hs-identifier hs-var">rszts</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-41"></span><span>        </span><span class="hs-special">(</span><span id="local-6989586621679075085"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075085"><span class="hs-identifier hs-var">u</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075084"><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075084"><span class="hs-identifier hs-var">uts</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075083"><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075083"><span class="hs-identifier hs-var">uszts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Tree a -&gt; Forest (Tree a) -&gt; Tree (Tree a)
 forall a. a -&gt; Forest a -&gt; Tree a
 </span><span class="hs-identifier hs-var">Node</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Forest a -&gt; Tree a
 forall a. a -&gt; Forest a -&gt; Tree a
 </span><span class="hs-identifier hs-var">Node</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074827"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074826"><span class="hs-identifier hs-var">uts</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Tree a -&gt; Tree a -&gt; Tree (Tree a))
+</span><a href="#local-6989586621679075085"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075084"><span class="hs-identifier hs-var">uts</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Tree a -&gt; Tree a -&gt; Tree (Tree a))
 -&gt; Forest a -&gt; Forest a -&gt; Forest (Tree a)
 forall a b c. (a -&gt; b -&gt; c) -&gt; [a] -&gt; [b] -&gt; [c]
 </span><span class="hs-identifier hs-var">zipWith</span></span><span> </span><span class="annot"><span class="annottext">Tree a -&gt; Tree a -&gt; Tree (Tree a)
-</span><a href="#local-6989586621679074841"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074826"><span class="hs-identifier hs-var">uts</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074825"><span class="hs-identifier hs-var">uszts</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679075099"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075084"><span class="hs-identifier hs-var">uts</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075083"><span class="hs-identifier hs-var">uszts</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-42"></span><span>      </span><span class="hs-keyword">where</span><span>
-</span><span id="line-43"></span><span>        </span><span id="local-6989586621679074828"><span class="annot"><span class="annottext">step :: (a, [Tree a], Forest a) -&gt; Maybe (a, [Tree a], Forest a)
-</span><a href="#local-6989586621679074828"><span class="hs-identifier hs-var hs-var">step</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679074823"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074823"><span class="hs-identifier hs-var">u</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679074822"><span class="annot"><span class="annottext">[Tree a]
-</span><a href="#local-6989586621679074822"><span class="hs-identifier hs-var">uts</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679074821"><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074821"><span class="hs-identifier hs-var">uszts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Tree a, Tree a, [Tree a], Forest a) -&gt; (a, [Tree a], Forest a)
-</span><a href="#local-6989586621679074820"><span class="hs-identifier hs-var">mkv</span></a></span><span> </span><span class="annot"><span class="annottext">((Tree a, Tree a, [Tree a], Forest a) -&gt; (a, [Tree a], Forest a))
+</span><span id="line-43"></span><span>        </span><span id="local-6989586621679075086"><span class="annot"><span class="annottext">step :: (a, [Tree a], Forest a) -&gt; Maybe (a, [Tree a], Forest a)
+</span><a href="#local-6989586621679075086"><span class="hs-identifier hs-var hs-var">step</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679075081"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075081"><span class="hs-identifier hs-var">u</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075080"><span class="annot"><span class="annottext">[Tree a]
+</span><a href="#local-6989586621679075080"><span class="hs-identifier hs-var">uts</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075079"><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075079"><span class="hs-identifier hs-var">uszts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Tree a, Tree a, [Tree a], Forest a) -&gt; (a, [Tree a], Forest a)
+</span><a href="#local-6989586621679075078"><span class="hs-identifier hs-var">mkv</span></a></span><span> </span><span class="annot"><span class="annottext">((Tree a, Tree a, [Tree a], Forest a) -&gt; (a, [Tree a], Forest a))
 -&gt; Maybe (Tree a, Tree a, [Tree a], Forest a)
 -&gt; Maybe (a, [Tree a], Forest a)
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
@@ -115,7 +115,7 @@ forall b a. (b -&gt; Bool) -&gt; [a] -&gt; [b] -&gt; Maybe (a, b, [a], [b])
 </span><a href="CentroidDecomp.html#removeOne"><span class="hs-identifier hs-var">removeOne</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&gt;</span></span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074830"><span class="hs-identifier hs-var">sz</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(a -&gt; Bool) -&gt; (Tree a -&gt; a) -&gt; Tree a -&gt; Bool
+</span><a href="#local-6989586621679075088"><span class="hs-identifier hs-var">sz</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(a -&gt; Bool) -&gt; (Tree a -&gt; a) -&gt; Tree a -&gt; Bool
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
 forall a. Num a =&gt; a -&gt; a -&gt; a
@@ -125,69 +125,69 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Tree a -&gt; a
 forall a. Tree a -&gt; a
 </span><span class="hs-identifier hs-var hs-var">rootLabel</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Tree a]
-</span><a href="#local-6989586621679074822"><span class="hs-identifier hs-var">uts</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074821"><span class="hs-identifier hs-var">uszts</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-44"></span><span>            </span><span id="local-6989586621679074820"><span class="annot"><span class="annottext">mkv :: (Tree a, Tree a, [Tree a], Forest a) -&gt; (a, [Tree a], Forest a)
-</span><a href="#local-6989586621679074820"><span class="hs-identifier hs-var hs-var">mkv</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Node</span></span><span> </span><span id="local-6989586621679074814"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074814"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span id="local-6989586621679074813"><span class="annot"><span class="annottext">[Tree a]
-</span><a href="#local-6989586621679074813"><span class="hs-identifier hs-var">vts</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Node</span></span><span> </span><span id="local-6989586621679074812"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074812"><span class="hs-identifier hs-var">vsz</span></a></span></span><span> </span><span id="local-6989586621679074811"><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074811"><span class="hs-identifier hs-var">vszts</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679074810"><span class="annot"><span class="annottext">[Tree a]
-</span><a href="#local-6989586621679074810"><span class="hs-identifier hs-var">uts'</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679074809"><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074809"><span class="hs-identifier hs-var">uszts'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074814"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[Tree a]
-</span><a href="#local-6989586621679074808"><span class="hs-identifier hs-var">vts'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074807"><span class="hs-identifier hs-var">vszts'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-45"></span><span>                </span><span id="local-6989586621679074808"><span class="annot"><span class="annottext">vts' :: [Tree a]
-</span><a href="#local-6989586621679074808"><span class="hs-identifier hs-var hs-var">vts'</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; [Tree a] -&gt; Tree a
+</span><a href="#local-6989586621679075080"><span class="hs-identifier hs-var">uts</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075079"><span class="hs-identifier hs-var">uszts</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-44"></span><span>            </span><span id="local-6989586621679075078"><span class="annot"><span class="annottext">mkv :: (Tree a, Tree a, [Tree a], Forest a) -&gt; (a, [Tree a], Forest a)
+</span><a href="#local-6989586621679075078"><span class="hs-identifier hs-var hs-var">mkv</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Node</span></span><span> </span><span id="local-6989586621679075072"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075072"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span id="local-6989586621679075071"><span class="annot"><span class="annottext">[Tree a]
+</span><a href="#local-6989586621679075071"><span class="hs-identifier hs-var">vts</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Node</span></span><span> </span><span id="local-6989586621679075070"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075070"><span class="hs-identifier hs-var">vsz</span></a></span></span><span> </span><span id="local-6989586621679075069"><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075069"><span class="hs-identifier hs-var">vszts</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075068"><span class="annot"><span class="annottext">[Tree a]
+</span><a href="#local-6989586621679075068"><span class="hs-identifier hs-var">uts'</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075067"><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075067"><span class="hs-identifier hs-var">uszts'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075072"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[Tree a]
+</span><a href="#local-6989586621679075066"><span class="hs-identifier hs-var">vts'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075065"><span class="hs-identifier hs-var">vszts'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-45"></span><span>                </span><span id="local-6989586621679075066"><span class="annot"><span class="annottext">vts' :: [Tree a]
+</span><a href="#local-6989586621679075066"><span class="hs-identifier hs-var hs-var">vts'</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; [Tree a] -&gt; Tree a
 forall a. a -&gt; Forest a -&gt; Tree a
 </span><span class="hs-identifier hs-var">Node</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074823"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="annot"><span class="annottext">[Tree a]
-</span><a href="#local-6989586621679074810"><span class="hs-identifier hs-var">uts'</span></a></span><span> </span><span class="annot"><span class="annottext">Tree a -&gt; [Tree a] -&gt; [Tree a]
+</span><a href="#local-6989586621679075081"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="annot"><span class="annottext">[Tree a]
+</span><a href="#local-6989586621679075068"><span class="hs-identifier hs-var">uts'</span></a></span><span> </span><span class="annot"><span class="annottext">Tree a -&gt; [Tree a] -&gt; [Tree a]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[Tree a]
-</span><a href="#local-6989586621679074813"><span class="hs-identifier hs-var">vts</span></a></span><span>
-</span><span id="line-46"></span><span>                </span><span id="local-6989586621679074807"><span class="annot"><span class="annottext">vszts' :: Forest a
-</span><a href="#local-6989586621679074807"><span class="hs-identifier hs-var hs-var">vszts'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679074806"><span class="annot"><span class="annottext">usz' :: a
-</span><a href="#local-6989586621679074806"><span class="hs-identifier hs-var hs-var">usz'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074830"><span class="hs-identifier hs-var">sz</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><a href="#local-6989586621679075071"><span class="hs-identifier hs-var">vts</span></a></span><span>
+</span><span id="line-46"></span><span>                </span><span id="local-6989586621679075065"><span class="annot"><span class="annottext">vszts' :: Forest a
+</span><a href="#local-6989586621679075065"><span class="hs-identifier hs-var hs-var">vszts'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679075064"><span class="annot"><span class="annottext">usz' :: a
+</span><a href="#local-6989586621679075064"><span class="hs-identifier hs-var hs-var">usz'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075088"><span class="hs-identifier hs-var">sz</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074812"><span class="hs-identifier hs-var">vsz</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074806"><span class="hs-identifier hs-var">usz'</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; Forest a -&gt; Forest a
+</span><a href="#local-6989586621679075070"><span class="hs-identifier hs-var">vsz</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075064"><span class="hs-identifier hs-var">usz'</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; Forest a -&gt; Forest a
 </span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Forest a -&gt; Tree a
 forall a. a -&gt; Forest a -&gt; Tree a
 </span><span class="hs-identifier hs-var">Node</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074806"><span class="hs-identifier hs-var">usz'</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074809"><span class="hs-identifier hs-var">uszts'</span></a></span><span> </span><span class="annot"><span class="annottext">Tree a -&gt; Forest a -&gt; Forest a
+</span><a href="#local-6989586621679075064"><span class="hs-identifier hs-var">usz'</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075067"><span class="hs-identifier hs-var">uszts'</span></a></span><span> </span><span class="annot"><span class="annottext">Tree a -&gt; Forest a -&gt; Forest a
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074811"><span class="hs-identifier hs-var">vszts</span></a></span><span>
+</span><a href="#local-6989586621679075069"><span class="hs-identifier hs-var">vszts</span></a></span><span>
 </span><span id="line-47"></span><span>
 </span><span id="line-48"></span><span class="hs-comment">-- | Same as centroidDecompose, for edge-labelled graphs. O(n log n).</span><span>
-</span><span id="line-49"></span><span id="local-6989586621679074804"><span id="local-6989586621679074805"><span class="annot"><a href="CentroidDecomp.html#centroidDecomposeL"><span class="hs-identifier hs-type">centroidDecomposeL</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="LabelledGraph.html#LTree"><span class="hs-identifier hs-type">LTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679074805"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679074804"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tree</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="LabelledGraph.html#LTree"><span class="hs-identifier hs-type">LTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679074805"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679074804"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-49"></span><span id="local-6989586621679075062"><span id="local-6989586621679075063"><span class="annot"><a href="CentroidDecomp.html#centroidDecomposeL"><span class="hs-identifier hs-type">centroidDecomposeL</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="LabelledGraph.html#LTree"><span class="hs-identifier hs-type">LTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679075063"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679075062"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tree</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="LabelledGraph.html#LTree"><span class="hs-identifier hs-type">LTree</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679075063"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679075062"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span>
 </span><span id="line-50"></span><span id="centroidDecomposeL"><span class="annot"><span class="annottext">centroidDecomposeL :: LTree b a -&gt; Tree (LTree b a)
-</span><a href="CentroidDecomp.html#centroidDecomposeL"><span class="hs-identifier hs-var hs-var">centroidDecomposeL</span></a></span></span><span> </span><span id="local-6989586621679074803"><span class="annot"><span class="annottext">LTree b a
-</span><a href="#local-6989586621679074803"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LTree b a -&gt; Tree Int -&gt; Tree (LTree b a)
+</span><a href="CentroidDecomp.html#centroidDecomposeL"><span class="hs-identifier hs-var hs-var">centroidDecomposeL</span></a></span></span><span> </span><span id="local-6989586621679075061"><span class="annot"><span class="annottext">LTree b a
+</span><a href="#local-6989586621679075061"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LTree b a -&gt; Tree Int -&gt; Tree (LTree b a)
 forall a a a.
 (Ord a, Num a) =&gt;
 LTree a a -&gt; Tree a -&gt; Tree (LTree a a)
-</span><a href="#local-6989586621679074802"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">LTree b a
-</span><a href="#local-6989586621679074803"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(a -&gt; [Tree Int] -&gt; Tree Int) -&gt; Tree a -&gt; Tree Int
+</span><a href="#local-6989586621679075060"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">LTree b a
+</span><a href="#local-6989586621679075061"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(a -&gt; [Tree Int] -&gt; Tree Int) -&gt; Tree a -&gt; Tree Int
 forall a b. (a -&gt; [b] -&gt; b) -&gt; Tree a -&gt; b
 </span><span class="hs-identifier hs-var">foldTree</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; [Tree Int] -&gt; Tree Int
 forall p. p -&gt; [Tree Int] -&gt; Tree Int
-</span><a href="#local-6989586621679074801"><span class="hs-identifier hs-var">szf</span></a></span><span> </span><span class="annot"><span class="annottext">(Tree a -&gt; Tree Int) -&gt; Tree a -&gt; Tree Int
+</span><a href="#local-6989586621679075059"><span class="hs-identifier hs-var">szf</span></a></span><span> </span><span class="annot"><span class="annottext">(Tree a -&gt; Tree Int) -&gt; Tree a -&gt; Tree Int
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">LTree b a -&gt; Tree a
 forall b a. LTree b a -&gt; Tree a
 </span><a href="LabelledGraph.html#lTreeToTree"><span class="hs-identifier hs-var">lTreeToTree</span></a></span><span> </span><span class="annot"><span class="annottext">LTree b a
-</span><a href="#local-6989586621679074803"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-51"></span><span>    </span><span id="local-6989586621679074801"><span class="annot"><span class="annottext">szf :: p -&gt; [Tree Int] -&gt; Tree Int
-</span><a href="#local-6989586621679074801"><span class="hs-identifier hs-var hs-var">szf</span></a></span></span><span> </span><span class="annot"><span class="annottext">p
-</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679074800"><span class="annot"><span class="annottext">[Tree Int]
-</span><a href="#local-6989586621679074800"><span class="hs-identifier hs-var">szts</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679074799"><span class="annot"><span class="annottext">sz :: Int
-</span><a href="#local-6989586621679074799"><span class="hs-identifier hs-var hs-var">sz</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679075061"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-51"></span><span>    </span><span id="local-6989586621679075059"><span class="annot"><span class="annottext">szf :: p -&gt; [Tree Int] -&gt; Tree Int
+</span><a href="#local-6989586621679075059"><span class="hs-identifier hs-var hs-var">szf</span></a></span></span><span> </span><span class="annot"><span class="annottext">p
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679075058"><span class="annot"><span class="annottext">[Tree Int]
+</span><a href="#local-6989586621679075058"><span class="hs-identifier hs-var">szts</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679075057"><span class="annot"><span class="annottext">sz :: Int
+</span><a href="#local-6989586621679075057"><span class="hs-identifier hs-var hs-var">sz</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; Int
@@ -197,19 +197,19 @@ forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
 </span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">Tree Int -&gt; Int
 forall a. Tree a -&gt; a
 </span><span class="hs-identifier hs-var hs-var">rootLabel</span></span><span> </span><span class="annot"><span class="annottext">[Tree Int]
-</span><a href="#local-6989586621679074800"><span class="hs-identifier hs-var">szts</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679074799"><span class="hs-identifier hs-var">sz</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Tree Int -&gt; Tree Int
+</span><a href="#local-6989586621679075058"><span class="hs-identifier hs-var">szts</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679075057"><span class="hs-identifier hs-var">sz</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Tree Int -&gt; Tree Int
 </span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; [Tree Int] -&gt; Tree Int
 forall a. a -&gt; Forest a -&gt; Tree a
 </span><span class="hs-identifier hs-var">Node</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679074799"><span class="hs-identifier hs-var">sz</span></a></span><span> </span><span class="annot"><span class="annottext">[Tree Int]
-</span><a href="#local-6989586621679074800"><span class="hs-identifier hs-var">szts</span></a></span><span>
-</span><span id="line-52"></span><span>    </span><span id="local-6989586621679074802"><span class="annot"><span class="annottext">go :: LTree a a -&gt; Tree a -&gt; Tree (LTree a a)
-</span><a href="#local-6989586621679074802"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="LabelledGraph.html#LNode"><span class="hs-identifier hs-type">LNode</span></a></span><span> </span><span id="local-6989586621679074797"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074797"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679074796"><span class="annot"><span class="annottext">[(a, LTree a a)]
-</span><a href="#local-6989586621679074796"><span class="hs-identifier hs-var">rts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Node</span></span><span> </span><span id="local-6989586621679074795"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074795"><span class="hs-identifier hs-var">sz</span></a></span></span><span> </span><span id="local-6989586621679074794"><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074794"><span class="hs-identifier hs-var">rszts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">((a, [(a, LTree a a)], Forest a)
+</span><a href="#local-6989586621679075057"><span class="hs-identifier hs-var">sz</span></a></span><span> </span><span class="annot"><span class="annottext">[Tree Int]
+</span><a href="#local-6989586621679075058"><span class="hs-identifier hs-var">szts</span></a></span><span>
+</span><span id="line-52"></span><span>    </span><span id="local-6989586621679075060"><span class="annot"><span class="annottext">go :: LTree a a -&gt; Tree a -&gt; Tree (LTree a a)
+</span><a href="#local-6989586621679075060"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="LabelledGraph.html#LNode"><span class="hs-identifier hs-type">LNode</span></a></span><span> </span><span id="local-6989586621679075055"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075055"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span id="local-6989586621679075054"><span class="annot"><span class="annottext">[(a, LTree a a)]
+</span><a href="#local-6989586621679075054"><span class="hs-identifier hs-var">rts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Node</span></span><span> </span><span id="local-6989586621679075053"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075053"><span class="hs-identifier hs-var">sz</span></a></span></span><span> </span><span id="local-6989586621679075052"><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075052"><span class="hs-identifier hs-var">rszts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">((a, [(a, LTree a a)], Forest a)
  -&gt; Maybe (a, [(a, LTree a a)], Forest a))
 -&gt; (a, [(a, LTree a a)], Forest a)
 -&gt; (a, [(a, LTree a a)], Forest a)
@@ -219,24 +219,24 @@ forall a. (a -&gt; Maybe a) -&gt; a -&gt; a
 forall a a.
 (a, [(a, LTree a a)], Forest a)
 -&gt; Maybe (a, [(a, LTree a a)], Forest a)
-</span><a href="#local-6989586621679074793"><span class="hs-identifier hs-var">step</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074797"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[(a, LTree a a)]
-</span><a href="#local-6989586621679074796"><span class="hs-identifier hs-var">rts</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074794"><span class="hs-identifier hs-var">rszts</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-53"></span><span>        </span><span class="hs-special">(</span><span id="local-6989586621679074792"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074792"><span class="hs-identifier hs-var">u</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679074791"><span class="annot"><span class="annottext">[(a, LTree a a)]
-</span><a href="#local-6989586621679074791"><span class="hs-identifier hs-var">uts</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679074790"><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074790"><span class="hs-identifier hs-var">uszts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LTree a a -&gt; Forest (LTree a a) -&gt; Tree (LTree a a)
+</span><a href="#local-6989586621679075051"><span class="hs-identifier hs-var">step</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075055"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[(a, LTree a a)]
+</span><a href="#local-6989586621679075054"><span class="hs-identifier hs-var">rts</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075052"><span class="hs-identifier hs-var">rszts</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-53"></span><span>        </span><span class="hs-special">(</span><span id="local-6989586621679075050"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075050"><span class="hs-identifier hs-var">u</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075049"><span class="annot"><span class="annottext">[(a, LTree a a)]
+</span><a href="#local-6989586621679075049"><span class="hs-identifier hs-var">uts</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075048"><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075048"><span class="hs-identifier hs-var">uszts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LTree a a -&gt; Forest (LTree a a) -&gt; Tree (LTree a a)
 forall a. a -&gt; Forest a -&gt; Tree a
 </span><span class="hs-identifier hs-var">Node</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; [(a, LTree a a)] -&gt; LTree a a
 forall b a. a -&gt; [(b, LTree b a)] -&gt; LTree b a
 </span><a href="LabelledGraph.html#LNode"><span class="hs-identifier hs-var">LNode</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074792"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="annot"><span class="annottext">[(a, LTree a a)]
-</span><a href="#local-6989586621679074791"><span class="hs-identifier hs-var">uts</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">((a, LTree a a) -&gt; Tree a -&gt; Tree (LTree a a))
+</span><a href="#local-6989586621679075050"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="annot"><span class="annottext">[(a, LTree a a)]
+</span><a href="#local-6989586621679075049"><span class="hs-identifier hs-var">uts</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">((a, LTree a a) -&gt; Tree a -&gt; Tree (LTree a a))
 -&gt; [(a, LTree a a)] -&gt; Forest a -&gt; Forest (LTree a a)
 forall a b c. (a -&gt; b -&gt; c) -&gt; [a] -&gt; [b] -&gt; [c]
 </span><span class="hs-identifier hs-var">zipWith</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">LTree a a -&gt; Tree a -&gt; Tree (LTree a a)
-</span><a href="#local-6989586621679074802"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">(LTree a a -&gt; Tree a -&gt; Tree (LTree a a))
+</span><a href="#local-6989586621679075060"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">(LTree a a -&gt; Tree a -&gt; Tree (LTree a a))
 -&gt; ((a, LTree a a) -&gt; LTree a a)
 -&gt; (a, LTree a a)
 -&gt; Tree a
@@ -245,20 +245,20 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(a, LTree a a) -&gt; LTree a a
 forall a b. (a, b) -&gt; b
 </span><span class="hs-identifier hs-var">snd</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(a, LTree a a)]
-</span><a href="#local-6989586621679074791"><span class="hs-identifier hs-var">uts</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074790"><span class="hs-identifier hs-var">uszts</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679075049"><span class="hs-identifier hs-var">uts</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075048"><span class="hs-identifier hs-var">uszts</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-54"></span><span>      </span><span class="hs-keyword">where</span><span>
-</span><span id="line-55"></span><span>        </span><span id="local-6989586621679074793"><span class="annot"><span class="annottext">step :: (a, [(a, LTree a a)], Forest a)
+</span><span id="line-55"></span><span>        </span><span id="local-6989586621679075051"><span class="annot"><span class="annottext">step :: (a, [(a, LTree a a)], Forest a)
 -&gt; Maybe (a, [(a, LTree a a)], Forest a)
-</span><a href="#local-6989586621679074793"><span class="hs-identifier hs-var hs-var">step</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679074789"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074789"><span class="hs-identifier hs-var">u</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679074788"><span class="annot"><span class="annottext">[(a, LTree a a)]
-</span><a href="#local-6989586621679074788"><span class="hs-identifier hs-var">uts</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679074787"><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074787"><span class="hs-identifier hs-var">uszts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((a, LTree a a), Tree a, [(a, LTree a a)], Forest a)
+</span><a href="#local-6989586621679075051"><span class="hs-identifier hs-var hs-var">step</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679075047"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075047"><span class="hs-identifier hs-var">u</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075046"><span class="annot"><span class="annottext">[(a, LTree a a)]
+</span><a href="#local-6989586621679075046"><span class="hs-identifier hs-var">uts</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075045"><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075045"><span class="hs-identifier hs-var">uszts</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((a, LTree a a), Tree a, [(a, LTree a a)], Forest a)
 -&gt; (a, [(a, LTree a a)], Forest a)
 forall a.
 ((a, LTree a a), Tree a, [(a, LTree a a)], Forest a)
 -&gt; (a, [(a, LTree a a)], Forest a)
-</span><a href="#local-6989586621679074786"><span class="hs-identifier hs-var">mkv</span></a></span><span> </span><span class="annot"><span class="annottext">(((a, LTree a a), Tree a, [(a, LTree a a)], Forest a)
+</span><a href="#local-6989586621679075044"><span class="hs-identifier hs-var">mkv</span></a></span><span> </span><span class="annot"><span class="annottext">(((a, LTree a a), Tree a, [(a, LTree a a)], Forest a)
  -&gt; (a, [(a, LTree a a)], Forest a))
 -&gt; Maybe ((a, LTree a a), Tree a, [(a, LTree a a)], Forest a)
 -&gt; Maybe (a, [(a, LTree a a)], Forest a)
@@ -271,7 +271,7 @@ forall b a. (b -&gt; Bool) -&gt; [a] -&gt; [b] -&gt; Maybe (a, b, [a], [b])
 </span><a href="CentroidDecomp.html#removeOne"><span class="hs-identifier hs-var">removeOne</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&gt;</span></span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074795"><span class="hs-identifier hs-var">sz</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(a -&gt; Bool) -&gt; (Tree a -&gt; a) -&gt; Tree a -&gt; Bool
+</span><a href="#local-6989586621679075053"><span class="hs-identifier hs-var">sz</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(a -&gt; Bool) -&gt; (Tree a -&gt; a) -&gt; Tree a -&gt; Bool
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
 forall a. Num a =&gt; a -&gt; a -&gt; a
@@ -281,95 +281,95 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Tree a -&gt; a
 forall a. Tree a -&gt; a
 </span><span class="hs-identifier hs-var hs-var">rootLabel</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(a, LTree a a)]
-</span><a href="#local-6989586621679074788"><span class="hs-identifier hs-var">uts</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074787"><span class="hs-identifier hs-var">uszts</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-56"></span><span>            </span><span id="local-6989586621679074786"><span class="annot"><span class="annottext">mkv :: ((a, LTree a a), Tree a, [(a, LTree a a)], Forest a)
+</span><a href="#local-6989586621679075046"><span class="hs-identifier hs-var">uts</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075045"><span class="hs-identifier hs-var">uszts</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-56"></span><span>            </span><span id="local-6989586621679075044"><span class="annot"><span class="annottext">mkv :: ((a, LTree a a), Tree a, [(a, LTree a a)], Forest a)
 -&gt; (a, [(a, LTree a a)], Forest a)
-</span><a href="#local-6989586621679074786"><span class="hs-identifier hs-var hs-var">mkv</span></a></span></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span id="local-6989586621679074785"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074785"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="LabelledGraph.html#LNode"><span class="hs-identifier hs-type">LNode</span></a></span><span> </span><span id="local-6989586621679074784"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074784"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span id="local-6989586621679074783"><span class="annot"><span class="annottext">[(a, LTree a a)]
-</span><a href="#local-6989586621679074783"><span class="hs-identifier hs-var">vts</span></a></span></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Node</span></span><span> </span><span id="local-6989586621679074782"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074782"><span class="hs-identifier hs-var">vsz</span></a></span></span><span> </span><span id="local-6989586621679074781"><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074781"><span class="hs-identifier hs-var">vszts</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679074780"><span class="annot"><span class="annottext">[(a, LTree a a)]
-</span><a href="#local-6989586621679074780"><span class="hs-identifier hs-var">uts'</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679074779"><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074779"><span class="hs-identifier hs-var">uszts'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074784"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[(a, LTree a a)]
-</span><a href="#local-6989586621679074778"><span class="hs-identifier hs-var">vts'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074777"><span class="hs-identifier hs-var">vszts'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-57"></span><span>                </span><span id="local-6989586621679074778"><span class="annot"><span class="annottext">vts' :: [(a, LTree a a)]
-</span><a href="#local-6989586621679074778"><span class="hs-identifier hs-var hs-var">vts'</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074785"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">a -&gt; [(a, LTree a a)] -&gt; LTree a a
+</span><a href="#local-6989586621679075044"><span class="hs-identifier hs-var hs-var">mkv</span></a></span></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span id="local-6989586621679075043"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075043"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="LabelledGraph.html#LNode"><span class="hs-identifier hs-type">LNode</span></a></span><span> </span><span id="local-6989586621679075042"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075042"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span id="local-6989586621679075041"><span class="annot"><span class="annottext">[(a, LTree a a)]
+</span><a href="#local-6989586621679075041"><span class="hs-identifier hs-var">vts</span></a></span></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Node</span></span><span> </span><span id="local-6989586621679075040"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075040"><span class="hs-identifier hs-var">vsz</span></a></span></span><span> </span><span id="local-6989586621679075039"><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075039"><span class="hs-identifier hs-var">vszts</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075038"><span class="annot"><span class="annottext">[(a, LTree a a)]
+</span><a href="#local-6989586621679075038"><span class="hs-identifier hs-var">uts'</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075037"><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075037"><span class="hs-identifier hs-var">uszts'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075042"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[(a, LTree a a)]
+</span><a href="#local-6989586621679075036"><span class="hs-identifier hs-var">vts'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075035"><span class="hs-identifier hs-var">vszts'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-57"></span><span>                </span><span id="local-6989586621679075036"><span class="annot"><span class="annottext">vts' :: [(a, LTree a a)]
+</span><a href="#local-6989586621679075036"><span class="hs-identifier hs-var hs-var">vts'</span></a></span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075043"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">a -&gt; [(a, LTree a a)] -&gt; LTree a a
 forall b a. a -&gt; [(b, LTree b a)] -&gt; LTree b a
 </span><a href="LabelledGraph.html#LNode"><span class="hs-identifier hs-var">LNode</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074789"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="annot"><span class="annottext">[(a, LTree a a)]
-</span><a href="#local-6989586621679074780"><span class="hs-identifier hs-var">uts'</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(a, LTree a a) -&gt; [(a, LTree a a)] -&gt; [(a, LTree a a)]
+</span><a href="#local-6989586621679075047"><span class="hs-identifier hs-var">u</span></a></span><span> </span><span class="annot"><span class="annottext">[(a, LTree a a)]
+</span><a href="#local-6989586621679075038"><span class="hs-identifier hs-var">uts'</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(a, LTree a a) -&gt; [(a, LTree a a)] -&gt; [(a, LTree a a)]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[(a, LTree a a)]
-</span><a href="#local-6989586621679074783"><span class="hs-identifier hs-var">vts</span></a></span><span>
-</span><span id="line-58"></span><span>                </span><span id="local-6989586621679074777"><span class="annot"><span class="annottext">vszts' :: Forest a
-</span><a href="#local-6989586621679074777"><span class="hs-identifier hs-var hs-var">vszts'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679074776"><span class="annot"><span class="annottext">usz' :: a
-</span><a href="#local-6989586621679074776"><span class="hs-identifier hs-var hs-var">usz'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074795"><span class="hs-identifier hs-var">sz</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+</span><a href="#local-6989586621679075041"><span class="hs-identifier hs-var">vts</span></a></span><span>
+</span><span id="line-58"></span><span>                </span><span id="local-6989586621679075035"><span class="annot"><span class="annottext">vszts' :: Forest a
+</span><a href="#local-6989586621679075035"><span class="hs-identifier hs-var hs-var">vszts'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679075034"><span class="annot"><span class="annottext">usz' :: a
+</span><a href="#local-6989586621679075034"><span class="hs-identifier hs-var hs-var">usz'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075053"><span class="hs-identifier hs-var">sz</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074782"><span class="hs-identifier hs-var">vsz</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074776"><span class="hs-identifier hs-var">usz'</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; Forest a -&gt; Forest a
+</span><a href="#local-6989586621679075040"><span class="hs-identifier hs-var">vsz</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075034"><span class="hs-identifier hs-var">usz'</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; Forest a -&gt; Forest a
 </span><span class="hs-operator hs-var">`seq`</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Forest a -&gt; Tree a
 forall a. a -&gt; Forest a -&gt; Tree a
 </span><span class="hs-identifier hs-var">Node</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074776"><span class="hs-identifier hs-var">usz'</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074779"><span class="hs-identifier hs-var">uszts'</span></a></span><span> </span><span class="annot"><span class="annottext">Tree a -&gt; Forest a -&gt; Forest a
+</span><a href="#local-6989586621679075034"><span class="hs-identifier hs-var">usz'</span></a></span><span> </span><span class="annot"><span class="annottext">Forest a
+</span><a href="#local-6989586621679075037"><span class="hs-identifier hs-var">uszts'</span></a></span><span> </span><span class="annot"><span class="annottext">Tree a -&gt; Forest a -&gt; Forest a
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">Forest a
-</span><a href="#local-6989586621679074781"><span class="hs-identifier hs-var">vszts</span></a></span><span>
+</span><a href="#local-6989586621679075039"><span class="hs-identifier hs-var">vszts</span></a></span><span>
 </span><span id="line-59"></span><span>
-</span><span id="line-60"></span><span id="local-6989586621679074877"><span id="local-6989586621679074878"><span class="annot"><a href="CentroidDecomp.html#removeOne"><span class="hs-identifier hs-type">removeOne</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679074878"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679074877"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679074878"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679074877"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679074878"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">,</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679074877"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span class="hs-special">,</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679074878"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">]</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-60"></span><span id="local-6989586621679075135"><span id="local-6989586621679075136"><span class="annot"><a href="CentroidDecomp.html#removeOne"><span class="hs-identifier hs-type">removeOne</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679075136"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679075135"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679075136"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679075135"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679075136"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">,</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679075135"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span class="hs-special">,</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679075136"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">]</span><span class="hs-special">)</span></span></span><span>
 </span><span id="line-61"></span><span id="removeOne"><span class="annot"><span class="annottext">removeOne :: (b -&gt; Bool) -&gt; [a] -&gt; [b] -&gt; Maybe (a, b, [a], [b])
-</span><a href="CentroidDecomp.html#removeOne"><span class="hs-identifier hs-var hs-var">removeOne</span></a></span></span><span> </span><span id="local-6989586621679074775"><span class="annot"><span class="annottext">b -&gt; Bool
-</span><a href="#local-6989586621679074775"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a] -&gt; [b] -&gt; Maybe (a, b, [a], [b])
+</span><a href="CentroidDecomp.html#removeOne"><span class="hs-identifier hs-var hs-var">removeOne</span></a></span></span><span> </span><span id="local-6989586621679075033"><span class="annot"><span class="annottext">b -&gt; Bool
+</span><a href="#local-6989586621679075033"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[a] -&gt; [b] -&gt; Maybe (a, b, [a], [b])
 forall a. [a] -&gt; [b] -&gt; Maybe (a, b, [a], [b])
-</span><a href="#local-6989586621679074774"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-62"></span><span>    </span><span id="local-6989586621679074774"><span class="annot"><span class="annottext">go :: [a] -&gt; [b] -&gt; Maybe (a, b, [a], [b])
-</span><a href="#local-6989586621679074774"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe (a, b, [a], [b])
+</span><a href="#local-6989586621679075032"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-62"></span><span>    </span><span id="local-6989586621679075032"><span class="annot"><span class="annottext">go :: [a] -&gt; [b] -&gt; Maybe (a, b, [a], [b])
+</span><a href="#local-6989586621679075032"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe (a, b, [a], [b])
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-63"></span><span>    </span><span class="annot"><a href="#local-6989586621679074774"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679074773"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074773"><span class="hs-identifier hs-var">a</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679074772"><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679074772"><span class="hs-keyword hs-var">as</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679074771"><span class="annot"><span class="annottext">b
-</span><a href="#local-6989586621679074771"><span class="hs-identifier hs-var">b</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679074770"><span class="annot"><span class="annottext">[b]
-</span><a href="#local-6989586621679074770"><span class="hs-identifier hs-var">bs</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-63"></span><span>    </span><span class="annot"><a href="#local-6989586621679075032"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679075031"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075031"><span class="hs-identifier hs-var">a</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679075030"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679075030"><span class="hs-keyword hs-var">as</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679075029"><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679075029"><span class="hs-identifier hs-var">b</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679075028"><span class="annot"><span class="annottext">[b]
+</span><a href="#local-6989586621679075028"><span class="hs-identifier hs-var">bs</span></a></span></span><span class="hs-special">)</span><span>
 </span><span id="line-64"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">b -&gt; Bool
-</span><a href="#local-6989586621679074775"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">b
-</span><a href="#local-6989586621679074771"><span class="hs-identifier hs-var">b</span></a></span><span>       </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(a, b, [a], [b]) -&gt; Maybe (a, b, [a], [b])
+</span><a href="#local-6989586621679075033"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679075029"><span class="hs-identifier hs-var">b</span></a></span><span>       </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(a, b, [a], [b]) -&gt; Maybe (a, b, [a], [b])
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074773"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">b
-</span><a href="#local-6989586621679074771"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679074772"><span class="hs-keyword hs-var">as</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[b]
-</span><a href="#local-6989586621679074770"><span class="hs-identifier hs-var">bs</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679075031"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679075029"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679075030"><span class="hs-keyword hs-var">as</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[b]
+</span><a href="#local-6989586621679075028"><span class="hs-identifier hs-var">bs</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-65"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
-</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-special">(</span><span id="local-6989586621679074769"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074769"><span class="hs-identifier hs-var">a'</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679074768"><span class="annot"><span class="annottext">b
-</span><a href="#local-6989586621679074768"><span class="hs-identifier hs-var">b'</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679074767"><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679074767"><span class="hs-identifier hs-var">as'</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679074766"><span class="annot"><span class="annottext">[b]
-</span><a href="#local-6989586621679074766"><span class="hs-identifier hs-var">bs'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074769"><span class="hs-identifier hs-var">a'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">b
-</span><a href="#local-6989586621679074768"><span class="hs-identifier hs-var">b'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679074773"><span class="hs-identifier hs-var">a</span></a></span><span class="annot"><span class="annottext">a -&gt; [a] -&gt; [a]
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-special">(</span><span id="local-6989586621679075027"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075027"><span class="hs-identifier hs-var">a'</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075026"><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679075026"><span class="hs-identifier hs-var">b'</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075025"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679075025"><span class="hs-identifier hs-var">as'</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679075024"><span class="annot"><span class="annottext">[b]
+</span><a href="#local-6989586621679075024"><span class="hs-identifier hs-var">bs'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075027"><span class="hs-identifier hs-var">a'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679075026"><span class="hs-identifier hs-var">b'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679075031"><span class="hs-identifier hs-var">a</span></a></span><span class="annot"><span class="annottext">a -&gt; [a] -&gt; [a]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679074767"><span class="hs-identifier hs-var">as'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">b
-</span><a href="#local-6989586621679074771"><span class="hs-identifier hs-var">b</span></a></span><span class="annot"><span class="annottext">b -&gt; [b] -&gt; [b]
+</span><a href="#local-6989586621679075025"><span class="hs-identifier hs-var">as'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">b
+</span><a href="#local-6989586621679075029"><span class="hs-identifier hs-var">b</span></a></span><span class="annot"><span class="annottext">b -&gt; [b] -&gt; [b]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span class="annot"><span class="annottext">[b]
-</span><a href="#local-6989586621679074766"><span class="hs-identifier hs-var">bs'</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">((a, b, [a], [b]) -&gt; (a, b, [a], [b]))
+</span><a href="#local-6989586621679075024"><span class="hs-identifier hs-var">bs'</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">((a, b, [a], [b]) -&gt; (a, b, [a], [b]))
 -&gt; Maybe (a, b, [a], [b]) -&gt; Maybe (a, b, [a], [b])
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; [b] -&gt; Maybe (a, b, [a], [b])
-</span><a href="#local-6989586621679074774"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679074772"><span class="hs-keyword hs-var">as</span></a></span><span> </span><span class="annot"><span class="annottext">[b]
-</span><a href="#local-6989586621679074770"><span class="hs-identifier hs-var">bs</span></a></span><span>
-</span><span id="line-66"></span><span>    </span><span class="annot"><a href="#local-6989586621679074774"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679075032"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679075030"><span class="hs-keyword hs-var">as</span></a></span><span> </span><span class="annot"><span class="annottext">[b]
+</span><a href="#local-6989586621679075028"><span class="hs-identifier hs-var">bs</span></a></span><span>
+</span><span id="line-66"></span><span>    </span><span class="annot"><a href="#local-6989586621679075032"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[a]
 </span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">[b]
 </span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Maybe (a, b, [a], [b])
 forall a. HasCallStack =&gt; [Char] -&gt; a

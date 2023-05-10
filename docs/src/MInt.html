@@ -36,14 +36,14 @@ Implementation notes:
 </span><span id="line-34"></span><span>
 </span><span id="line-35"></span><span class="hs-comment">-- | Int type for arithmetic modulo a fixed prime mm.</span><span>
 </span><span id="line-36"></span><span class="hs-keyword">newtype</span><span> </span><span id="MInt"><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="MInt"><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="unMInt"><span class="annot"><span class="annottext">MInt -&gt; Int
-</span><a href="MInt.html#unMInt"><span class="hs-identifier hs-var hs-var">unMInt</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679073662"><span id="local-6989586621679073664"><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; Bool
+</span><a href="MInt.html#unMInt"><span class="hs-identifier hs-var hs-var">unMInt</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679073922"><span id="local-6989586621679073924"><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; Bool
 (MInt -&gt; MInt -&gt; Bool) -&gt; (MInt -&gt; MInt -&gt; Bool) -&gt; Eq MInt
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 /= :: MInt -&gt; MInt -&gt; Bool
 $c/= :: MInt -&gt; MInt -&gt; Bool
 == :: MInt -&gt; MInt -&gt; Bool
 $c== :: MInt -&gt; MInt -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073646"><span id="local-6989586621679073648"><span id="local-6989586621679073650"><span id="local-6989586621679073652"><span id="local-6989586621679073654"><span id="local-6989586621679073656"><span id="local-6989586621679073658"><span class="annot"><span class="annottext">Eq MInt
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073906"><span id="local-6989586621679073908"><span id="local-6989586621679073910"><span id="local-6989586621679073912"><span id="local-6989586621679073914"><span id="local-6989586621679073916"><span id="local-6989586621679073918"><span class="annot"><span class="annottext">Eq MInt
 Eq MInt
 -&gt; (MInt -&gt; MInt -&gt; Ordering)
 -&gt; (MInt -&gt; MInt -&gt; Bool)
@@ -81,7 +81,7 @@ $c&lt; :: MInt -&gt; MInt -&gt; Bool
 compare :: MInt -&gt; MInt -&gt; Ordering
 $ccompare :: MInt -&gt; MInt -&gt; Ordering
 $cp1Ord :: Eq MInt
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073639"><span id="local-6989586621679073641"><span id="local-6989586621679073643"><span class="annot"><span class="annottext">Int -&gt; MInt -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073899"><span id="local-6989586621679073901"><span id="local-6989586621679073903"><span class="annot"><span class="annottext">Int -&gt; MInt -&gt; ShowS
 [MInt] -&gt; ShowS
 MInt -&gt; String
 (Int -&gt; MInt -&gt; ShowS)
@@ -96,68 +96,68 @@ showsPrec :: Int -&gt; MInt -&gt; ShowS
 $cshowsPrec :: Int -&gt; MInt -&gt; ShowS
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-37"></span><span>
-</span><span id="line-38"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679073633"><span class="annot"><span class="hs-identifier hs-type">Num</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-39"></span><span>    </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679073628"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073628"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679073627"><span class="annot"><span class="annottext">+ :: MInt -&gt; MInt -&gt; MInt
-</span><span class="hs-operator hs-var hs-var hs-var hs-var">+</span></span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679073625"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073625"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
+</span><span id="line-38"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679073893"><span class="annot"><span class="hs-identifier hs-type">Num</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-39"></span><span>    </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679073888"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073888"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679073887"><span class="annot"><span class="annottext">+ :: MInt -&gt; MInt -&gt; MInt
+</span><span class="hs-operator hs-var hs-var hs-var hs-var">+</span></span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679073885"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073885"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
 </span><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; MInt) -&gt; Int -&gt; MInt
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073624"><span class="annot"><span class="annottext">c :: Int
-</span><a href="#local-6989586621679073624"><span class="hs-identifier hs-var hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073628"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073884"><span class="annot"><span class="annottext">c :: Int
+</span><a href="#local-6989586621679073884"><span class="hs-identifier hs-var hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073888"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073625"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073624"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679073885"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073884"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&gt;=</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><a href="MInt.html#mm"><span class="hs-identifier hs-var">mm</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073624"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073884"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><a href="MInt.html#mm"><span class="hs-identifier hs-var">mm</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073624"><span class="hs-identifier hs-var">c</span></a></span><span>
-</span><span id="line-40"></span><span>    </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679073623"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073623"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679073622"><span class="annot"><span class="annottext">- :: MInt -&gt; MInt -&gt; MInt
-</span><span class="hs-glyph hs-var hs-var hs-var hs-var">-</span></span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679073621"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073621"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
+</span><a href="#local-6989586621679073884"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><span id="line-40"></span><span>    </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679073883"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073883"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679073882"><span class="annot"><span class="annottext">- :: MInt -&gt; MInt -&gt; MInt
+</span><span class="hs-glyph hs-var hs-var hs-var hs-var">-</span></span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679073881"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073881"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
 </span><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; MInt) -&gt; Int -&gt; MInt
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073620"><span class="annot"><span class="annottext">c :: Int
-</span><a href="#local-6989586621679073620"><span class="hs-identifier hs-var hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073623"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073880"><span class="annot"><span class="annottext">c :: Int
+</span><a href="#local-6989586621679073880"><span class="hs-identifier hs-var hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073883"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073621"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073620"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+</span><a href="#local-6989586621679073881"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073880"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073620"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073880"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><a href="MInt.html#mm"><span class="hs-identifier hs-var">mm</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073620"><span class="hs-identifier hs-var">c</span></a></span><span>
-</span><span id="line-41"></span><span>    </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679073618"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073618"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679073617"><span class="annot"><span class="annottext">* :: MInt -&gt; MInt -&gt; MInt
-</span><span class="hs-operator hs-var hs-var hs-var hs-var">*</span></span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679073615"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073615"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
+</span><a href="#local-6989586621679073880"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><span id="line-41"></span><span>    </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679073878"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073878"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span id="local-6989586621679073877"><span class="annot"><span class="annottext">* :: MInt -&gt; MInt -&gt; MInt
+</span><span class="hs-operator hs-var hs-var hs-var hs-var">*</span></span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span id="local-6989586621679073875"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679073875"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
 </span><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; MInt) -&gt; Int -&gt; MInt
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073618"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073878"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679073615"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679073875"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Integral a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">`mod`</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><a href="MInt.html#mm"><span class="hs-identifier hs-var">mm</span></a></span><span>
-</span><span id="line-42"></span><span>    </span><span id="local-6989586621679073613"><span class="annot"><span class="annottext">abs :: MInt -&gt; MInt
+</span><span id="line-42"></span><span>    </span><span id="local-6989586621679073873"><span class="annot"><span class="annottext">abs :: MInt -&gt; MInt
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">abs</span></span></span><span>             </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MInt -&gt; MInt
 forall a. a -&gt; a
 </span><span class="hs-identifier hs-var">id</span></span><span>
-</span><span id="line-43"></span><span>    </span><span id="local-6989586621679073610"><span class="annot"><span class="annottext">signum :: MInt -&gt; MInt
+</span><span id="line-43"></span><span>    </span><span id="local-6989586621679073870"><span class="annot"><span class="annottext">signum :: MInt -&gt; MInt
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">signum</span></span></span><span>          </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
 </span><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; MInt) -&gt; (MInt -&gt; Int) -&gt; MInt -&gt; MInt
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
@@ -167,7 +167,7 @@ forall a. Num a =&gt; a -&gt; a
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">MInt -&gt; Int
 </span><a href="MInt.html#unMInt"><span class="hs-identifier hs-var hs-var">unMInt</span></a></span><span>
-</span><span id="line-44"></span><span>    </span><span id="local-6989586621679073607"><span class="annot"><span class="annottext">fromInteger :: Integer -&gt; MInt
+</span><span id="line-44"></span><span>    </span><span id="local-6989586621679073867"><span class="annot"><span class="annottext">fromInteger :: Integer -&gt; MInt
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromInteger</span></span></span><span>     </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
 </span><a href="MInt.html#MInt"><span class="hs-identifier hs-var">MInt</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; MInt) -&gt; (Integer -&gt; Int) -&gt; Integer -&gt; MInt
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
@@ -182,8 +182,8 @@ forall a b. (Integral a, Num b) =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><a href="MInt.html#mm"><span class="hs-identifier hs-var">mm</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-45"></span><span>
-</span><span id="line-46"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679073604"><span class="annot"><span class="hs-identifier hs-type">Fractional</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-47"></span><span>    </span><span id="local-6989586621679073600"><span class="annot"><span class="annottext">recip :: MInt -&gt; MInt
+</span><span id="line-46"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679073864"><span class="annot"><span class="hs-identifier hs-type">Fractional</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-47"></span><span>    </span><span id="local-6989586621679073860"><span class="annot"><span class="annottext">recip :: MInt -&gt; MInt
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">recip</span></span></span><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MInt -&gt; Int -&gt; MInt
 forall a b. (Num a, Integral b) =&gt; a -&gt; b -&gt; a
 </span><span class="hs-operator hs-var">^</span></span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
@@ -191,67 +191,67 @@ forall a b. (Num a, Integral b) =&gt; a -&gt; b -&gt; a
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">2</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-48"></span><span>    </span><span id="local-6989586621679073597"><span class="annot"><span class="annottext">fromRational :: Rational -&gt; MInt
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromRational</span></span></span><span> </span><span id="local-6989586621679073596"><span class="annot"><span class="annottext">Rational
-</span><a href="#local-6989586621679073596"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; MInt
+</span><span id="line-48"></span><span>    </span><span id="local-6989586621679073857"><span class="annot"><span class="annottext">fromRational :: Rational -&gt; MInt
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromRational</span></span></span><span> </span><span id="local-6989586621679073856"><span class="annot"><span class="annottext">Rational
+</span><a href="#local-6989586621679073856"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; MInt
 forall a b. (Integral a, Num b) =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Rational -&gt; Integer
 forall a. Ratio a -&gt; a
 </span><span class="hs-identifier hs-var">numerator</span></span><span> </span><span class="annot"><span class="annottext">Rational
-</span><a href="#local-6989586621679073596"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; MInt
+</span><a href="#local-6989586621679073856"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; MInt
 forall a. Fractional a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">/</span></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; MInt
 forall a b. (Integral a, Num b) =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Rational -&gt; Integer
 forall a. Ratio a -&gt; a
 </span><span class="hs-identifier hs-var">denominator</span></span><span> </span><span class="annot"><span class="annottext">Rational
-</span><a href="#local-6989586621679073596"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679073856"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-49"></span><span>
-</span><span id="line-50"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679073583"><span id="local-6989586621679073585"><span id="local-6989586621679073589"><span id="local-6989586621679073591"><span class="annot"><span class="hs-identifier hs-type">Enum</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-51"></span><span>    </span><span id="local-6989586621679073579"><span class="annot"><span class="annottext">toEnum :: Int -&gt; MInt
+</span><span id="line-50"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679073843"><span id="local-6989586621679073845"><span id="local-6989586621679073849"><span id="local-6989586621679073851"><span class="annot"><span class="hs-identifier hs-type">Enum</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-51"></span><span>    </span><span id="local-6989586621679073839"><span class="annot"><span class="annottext">toEnum :: Int -&gt; MInt
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">toEnum</span></span></span><span>                 </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; MInt
 forall a b. (Integral a, Num b) =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">fromIntegral</span></span><span>
-</span><span id="line-52"></span><span>    </span><span id="local-6989586621679073577"><span class="annot"><span class="annottext">fromEnum :: MInt -&gt; Int
+</span><span id="line-52"></span><span>    </span><span id="local-6989586621679073837"><span class="annot"><span class="annottext">fromEnum :: MInt -&gt; Int
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromEnum</span></span></span><span>               </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MInt -&gt; Int
 </span><a href="MInt.html#unMInt"><span class="hs-identifier hs-var hs-var">unMInt</span></a></span><span>
-</span><span id="line-53"></span><span>    </span><span id="local-6989586621679073575"><span class="annot"><span class="annottext">enumFromTo :: MInt -&gt; MInt -&gt; [MInt]
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">enumFromTo</span></span></span><span> </span><span id="local-6989586621679073574"><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679073574"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679073573"><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679073573"><span class="hs-identifier hs-var">y</span></a></span></span><span>         </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(MInt -&gt; Bool) -&gt; [MInt] -&gt; [MInt]
+</span><span id="line-53"></span><span>    </span><span id="local-6989586621679073835"><span class="annot"><span class="annottext">enumFromTo :: MInt -&gt; MInt -&gt; [MInt]
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">enumFromTo</span></span></span><span> </span><span id="local-6989586621679073834"><span class="annot"><span class="annottext">MInt
+</span><a href="#local-6989586621679073834"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679073833"><span class="annot"><span class="annottext">MInt
+</span><a href="#local-6989586621679073833"><span class="hs-identifier hs-var">y</span></a></span></span><span>         </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(MInt -&gt; Bool) -&gt; [MInt] -&gt; [MInt]
 forall a. (a -&gt; Bool) -&gt; [a] -&gt; [a]
 </span><span class="hs-identifier hs-var">takeWhile</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679073573"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; MInt
+</span><a href="#local-6989586621679073833"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; MInt
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">MInt
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679073574"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-glyph">..</span><span class="hs-special">]</span><span>
-</span><span id="line-54"></span><span>    </span><span id="local-6989586621679073570"><span class="annot"><span class="annottext">enumFromThenTo :: MInt -&gt; MInt -&gt; MInt -&gt; [MInt]
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">enumFromThenTo</span></span></span><span> </span><span id="local-6989586621679073569"><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679073569"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679073568"><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679073568"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span id="local-6989586621679073567"><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679073567"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(MInt -&gt; Bool) -&gt; [MInt] -&gt; [MInt]
+</span><a href="#local-6989586621679073834"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-glyph">..</span><span class="hs-special">]</span><span>
+</span><span id="line-54"></span><span>    </span><span id="local-6989586621679073830"><span class="annot"><span class="annottext">enumFromThenTo :: MInt -&gt; MInt -&gt; MInt -&gt; [MInt]
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">enumFromThenTo</span></span></span><span> </span><span id="local-6989586621679073829"><span class="annot"><span class="annottext">MInt
+</span><a href="#local-6989586621679073829"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679073828"><span class="annot"><span class="annottext">MInt
+</span><a href="#local-6989586621679073828"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span id="local-6989586621679073827"><span class="annot"><span class="annottext">MInt
+</span><a href="#local-6989586621679073827"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(MInt -&gt; Bool) -&gt; [MInt] -&gt; [MInt]
 forall a. (a -&gt; Bool) -&gt; [a] -&gt; [a]
 </span><span class="hs-identifier hs-var">takeWhile</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679073567"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; MInt
+</span><a href="#local-6989586621679073827"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">MInt -&gt; MInt -&gt; MInt
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">MInt
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679073569"><span class="hs-identifier hs-var">x1</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">MInt
-</span><a href="#local-6989586621679073568"><span class="hs-identifier hs-var">x2</span></a></span><span> </span><span class="hs-glyph">..</span><span class="hs-special">]</span><span>
+</span><a href="#local-6989586621679073829"><span class="hs-identifier hs-var">x1</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">MInt
+</span><a href="#local-6989586621679073828"><span class="hs-identifier hs-var">x2</span></a></span><span> </span><span class="hs-glyph">..</span><span class="hs-special">]</span><span>
 </span><span id="line-55"></span><span>
-</span><span id="line-56"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679073563"><span id="local-6989586621679073565"><span class="annot"><a href="Array.html#Unbox"><span class="hs-identifier hs-type">Unbox</span></a></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-56"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679073823"><span id="local-6989586621679073825"><span class="annot"><a href="Array.html#Unbox"><span class="hs-identifier hs-type">Unbox</span></a></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-57"></span><span>    </span><span class="hs-keyword">type</span><span> </span><span id="Unboxed"><span class="annot"><a href="Array.html#Unboxed"><span class="hs-identifier hs-var">Unboxed</span></a></span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
 </span><span id="line-58"></span><span>
 </span><span id="line-59"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-60"></span><span class="hs-comment">-- For tests</span><span>
 </span><span id="line-61"></span><span>
 </span><span id="line-62"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="MInt.html#MInt"><span class="hs-identifier hs-type">MInt</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-63"></span><span>    </span><span id="local-6989586621679073559"><span class="annot"><span class="annottext">rnf :: MInt -&gt; ()
+</span><span id="line-63"></span><span>    </span><span id="local-6989586621679073819"><span class="annot"><span class="annottext">rnf :: MInt -&gt; ()
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MInt -&gt; ()
 forall a. a -&gt; ()
 </span><span class="hs-identifier hs-var">rwhnf</span></span><span>
