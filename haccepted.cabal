@@ -40,6 +40,7 @@ library
       Mod
       PQTree
       Prufer
+      RerootFold
       SegTree
       SegTreeLazy
       SegTreeLazyMut
@@ -128,6 +129,7 @@ test-suite test-all
       MoSpec
       PQTreeSpec
       PruferSpec
+      RerootFoldSpec
       SegTreeLazyMutSpec
       SegTreeLazySpec
       SegTreeMutSpec
@@ -181,6 +183,7 @@ benchmark bench-all
       ModBench
       PQTreeBench
       PruferBench
+      RerootFoldBench
       SegTreeBench
       SegTreeLazyBench
       SegTreeLazyMutBench

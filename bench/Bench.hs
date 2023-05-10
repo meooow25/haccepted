@@ -21,6 +21,7 @@ import qualified MoBench
 import qualified ModBench
 import qualified PQTreeBench
 import qualified PruferBench
+import qualified RerootFoldBench
 import qualified SegTreeBench
 import qualified SegTreeLazyBench
 import qualified SegTreeLazyMutBench
@@ -55,6 +56,7 @@ main = defaultMain
     , ModBench.benchmark
     , PQTreeBench.benchmark
     , PruferBench.benchmark
+    , RerootFoldBench.benchmark
     , SegTreeBench.benchmark
     , SegTreeLazyBench.benchmark
     , SegTreeLazyMutBench.benchmark
