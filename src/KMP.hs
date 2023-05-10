@@ -27,12 +27,12 @@ import qualified Data.ByteString.Char8 as C
 
 prefixFunc :: Eq a => Int -> (Int -> a) -> UArray Int Int
 prefixFunc n at = runSTUArray $ do
-    p <- newArray (0, n - 1) 0
+    p <- newArray (0, n-1) 0
     forM_ [1 .. n-1] $ \i -> do
-        let f j | j == 0 || at i == at j = pure j
-                | otherwise              = f =<< readArray p (j - 1)
-        j <- f =<< readArray p (i - 1)
-        writeArray p i $ j + fromEnum (at i == at j)
+        let f j | at i == at j = pure (j+1)
+            f 0 = pure 0
+            f j = readArray p (j-1) >>= f
+        readArray p (i-1) >>= f >>= writeArray p i
     pure p
 
 prefixFuncBS :: C.ByteString -> UArray Int Int
