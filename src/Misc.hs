@@ -59,7 +59,10 @@ A right monoid action of u on a.
 x `act` mempty = x
 
 bitLength
-Returns the number of bits required to represent the value.
+The number of bits required to represent the value.
+
+unsafeBit
+Just like bit, but skips the check that the index is in [0 .. size-1].
 
 odds
 The elements at odd positions of a list.
@@ -97,6 +100,7 @@ module Misc
     , Idempotent
     , Action(..)
     , bitLength
+    , unsafeBit
     , odds
     , evens
     , orM
@@ -187,6 +191,10 @@ class (Monoid u, Monoid a) => Action u a where
 bitLength :: FiniteBits b => b -> Int
 bitLength x = finiteBitSize x - countLeadingZeros x
 {-# INLINE bitLength #-}
+
+unsafeBit :: (Bits a, Num a) => Int -> a
+unsafeBit = unsafeShiftL 1
+{-# INLINE unsafeBit #-}
 
 odds :: [a] -> [a]
 odds (_:x:xs) = x : odds xs
