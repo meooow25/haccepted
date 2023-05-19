@@ -448,8 +448,11 @@ class Semigroup a => Idempotent a
 class (Monoid u, Monoid a) => Action u a
 act :: Action u a => a -> u -> a
 
--- | Returns the number of bits required to represent the value.
+-- | The number of bits required to represent the value.
 bitLength :: FiniteBits b => b -> Int
+
+-- | Just like bit, but skips the check that the index is in [0 .. size-1].
+unsafeBit :: (Bits a, Num a) => Int -> a
 
 -- | The elements at odd positions of a list.
 odds :: [a] -> [a]
@@ -1025,13 +1028,24 @@ foldrLSTM :: (Action u a, MArray marru u m, MArray marra a m) => LazySegTreeMut 
 -- | <h2>Mutable segment tree</h2>
 --   
 --   See SegTree. SegTreeMut is just that, but backed by a mutable array.
---   When the array is unboxed, SegTreeMut is a few times faster than
---   SegTree (see benchmarks). However, this comes at the cost of purity.
+--   With unboxed arrays, SegTreeMut is multiple times faster than SegTree
+--   (see benchmarks). However, this comes at the cost of purity.
+--   
+--   Sources:
+--   
+--   <ul>
+--   <li>Al.Cash, "Efficient and easy segment trees"
+--   <a>https://codeforces.com/blog/entry/18051</a></li>
+--   <li>AtCoder Library
+--   <a>https://github.com/atcoder/ac-library/blob/master/atcoder/segtree.hpp</a></li>
+--   </ul>
+--   
+--   Let n = r - l + 1 where (l, r) is the range of the segment tree. The
+--   complexities assume (&lt;&gt;) takes O(1) time.
 module SegTreeMut
 data SegTreeMut marr a
 
--- | Builds a segment tree on range (l, r) where each element is mempty.
---   O(n).
+-- | Builds a segment tree on (l, r) where each element is mempty. O(n).
 emptySTM :: (Monoid a, MArray marr a m) => (Int, Int) -> m (SegTreeMut marr a)
 
 -- | Builds a segment tree on (l, r) where the elements are taken from a
@@ -1043,12 +1057,14 @@ fromListSTM :: (Monoid a, MArray marr a m) => (Int, Int) -> [a] -> m (SegTreeMut
 adjustSTM :: (Monoid a, MArray marr a m) => SegTreeMut marr a -> Int -> (a -> a) -> m ()
 
 -- | Folds the elements in the range (ql, qr). Elements outside (l, r) are
---   considered to be mempty. O(log n).
+--   considered to be mempty. O(log n), or more precisely O(log(min(r, qr)
+--   - max(l, ql) + 1)).
 foldRangeSTM :: (Monoid a, MArray marr a m) => SegTreeMut marr a -> Int -> Int -> m a
 
 -- | Binary search in the intersection of (l, r) and (ql, qr) for the
 --   shortest prefix whose fold satisfies the given monotonic predicate.
---   Returns the end index and the fold. O(log n).
+--   Returns the end index and the fold. O(log n), or more precisely
+--   O(log(min(r, qr) - max(l, ql) + 1)).
 binSearchSTM :: (Monoid a, MArray marr a m) => SegTreeMut marr a -> Int -> Int -> (a -> Bool) -> m (Maybe (Int, a))
 
 -- | Right fold over the elements of the segment tree. O(n).

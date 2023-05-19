@@ -25,7 +25,7 @@ Sources:
 </span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Foldable</span></span><span>
 </span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Graph</span></span><span>
 </span><span id="line-27"></span><span>
-</span><span id="line-28"></span><span class="hs-keyword">data</span><span> </span><span id="Var"><span class="annot"><a href="TwoSat.html#Var"><span class="hs-identifier hs-var">Var</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Id"><span class="annot"><a href="TwoSat.html#Id"><span class="hs-identifier hs-var">Id</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="Not"><span class="annot"><a href="TwoSat.html#Not"><span class="hs-identifier hs-var">Not</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679078464"><span id="local-6989586621679078466"><span id="local-6989586621679078468"><span class="annot"><span class="annottext">Int -&gt; Var -&gt; ShowS
+</span><span id="line-28"></span><span class="hs-keyword">data</span><span> </span><span id="Var"><span class="annot"><a href="TwoSat.html#Var"><span class="hs-identifier hs-var">Var</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Id"><span class="annot"><a href="TwoSat.html#Id"><span class="hs-identifier hs-var">Id</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="Not"><span class="annot"><a href="TwoSat.html#Not"><span class="hs-identifier hs-var">Not</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679078485"><span id="local-6989586621679078487"><span id="local-6989586621679078489"><span class="annot"><span class="annottext">Int -&gt; Var -&gt; ShowS
 [Var] -&gt; ShowS
 Var -&gt; String
 (Int -&gt; Var -&gt; ShowS)
@@ -45,88 +45,88 @@ $cshowsPrec :: Int -&gt; Var -&gt; ShowS
 </span><span id="line-32"></span><span class="hs-comment">-- m = length xys.</span><span>
 </span><span id="line-33"></span><span class="annot"><a href="TwoSat.html#solve2Sat"><span class="hs-identifier hs-type">solve2Sat</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="TwoSat.html#Var"><span class="hs-identifier hs-type">Var</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="TwoSat.html#Var"><span class="hs-identifier hs-type">Var</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span class="hs-special">]</span><span>
 </span><span id="line-34"></span><span id="solve2Sat"><span class="annot"><span class="annottext">solve2Sat :: (Int, Int) -&gt; [(Var, Var)] -&gt; Maybe [Bool]
-</span><a href="TwoSat.html#solve2Sat"><span class="hs-identifier hs-var hs-var">solve2Sat</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679078462"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679078462"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679078461"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679078461"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679078460"><span class="annot"><span class="annottext">[(Var, Var)]
-</span><a href="#local-6989586621679078460"><span class="hs-identifier hs-var">xys</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; Maybe [Bool]
+</span><a href="TwoSat.html#solve2Sat"><span class="hs-identifier hs-var hs-var">solve2Sat</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679078483"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679078483"><span class="hs-identifier hs-var">l</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679078482"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679078482"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679078481"><span class="annot"><span class="annottext">[(Var, Var)]
+</span><a href="#local-6989586621679078481"><span class="hs-identifier hs-var">xys</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; Maybe [Bool]
 forall a. Ord a =&gt; [a] -&gt; Maybe [Bool]
-</span><a href="#local-6989586621679078459"><span class="hs-identifier hs-var">assign</span></a></span><span> </span><span class="annot"><span class="annottext">([Int] -&gt; Maybe [Bool]) -&gt; [Int] -&gt; Maybe [Bool]
+</span><a href="#local-6989586621679078480"><span class="hs-identifier hs-var">assign</span></a></span><span> </span><span class="annot"><span class="annottext">([Int] -&gt; Maybe [Bool]) -&gt; [Int] -&gt; Maybe [Bool]
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Array Int Int -&gt; [Int]
 forall i e. Array i e -&gt; [e]
 </span><span class="hs-identifier hs-var">elems</span></span><span> </span><span class="annot"><span class="annottext">Array Int Int
-</span><a href="#local-6989586621679078457"><span class="hs-identifier hs-var">comp</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-35"></span><span>    </span><span id="local-6989586621679078456"><span class="annot"><span class="annottext">n :: Int
-</span><a href="#local-6989586621679078456"><span class="hs-identifier hs-var hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679078461"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679078478"><span class="hs-identifier hs-var">comp</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-35"></span><span>    </span><span id="local-6989586621679078477"><span class="annot"><span class="annottext">n :: Int
+</span><a href="#local-6989586621679078477"><span class="hs-identifier hs-var hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679078482"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679078462"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679078483"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span>
-</span><span id="line-36"></span><span>    </span><span id="local-6989586621679078454"><span class="annot"><span class="annottext">bnds :: (Int, Int)
-</span><a href="#local-6989586621679078454"><span class="hs-identifier hs-var hs-var">bnds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><span id="line-36"></span><span>    </span><span id="local-6989586621679078475"><span class="annot"><span class="annottext">bnds :: (Int, Int)
+</span><a href="#local-6989586621679078475"><span class="hs-identifier hs-var hs-var">bnds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">0</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">2</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679078456"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679078477"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
-</span><span id="line-37"></span><span>    </span><span id="local-6989586621679078452"><span class="annot"><span class="annottext">idx :: Var -&gt; Int
-</span><a href="#local-6989586621679078452"><span class="hs-identifier hs-var hs-var">idx</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="TwoSat.html#Id"><span class="hs-identifier hs-type">Id</span></a></span><span> </span><span id="local-6989586621679078451"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679078451"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679078451"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><span id="line-37"></span><span>    </span><span id="local-6989586621679078473"><span class="annot"><span class="annottext">idx :: Var -&gt; Int
+</span><a href="#local-6989586621679078473"><span class="hs-identifier hs-var hs-var">idx</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="TwoSat.html#Id"><span class="hs-identifier hs-type">Id</span></a></span><span> </span><span id="local-6989586621679078472"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679078472"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679078472"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679078462"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679078483"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">2</span></span><span>
-</span><span id="line-38"></span><span>    </span><span class="annot"><a href="#local-6989586621679078452"><span class="hs-identifier hs-var">idx</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="TwoSat.html#Not"><span class="hs-identifier hs-type">Not</span></a></span><span> </span><span id="local-6989586621679078450"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679078450"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679078450"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><span id="line-38"></span><span>    </span><span class="annot"><a href="#local-6989586621679078473"><span class="hs-identifier hs-var">idx</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="TwoSat.html#Not"><span class="hs-identifier hs-type">Not</span></a></span><span> </span><span id="local-6989586621679078471"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679078471"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679078471"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679078462"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679078483"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">2</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span>
-</span><span id="line-39"></span><span>    </span><span id="local-6989586621679078449"><span class="annot"><span class="annottext">g :: Graph
-</span><a href="#local-6989586621679078449"><span class="hs-identifier hs-var hs-var">g</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int) -&gt; [(Int, Int)] -&gt; Graph
+</span><span id="line-39"></span><span>    </span><span id="local-6989586621679078470"><span class="annot"><span class="annottext">g :: Graph
+</span><a href="#local-6989586621679078470"><span class="hs-identifier hs-var hs-var">g</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int) -&gt; [(Int, Int)] -&gt; Graph
 </span><span class="hs-identifier hs-var">buildG</span></span><span> </span><span class="annot"><span class="annottext">(Int, Int)
-</span><a href="#local-6989586621679078454"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="annot"><span class="annottext">([(Int, Int)] -&gt; Graph) -&gt; [(Int, Int)] -&gt; Graph
+</span><a href="#local-6989586621679078475"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="annot"><span class="annottext">([(Int, Int)] -&gt; Graph) -&gt; [(Int, Int)] -&gt; Graph
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-40"></span><span>        </span><span class="hs-special">(</span><span id="local-6989586621679078447"><span class="annot"><span class="annottext">Var
-</span><a href="#local-6989586621679078447"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679078446"><span class="annot"><span class="annottext">Var
-</span><a href="#local-6989586621679078446"><span class="hs-identifier hs-var">y</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[(Var, Var)]
-</span><a href="#local-6989586621679078460"><span class="hs-identifier hs-var">xys</span></a></span><span>
+</span><span id="line-40"></span><span>        </span><span class="hs-special">(</span><span id="local-6989586621679078468"><span class="annot"><span class="annottext">Var
+</span><a href="#local-6989586621679078468"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679078467"><span class="annot"><span class="annottext">Var
+</span><a href="#local-6989586621679078467"><span class="hs-identifier hs-var">y</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[(Var, Var)]
+</span><a href="#local-6989586621679078481"><span class="hs-identifier hs-var">xys</span></a></span><span>
 </span><span id="line-41"></span><span>        </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="annottext">Var -&gt; Int
-</span><a href="#local-6989586621679078452"><span class="hs-identifier hs-var">idx</span></a></span><span> </span><span class="annot"><span class="annottext">Var
-</span><a href="#local-6989586621679078447"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679078473"><span class="hs-identifier hs-var">idx</span></a></span><span> </span><span class="annot"><span class="annottext">Var
+</span><a href="#local-6989586621679078468"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Bits a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">`xor`</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Var -&gt; Int
-</span><a href="#local-6989586621679078452"><span class="hs-identifier hs-var">idx</span></a></span><span> </span><span class="annot"><span class="annottext">Var
-</span><a href="#local-6989586621679078446"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Var -&gt; Int
-</span><a href="#local-6989586621679078452"><span class="hs-identifier hs-var">idx</span></a></span><span> </span><span class="annot"><span class="annottext">Var
-</span><a href="#local-6989586621679078446"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+</span><a href="#local-6989586621679078473"><span class="hs-identifier hs-var">idx</span></a></span><span> </span><span class="annot"><span class="annottext">Var
+</span><a href="#local-6989586621679078467"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Var -&gt; Int
+</span><a href="#local-6989586621679078473"><span class="hs-identifier hs-var">idx</span></a></span><span> </span><span class="annot"><span class="annottext">Var
+</span><a href="#local-6989586621679078467"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
 forall a. Bits a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">`xor`</span></span><span> </span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Var -&gt; Int
-</span><a href="#local-6989586621679078452"><span class="hs-identifier hs-var">idx</span></a></span><span> </span><span class="annot"><span class="annottext">Var
-</span><a href="#local-6989586621679078447"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
-</span><span id="line-42"></span><span>    </span><span id="local-6989586621679078457"><span class="annot"><span class="annottext">comp :: Array Int Int
-</span><a href="#local-6989586621679078457"><span class="hs-identifier hs-var hs-var">comp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int) -&gt; [(Int, Int)] -&gt; Array Int Int
+</span><a href="#local-6989586621679078473"><span class="hs-identifier hs-var">idx</span></a></span><span> </span><span class="annot"><span class="annottext">Var
+</span><a href="#local-6989586621679078468"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-42"></span><span>    </span><span id="local-6989586621679078478"><span class="annot"><span class="annottext">comp :: Array Int Int
+</span><a href="#local-6989586621679078478"><span class="hs-identifier hs-var hs-var">comp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Int, Int) -&gt; [(Int, Int)] -&gt; Array Int Int
 forall i e. Ix i =&gt; (i, i) -&gt; [(i, e)] -&gt; Array i e
 </span><span class="hs-identifier hs-var">array</span></span><span> </span><span class="annot"><span class="annottext">(Int, Int)
-</span><a href="#local-6989586621679078454"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="annot"><span class="annottext">([(Int, Int)] -&gt; Array Int Int) -&gt; [(Int, Int)] -&gt; Array Int Int
+</span><a href="#local-6989586621679078475"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="annot"><span class="annottext">([(Int, Int)] -&gt; Array Int Int) -&gt; [(Int, Int)] -&gt; Array Int Int
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[[(Int, Int)]] -&gt; [(Int, Int)]
 forall (t :: * -&gt; *) a. Foldable t =&gt; t [a] -&gt; [a]
@@ -145,53 +145,53 @@ forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; [a]
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Graph -&gt; [Tree Int]
 </span><span class="hs-identifier hs-var">scc</span></span><span> </span><span class="annot"><span class="annottext">Graph
-</span><a href="#local-6989586621679078449"><span class="hs-identifier hs-var">g</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Int -&gt; [Int]) -&gt; [Int] -&gt; [[Int]]
+</span><a href="#local-6989586621679078470"><span class="hs-identifier hs-var">g</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Int -&gt; [Int]) -&gt; [Int] -&gt; [[Int]]
 forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
 </span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; [Int]
 forall a. a -&gt; [a]
 </span><span class="hs-identifier hs-var">repeat</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Int
 </span><span class="hs-number">1</span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">..</span><span class="hs-special">]</span><span class="hs-special">)</span><span>
-</span><span id="line-43"></span><span>    </span><span id="local-6989586621679078459"><span class="annot"><span class="annottext">assign :: [a] -&gt; Maybe [Bool]
-</span><a href="#local-6989586621679078459"><span class="hs-identifier hs-var hs-var">assign</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Bool] -&gt; Maybe [Bool]
+</span><span id="line-43"></span><span>    </span><span id="local-6989586621679078480"><span class="annot"><span class="annottext">assign :: [a] -&gt; Maybe [Bool]
+</span><a href="#local-6989586621679078480"><span class="hs-identifier hs-var hs-var">assign</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Bool] -&gt; Maybe [Bool]
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
-</span><span id="line-44"></span><span>    </span><span class="annot"><a href="#local-6989586621679078459"><span class="hs-identifier hs-var">assign</span></a></span><span> </span><span class="hs-glyph">~</span><span class="hs-special">(</span><span id="local-6989586621679078438"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679078438"><span class="hs-identifier hs-var">cx</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679078437"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679078437"><span class="hs-identifier hs-var">cnotx</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679078436"><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679078436"><span class="hs-identifier hs-var">rest</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><a href="#local-6989586621679078480"><span class="hs-identifier hs-var">assign</span></a></span><span> </span><span class="hs-glyph">~</span><span class="hs-special">(</span><span id="local-6989586621679078459"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679078459"><span class="hs-identifier hs-var">cx</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679078458"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679078458"><span class="hs-identifier hs-var">cnotx</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679078457"><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679078457"><span class="hs-identifier hs-var">rest</span></a></span></span><span class="hs-special">)</span><span>
 </span><span id="line-45"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679078438"><span class="hs-identifier hs-var">cx</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="#local-6989586621679078459"><span class="hs-identifier hs-var">cx</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679078437"><span class="hs-identifier hs-var">cnotx</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe [Bool]
+</span><a href="#local-6989586621679078458"><span class="hs-identifier hs-var">cnotx</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe [Bool]
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
 </span><span id="line-46"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">otherwise</span></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679078438"><span class="hs-identifier hs-var">cx</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="#local-6989586621679078459"><span class="hs-identifier hs-var">cx</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679078437"><span class="hs-identifier hs-var">cnotx</span></a></span><span class="hs-special">)</span><span class="annot"><span class="annottext">Bool -&gt; [Bool] -&gt; [Bool]
+</span><a href="#local-6989586621679078458"><span class="hs-identifier hs-var">cnotx</span></a></span><span class="hs-special">)</span><span class="annot"><span class="annottext">Bool -&gt; [Bool] -&gt; [Bool]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">([Bool] -&gt; [Bool]) -&gt; Maybe [Bool] -&gt; Maybe [Bool]
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">[a] -&gt; Maybe [Bool]
-</span><a href="#local-6989586621679078459"><span class="hs-identifier hs-var">assign</span></a></span><span> </span><span class="annot"><span class="annottext">[a]
-</span><a href="#local-6989586621679078436"><span class="hs-identifier hs-var">rest</span></a></span><span>
+</span><a href="#local-6989586621679078480"><span class="hs-identifier hs-var">assign</span></a></span><span> </span><span class="annot"><span class="annottext">[a]
+</span><a href="#local-6989586621679078457"><span class="hs-identifier hs-var">rest</span></a></span><span>
 </span><span id="line-47"></span><span>
 </span><span id="line-48"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-49"></span><span class="hs-comment">-- For tests</span><span>
 </span><span id="line-50"></span><span>
 </span><span id="line-51"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">NFData</span></span><span> </span><span class="annot"><a href="TwoSat.html#Var"><span class="hs-identifier hs-type">Var</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-52"></span><span>    </span><span id="local-6989586621679078431"><span class="annot"><span class="annottext">rnf :: Var -&gt; ()
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="TwoSat.html#Id"><span class="hs-identifier hs-type">Id</span></a></span><span> </span><span id="local-6989586621679078429"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679078429"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; ()
+</span><span id="line-52"></span><span>    </span><span id="local-6989586621679078452"><span class="annot"><span class="annottext">rnf :: Var -&gt; ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="TwoSat.html#Id"><span class="hs-identifier hs-type">Id</span></a></span><span> </span><span id="local-6989586621679078450"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679078450"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; ()
 forall a. NFData a =&gt; a -&gt; ()
 </span><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679078429"><span class="hs-identifier hs-var">x</span></a></span><span>
-</span><span id="line-53"></span><span>    </span><span class="annot"><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="TwoSat.html#Not"><span class="hs-identifier hs-type">Not</span></a></span><span> </span><span id="local-6989586621679078428"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679078428"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; ()
+</span><a href="#local-6989586621679078450"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-53"></span><span>    </span><span class="annot"><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="TwoSat.html#Not"><span class="hs-identifier hs-type">Not</span></a></span><span> </span><span id="local-6989586621679078449"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679078449"><span class="hs-identifier hs-var">x</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; ()
 forall a. NFData a =&gt; a -&gt; ()
 </span><span class="hs-identifier hs-var">rnf</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679078428"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><a href="#local-6989586621679078449"><span class="hs-identifier hs-var">x</span></a></span><span>
 </span><span id="line-54"></span></pre></body></html>
