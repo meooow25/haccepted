@@ -46,9 +46,9 @@ Implementation notes:
 </span><span id="line-46"></span><span class="hs-comment">-- O((V + E) log V).</span><span>
 </span><span id="line-47"></span><span class="annot"><a href="Dijkstra.html#dijkstra"><span class="hs-identifier hs-type">dijkstra</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="LabelledGraph.html#LGraph"><span class="hs-identifier hs-type">LGraph</span></a></span><span> </span><span class="annot"><a href="Dijkstra.html#Weight"><span class="hs-identifier hs-type">Weight</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span> </span><span class="annot"><a href="Dijkstra.html#Weight"><span class="hs-identifier hs-type">Weight</span></a></span><span>
 </span><span id="line-48"></span><span id="dijkstra"><span class="annot"><span class="annottext">dijkstra :: LGraph Weight -&gt; [Weight] -&gt; UArray Weight Weight
-</span><a href="Dijkstra.html#dijkstra"><span class="hs-identifier hs-var hs-var">dijkstra</span></a></span></span><span> </span><span id="local-6989586621679073752"><span class="annot"><span class="annottext">LGraph Weight
-</span><a href="#local-6989586621679073752"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679073751"><span class="annot"><span class="annottext">[Weight]
-</span><a href="#local-6989586621679073751"><span class="hs-identifier hs-var">srcs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(forall s. ST s (STUArray s Weight Weight)) -&gt; UArray Weight Weight
+</span><a href="Dijkstra.html#dijkstra"><span class="hs-identifier hs-var hs-var">dijkstra</span></a></span></span><span> </span><span id="local-6989586621679073901"><span class="annot"><span class="annottext">LGraph Weight
+</span><a href="#local-6989586621679073901"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679073900"><span class="annot"><span class="annottext">[Weight]
+</span><a href="#local-6989586621679073900"><span class="hs-identifier hs-var">srcs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(forall s. ST s (STUArray s Weight Weight)) -&gt; UArray Weight Weight
 forall i e. (forall s. ST s (STUArray s i e)) -&gt; UArray i e
 </span><span class="hs-identifier hs-var">runSTUArray</span></span><span> </span><span class="annot"><span class="annottext">((forall s. ST s (STUArray s Weight Weight))
  -&gt; UArray Weight Weight)
@@ -56,24 +56,24 @@ forall i e. (forall s. ST s (STUArray s i e)) -&gt; UArray i e
 -&gt; UArray Weight Weight
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-49"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073749"><span class="annot"><span class="annottext">bnds :: (Weight, Weight)
-</span><a href="#local-6989586621679073749"><span class="hs-identifier hs-var hs-var">bnds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LGraph Weight -&gt; (Weight, Weight)
+</span><span id="line-49"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073898"><span class="annot"><span class="annottext">bnds :: (Weight, Weight)
+</span><a href="#local-6989586621679073898"><span class="hs-identifier hs-var hs-var">bnds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LGraph Weight -&gt; (Weight, Weight)
 forall (a :: * -&gt; * -&gt; *) e i.
 (IArray a e, Ix i) =&gt;
 a i e -&gt; (i, i)
 </span><span class="hs-identifier hs-var">bounds</span></span><span> </span><span class="annot"><span class="annottext">LGraph Weight
-</span><a href="#local-6989586621679073752"><span class="hs-identifier hs-var">g</span></a></span><span>
-</span><span id="line-50"></span><span>    </span><span id="local-6989586621679073747"><span id="local-6989586621679073746"><span class="annot"><span class="annottext">STUArray s Weight Weight
-</span><a href="#local-6989586621679073746"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">STUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679073747"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span> </span><span class="annot"><a href="Dijkstra.html#Weight"><span class="hs-identifier hs-type">Weight</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(Weight, Weight) -&gt; Weight -&gt; ST s (STUArray s Weight Weight)
+</span><a href="#local-6989586621679073901"><span class="hs-identifier hs-var">g</span></a></span><span>
+</span><span id="line-50"></span><span>    </span><span id="local-6989586621679073896"><span id="local-6989586621679073895"><span class="annot"><span class="annottext">STUArray s Weight Weight
+</span><a href="#local-6989586621679073895"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">STUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679073896"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span> </span><span class="annot"><a href="Dijkstra.html#Weight"><span class="hs-identifier hs-type">Weight</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(Weight, Weight) -&gt; Weight -&gt; ST s (STUArray s Weight Weight)
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 (i, i) -&gt; e -&gt; m (a i e)
 </span><span class="hs-identifier hs-var">newArray</span></span><span> </span><span class="annot"><span class="annottext">(Weight, Weight)
-</span><a href="#local-6989586621679073749"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073898"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
 forall a. Bounded a =&gt; a
 </span><span class="hs-identifier hs-var">maxBound</span></span><span>
-</span><span id="line-51"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073743"><span class="annot"><span class="annottext">go :: Set (Weight, Weight) -&gt; ST s ()
-</span><a href="#local-6989586621679073743"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ST s ()
+</span><span id="line-51"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073892"><span class="annot"><span class="annottext">go :: Set (Weight, Weight) -&gt; ST s ()
+</span><a href="#local-6989586621679073892"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ST s ()
 -&gt; (((Weight, Weight), Set (Weight, Weight)) -&gt; ST s ())
 -&gt; Maybe ((Weight, Weight), Set (Weight, Weight))
 -&gt; ST s ()
@@ -81,7 +81,7 @@ forall b a. b -&gt; (a -&gt; b) -&gt; Maybe a -&gt; b
 </span><span class="hs-identifier hs-var">maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">() -&gt; ST s ()
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">((Weight, Weight), Set (Weight, Weight)) -&gt; ST s ()
-</span><a href="#local-6989586621679073741"><span class="hs-identifier hs-var">go'</span></a></span><span> </span><span class="annot"><span class="annottext">(Maybe ((Weight, Weight), Set (Weight, Weight)) -&gt; ST s ())
+</span><a href="#local-6989586621679073890"><span class="hs-identifier hs-var">go'</span></a></span><span> </span><span class="annot"><span class="annottext">(Maybe ((Weight, Weight), Set (Weight, Weight)) -&gt; ST s ())
 -&gt; (Set (Weight, Weight)
     -&gt; Maybe ((Weight, Weight), Set (Weight, Weight)))
 -&gt; Set (Weight, Weight)
@@ -91,11 +91,11 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 -&gt; Maybe ((Weight, Weight), Set (Weight, Weight))
 forall a. Set a -&gt; Maybe (a, Set a)
 </span><span class="hs-identifier hs-var">S.minView</span></span><span>
-</span><span id="line-52"></span><span>        </span><span id="local-6989586621679073741"><span class="annot"><span class="annottext">go' :: ((Weight, Weight), Set (Weight, Weight)) -&gt; ST s ()
-</span><a href="#local-6989586621679073741"><span class="hs-identifier hs-var hs-var">go'</span></a></span></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span id="local-6989586621679073738"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073738"><span class="hs-identifier hs-var">du</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073737"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073737"><span class="hs-identifier hs-var">u</span></a></span></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073736"><span class="annot"><span class="annottext">Set (Weight, Weight)
-</span><a href="#local-6989586621679073736"><span class="hs-identifier hs-var">q</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Set (Weight, Weight)
+</span><span id="line-52"></span><span>        </span><span id="local-6989586621679073890"><span class="annot"><span class="annottext">go' :: ((Weight, Weight), Set (Weight, Weight)) -&gt; ST s ()
+</span><a href="#local-6989586621679073890"><span class="hs-identifier hs-var hs-var">go'</span></a></span></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span id="local-6989586621679073887"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073887"><span class="hs-identifier hs-var">du</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073886"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073886"><span class="hs-identifier hs-var">u</span></a></span></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073885"><span class="annot"><span class="annottext">Set (Weight, Weight)
+</span><a href="#local-6989586621679073885"><span class="hs-identifier hs-var">q</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Set (Weight, Weight)
  -&gt; (Weight, Weight) -&gt; ST s (Set (Weight, Weight)))
 -&gt; Set (Weight, Weight)
 -&gt; [(Weight, Weight)]
@@ -105,54 +105,54 @@ forall (t :: * -&gt; *) (m :: * -&gt; *) b a.
 (b -&gt; a -&gt; m b) -&gt; b -&gt; t a -&gt; m b
 </span><span class="hs-identifier hs-var">foldM</span></span><span> </span><span class="annot"><span class="annottext">Set (Weight, Weight)
 -&gt; (Weight, Weight) -&gt; ST s (Set (Weight, Weight))
-</span><a href="#local-6989586621679073734"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">Set (Weight, Weight)
-</span><a href="#local-6989586621679073736"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">LGraph Weight
-</span><a href="#local-6989586621679073752"><span class="hs-identifier hs-var">g</span></a></span><span class="annot"><span class="annottext">LGraph Weight -&gt; Weight -&gt; [(Weight, Weight)]
+</span><a href="#local-6989586621679073883"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">Set (Weight, Weight)
+</span><a href="#local-6989586621679073885"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">LGraph Weight
+</span><a href="#local-6989586621679073901"><span class="hs-identifier hs-var">g</span></a></span><span class="annot"><span class="annottext">LGraph Weight -&gt; Weight -&gt; [(Weight, Weight)]
 forall (a :: * -&gt; * -&gt; *) e i.
 (IArray a e, Ix i) =&gt;
 a i e -&gt; i -&gt; e
 </span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073737"><span class="hs-identifier hs-var">u</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ST s (Set (Weight, Weight))
+</span><a href="#local-6989586621679073886"><span class="hs-identifier hs-var">u</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ST s (Set (Weight, Weight))
 -&gt; (Set (Weight, Weight) -&gt; ST s ()) -&gt; ST s ()
 forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
 </span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="annot"><span class="annottext">Set (Weight, Weight) -&gt; ST s ()
-</span><a href="#local-6989586621679073743"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-53"></span><span>            </span><span id="local-6989586621679073734"><span class="annot"><span class="annottext">f :: Set (Weight, Weight)
+</span><a href="#local-6989586621679073892"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-53"></span><span>            </span><span id="local-6989586621679073883"><span class="annot"><span class="annottext">f :: Set (Weight, Weight)
 -&gt; (Weight, Weight) -&gt; ST s (Set (Weight, Weight))
-</span><a href="#local-6989586621679073734"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679073732"><span class="annot"><span class="annottext">Set (Weight, Weight)
-</span><a href="#local-6989586621679073732"><span class="hs-identifier hs-var">q'</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679073731"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073731"><span class="hs-identifier hs-var">w</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073730"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073730"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-54"></span><span>                </span><span id="local-6989586621679073729"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073729"><span class="hs-identifier hs-var">dv</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight -&gt; Weight -&gt; ST s Weight
+</span><a href="#local-6989586621679073883"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679073881"><span class="annot"><span class="annottext">Set (Weight, Weight)
+</span><a href="#local-6989586621679073881"><span class="hs-identifier hs-var">q'</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679073880"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073880"><span class="hs-identifier hs-var">w</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073879"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073879"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-54"></span><span>                </span><span id="local-6989586621679073878"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073878"><span class="hs-identifier hs-var">dv</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight -&gt; Weight -&gt; ST s Weight
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; m e
 </span><span class="hs-identifier hs-var">readArray</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight
-</span><a href="#local-6989586621679073746"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073730"><span class="hs-identifier hs-var">v</span></a></span><span>
-</span><span id="line-55"></span><span>                </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073727"><span class="annot"><span class="annottext">dv' :: Weight
-</span><a href="#local-6989586621679073727"><span class="hs-identifier hs-var hs-var">dv'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073738"><span class="hs-identifier hs-var">du</span></a></span><span> </span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; Weight
+</span><a href="#local-6989586621679073895"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073879"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><span id="line-55"></span><span>                </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073876"><span class="annot"><span class="annottext">dv' :: Weight
+</span><a href="#local-6989586621679073876"><span class="hs-identifier hs-var hs-var">dv'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073887"><span class="hs-identifier hs-var">du</span></a></span><span> </span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; Weight
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073731"><span class="hs-identifier hs-var">w</span></a></span><span>
+</span><a href="#local-6989586621679073880"><span class="hs-identifier hs-var">w</span></a></span><span>
 </span><span id="line-56"></span><span>                </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073729"><span class="hs-identifier hs-var">dv</span></a></span><span> </span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; Bool
+</span><a href="#local-6989586621679073878"><span class="hs-identifier hs-var">dv</span></a></span><span> </span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;=</span></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073727"><span class="hs-identifier hs-var">dv'</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Set (Weight, Weight) -&gt; ST s (Set (Weight, Weight))
+</span><a href="#local-6989586621679073876"><span class="hs-identifier hs-var">dv'</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Set (Weight, Weight) -&gt; ST s (Set (Weight, Weight))
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Set (Weight, Weight)
-</span><a href="#local-6989586621679073732"><span class="hs-identifier hs-var">q'</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="#local-6989586621679073881"><span class="hs-identifier hs-var">q'</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-57"></span><span>                    </span><span class="annot"><span class="annottext">STUArray s Weight Weight -&gt; Weight -&gt; Weight -&gt; ST s ()
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; e -&gt; m ()
 </span><span class="hs-identifier hs-var">writeArray</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight
-</span><a href="#local-6989586621679073746"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073730"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073727"><span class="hs-identifier hs-var">dv'</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ST</span></span><span> </span><span class="annot"><a href="#local-6989586621679073747"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679073895"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073879"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073876"><span class="hs-identifier hs-var">dv'</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ST</span></span><span> </span><span class="annot"><a href="#local-6989586621679073896"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
 </span><span id="line-58"></span><span>                    </span><span class="annot"><span class="annottext">Set (Weight, Weight) -&gt; ST s (Set (Weight, Weight))
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Set (Weight, Weight) -&gt; ST s (Set (Weight, Weight)))
@@ -161,49 +161,49 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(Weight, Weight) -&gt; Set (Weight, Weight) -&gt; Set (Weight, Weight)
 forall a. Ord a =&gt; a -&gt; Set a -&gt; Set a
 </span><span class="hs-identifier hs-var">S.insert</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073727"><span class="hs-identifier hs-var">dv'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073730"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Weight, Weight) -&gt; Set (Weight, Weight) -&gt; Set (Weight, Weight)
+</span><a href="#local-6989586621679073876"><span class="hs-identifier hs-var">dv'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073879"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Weight, Weight) -&gt; Set (Weight, Weight) -&gt; Set (Weight, Weight)
 forall a. Ord a =&gt; a -&gt; Set a -&gt; Set a
 </span><span class="hs-identifier hs-var">S.delete</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073729"><span class="hs-identifier hs-var">dv</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073730"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Set (Weight, Weight)
-</span><a href="#local-6989586621679073732"><span class="hs-identifier hs-var">q'</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679073878"><span class="hs-identifier hs-var">dv</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073879"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Set (Weight, Weight)
+</span><a href="#local-6989586621679073881"><span class="hs-identifier hs-var">q'</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-59"></span><span>    </span><span class="annot"><span class="annottext">[Weight] -&gt; (Weight -&gt; ST s ()) -&gt; ST s ()
 forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
 (Foldable t, Monad m) =&gt;
 t a -&gt; (a -&gt; m b) -&gt; m ()
 </span><span class="hs-identifier hs-var">forM_</span></span><span> </span><span class="annot"><span class="annottext">[Weight]
-</span><a href="#local-6989586621679073751"><span class="hs-identifier hs-var">srcs</span></a></span><span> </span><span class="annot"><span class="annottext">((Weight -&gt; ST s ()) -&gt; ST s ()) -&gt; (Weight -&gt; ST s ()) -&gt; ST s ()
+</span><a href="#local-6989586621679073900"><span class="hs-identifier hs-var">srcs</span></a></span><span> </span><span class="annot"><span class="annottext">((Weight -&gt; ST s ()) -&gt; ST s ()) -&gt; (Weight -&gt; ST s ()) -&gt; ST s ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679073720"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073720"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight -&gt; Weight -&gt; Weight -&gt; ST s ()
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679073869"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073869"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight -&gt; Weight -&gt; Weight -&gt; ST s ()
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; e -&gt; m ()
 </span><span class="hs-identifier hs-var">writeArray</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight
-</span><a href="#local-6989586621679073746"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073720"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073895"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073869"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
 </span><span class="hs-number">0</span></span><span>
 </span><span id="line-60"></span><span>    </span><span class="annot"><span class="annottext">Set (Weight, Weight) -&gt; ST s ()
-</span><a href="#local-6989586621679073743"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[(Weight, Weight)] -&gt; Set (Weight, Weight)
+</span><a href="#local-6989586621679073892"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[(Weight, Weight)] -&gt; Set (Weight, Weight)
 forall a. Ord a =&gt; [a] -&gt; Set a
 </span><span class="hs-identifier hs-var">S.fromList</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-special">,</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Weight
 </span><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">(Weight -&gt; (Weight, Weight)) -&gt; [Weight] -&gt; [(Weight, Weight)]
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">[Weight]
-</span><a href="#local-6989586621679073751"><span class="hs-identifier hs-var">srcs</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679073900"><span class="hs-identifier hs-var">srcs</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-61"></span><span>    </span><span class="annot"><span class="annottext">STUArray s Weight Weight -&gt; ST s (STUArray s Weight Weight)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight
-</span><a href="#local-6989586621679073746"><span class="hs-identifier hs-var">d</span></a></span><span>
+</span><a href="#local-6989586621679073895"><span class="hs-identifier hs-var">d</span></a></span><span>
 </span><span id="line-62"></span><span>
 </span><span id="line-63"></span><span class="hs-comment">-- | Runs Dijkstra's algorithm on the given graph. srcs should not have duplicates. Unreachable vertices</span><span>
 </span><span id="line-64"></span><span class="hs-comment">-- have distance maxBound. Faster than dijkstra, especially for large sparse graphs. O((V + E) log E).</span><span>
 </span><span id="line-65"></span><span class="annot"><a href="Dijkstra.html#dijkstraH"><span class="hs-identifier hs-type">dijkstraH</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="LabelledGraph.html#LGraph"><span class="hs-identifier hs-type">LGraph</span></a></span><span> </span><span class="annot"><a href="Dijkstra.html#Weight"><span class="hs-identifier hs-type">Weight</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">UArray</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span> </span><span class="annot"><a href="Dijkstra.html#Weight"><span class="hs-identifier hs-type">Weight</span></a></span><span>
 </span><span id="line-66"></span><span id="dijkstraH"><span class="annot"><span class="annottext">dijkstraH :: LGraph Weight -&gt; [Weight] -&gt; UArray Weight Weight
-</span><a href="Dijkstra.html#dijkstraH"><span class="hs-identifier hs-var hs-var">dijkstraH</span></a></span></span><span> </span><span id="local-6989586621679073717"><span class="annot"><span class="annottext">LGraph Weight
-</span><a href="#local-6989586621679073717"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679073716"><span class="annot"><span class="annottext">[Weight]
-</span><a href="#local-6989586621679073716"><span class="hs-identifier hs-var">srcs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(forall s. ST s (STUArray s Weight Weight)) -&gt; UArray Weight Weight
+</span><a href="Dijkstra.html#dijkstraH"><span class="hs-identifier hs-var hs-var">dijkstraH</span></a></span></span><span> </span><span id="local-6989586621679073866"><span class="annot"><span class="annottext">LGraph Weight
+</span><a href="#local-6989586621679073866"><span class="hs-identifier hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679073865"><span class="annot"><span class="annottext">[Weight]
+</span><a href="#local-6989586621679073865"><span class="hs-identifier hs-var">srcs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(forall s. ST s (STUArray s Weight Weight)) -&gt; UArray Weight Weight
 forall i e. (forall s. ST s (STUArray s i e)) -&gt; UArray i e
 </span><span class="hs-identifier hs-var">runSTUArray</span></span><span> </span><span class="annot"><span class="annottext">((forall s. ST s (STUArray s Weight Weight))
  -&gt; UArray Weight Weight)
@@ -211,114 +211,114 @@ forall i e. (forall s. ST s (STUArray s i e)) -&gt; UArray i e
 -&gt; UArray Weight Weight
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-67"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073715"><span class="annot"><span class="annottext">bnds :: (Weight, Weight)
-</span><a href="#local-6989586621679073715"><span class="hs-identifier hs-var hs-var">bnds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LGraph Weight -&gt; (Weight, Weight)
+</span><span id="line-67"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073864"><span class="annot"><span class="annottext">bnds :: (Weight, Weight)
+</span><a href="#local-6989586621679073864"><span class="hs-identifier hs-var hs-var">bnds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LGraph Weight -&gt; (Weight, Weight)
 forall (a :: * -&gt; * -&gt; *) e i.
 (IArray a e, Ix i) =&gt;
 a i e -&gt; (i, i)
 </span><span class="hs-identifier hs-var">bounds</span></span><span> </span><span class="annot"><span class="annottext">LGraph Weight
-</span><a href="#local-6989586621679073717"><span class="hs-identifier hs-var">g</span></a></span><span>
-</span><span id="line-68"></span><span>    </span><span id="local-6989586621679073714"><span id="local-6989586621679073713"><span class="annot"><span class="annottext">STUArray s Weight Weight
-</span><a href="#local-6989586621679073713"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">STUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679073714"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span> </span><span class="annot"><a href="Dijkstra.html#Weight"><span class="hs-identifier hs-type">Weight</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(Weight, Weight) -&gt; Weight -&gt; ST s (STUArray s Weight Weight)
+</span><a href="#local-6989586621679073866"><span class="hs-identifier hs-var">g</span></a></span><span>
+</span><span id="line-68"></span><span>    </span><span id="local-6989586621679073863"><span id="local-6989586621679073862"><span class="annot"><span class="annottext">STUArray s Weight Weight
+</span><a href="#local-6989586621679073862"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">STUArray</span></span><span> </span><span class="annot"><a href="#local-6989586621679073863"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span> </span><span class="annot"><a href="Dijkstra.html#Weight"><span class="hs-identifier hs-type">Weight</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(Weight, Weight) -&gt; Weight -&gt; ST s (STUArray s Weight Weight)
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 (i, i) -&gt; e -&gt; m (a i e)
 </span><span class="hs-identifier hs-var">newArray</span></span><span> </span><span class="annot"><span class="annottext">(Weight, Weight)
-</span><a href="#local-6989586621679073715"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073864"><span class="hs-identifier hs-var">bnds</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
 forall a. Bounded a =&gt; a
 </span><span class="hs-identifier hs-var">maxBound</span></span><span>
-</span><span id="line-69"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073712"><span class="annot"><span class="annottext">go :: DHeap -&gt; ST s ()
-</span><a href="#local-6989586621679073712"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="annot"><span class="annottext">DHeap
+</span><span id="line-69"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073861"><span class="annot"><span class="annottext">go :: DHeap -&gt; ST s ()
+</span><a href="#local-6989586621679073861"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="annot"><span class="annottext">DHeap
 </span><a href="Dijkstra.html#Tip"><span class="hs-identifier hs-var">Tip</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">() -&gt; ST s ()
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><span id="line-70"></span><span>        </span><span class="annot"><a href="#local-6989586621679073712"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Dijkstra.html#Bin"><span class="hs-identifier hs-type">Bin</span></a></span><span> </span><span id="local-6989586621679073709"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073709"><span class="hs-identifier hs-var">du</span></a></span></span><span> </span><span id="local-6989586621679073708"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073708"><span class="hs-identifier hs-var">u</span></a></span></span><span> </span><span id="local-6989586621679073707"><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073707"><span class="hs-identifier hs-var">ql</span></a></span></span><span> </span><span id="local-6989586621679073706"><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073706"><span class="hs-identifier hs-var">qr</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-71"></span><span>            </span><span id="local-6989586621679073705"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073705"><span class="hs-identifier hs-var">du'</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight -&gt; Weight -&gt; ST s Weight
+</span><span id="line-70"></span><span>        </span><span class="annot"><a href="#local-6989586621679073861"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Dijkstra.html#Bin"><span class="hs-identifier hs-type">Bin</span></a></span><span> </span><span id="local-6989586621679073858"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073858"><span class="hs-identifier hs-var">du</span></a></span></span><span> </span><span id="local-6989586621679073857"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073857"><span class="hs-identifier hs-var">u</span></a></span></span><span> </span><span id="local-6989586621679073856"><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073856"><span class="hs-identifier hs-var">ql</span></a></span></span><span> </span><span id="local-6989586621679073855"><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073855"><span class="hs-identifier hs-var">qr</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-71"></span><span>            </span><span id="local-6989586621679073854"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073854"><span class="hs-identifier hs-var">du'</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight -&gt; Weight -&gt; ST s Weight
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; m e
 </span><span class="hs-identifier hs-var">readArray</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight
-</span><a href="#local-6989586621679073713"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073708"><span class="hs-identifier hs-var">u</span></a></span><span>
+</span><a href="#local-6989586621679073862"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073857"><span class="hs-identifier hs-var">u</span></a></span><span>
 </span><span id="line-72"></span><span>            </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073709"><span class="hs-identifier hs-var">du</span></a></span><span> </span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; Bool
+</span><a href="#local-6989586621679073858"><span class="hs-identifier hs-var">du</span></a></span><span> </span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073705"><span class="hs-identifier hs-var">du'</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">(DHeap -&gt; (Weight, Weight) -&gt; ST s DHeap)
+</span><a href="#local-6989586621679073854"><span class="hs-identifier hs-var">du'</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">(DHeap -&gt; (Weight, Weight) -&gt; ST s DHeap)
 -&gt; DHeap -&gt; [(Weight, Weight)] -&gt; ST s DHeap
 forall (t :: * -&gt; *) (m :: * -&gt; *) b a.
 (Foldable t, Monad m) =&gt;
 (b -&gt; a -&gt; m b) -&gt; b -&gt; t a -&gt; m b
 </span><span class="hs-identifier hs-var">foldM</span></span><span> </span><span class="annot"><span class="annottext">DHeap -&gt; (Weight, Weight) -&gt; ST s DHeap
-</span><a href="#local-6989586621679073704"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073703"><span class="hs-identifier hs-var">qlr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">LGraph Weight
-</span><a href="#local-6989586621679073717"><span class="hs-identifier hs-var">g</span></a></span><span class="annot"><span class="annottext">LGraph Weight -&gt; Weight -&gt; [(Weight, Weight)]
+</span><a href="#local-6989586621679073853"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073852"><span class="hs-identifier hs-var">qlr</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">LGraph Weight
+</span><a href="#local-6989586621679073866"><span class="hs-identifier hs-var">g</span></a></span><span class="annot"><span class="annottext">LGraph Weight -&gt; Weight -&gt; [(Weight, Weight)]
 forall (a :: * -&gt; * -&gt; *) e i.
 (IArray a e, Ix i) =&gt;
 a i e -&gt; i -&gt; e
 </span><span class="hs-glyph hs-var">!</span></span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073708"><span class="hs-identifier hs-var">u</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ST s DHeap -&gt; (DHeap -&gt; ST s ()) -&gt; ST s ()
+</span><a href="#local-6989586621679073857"><span class="hs-identifier hs-var">u</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ST s DHeap -&gt; (DHeap -&gt; ST s ()) -&gt; ST s ()
 forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
 </span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="annot"><span class="annottext">DHeap -&gt; ST s ()
-</span><a href="#local-6989586621679073712"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">DHeap -&gt; ST s ()
-</span><a href="#local-6989586621679073712"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073703"><span class="hs-identifier hs-var">qlr</span></a></span><span>
+</span><a href="#local-6989586621679073861"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">DHeap -&gt; ST s ()
+</span><a href="#local-6989586621679073861"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073852"><span class="hs-identifier hs-var">qlr</span></a></span><span>
 </span><span id="line-73"></span><span>          </span><span class="hs-keyword">where</span><span>
-</span><span id="line-74"></span><span>            </span><span id="local-6989586621679073703"><span class="annot"><span class="annottext">qlr :: DHeap
-</span><a href="#local-6989586621679073703"><span class="hs-identifier hs-var hs-var">qlr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">DHeap -&gt; DHeap -&gt; DHeap
+</span><span id="line-74"></span><span>            </span><span id="local-6989586621679073852"><span class="annot"><span class="annottext">qlr :: DHeap
+</span><a href="#local-6989586621679073852"><span class="hs-identifier hs-var hs-var">qlr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">DHeap -&gt; DHeap -&gt; DHeap
 </span><a href="Dijkstra.html#unionH"><span class="hs-identifier hs-var">unionH</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073707"><span class="hs-identifier hs-var">ql</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073706"><span class="hs-identifier hs-var">qr</span></a></span><span>
-</span><span id="line-75"></span><span>            </span><span id="local-6989586621679073704"><span class="annot"><span class="annottext">f :: DHeap -&gt; (Weight, Weight) -&gt; ST s DHeap
-</span><a href="#local-6989586621679073704"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679073701"><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073701"><span class="hs-identifier hs-var">q</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679073700"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073700"><span class="hs-identifier hs-var">w</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073699"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073699"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-76"></span><span>                </span><span id="local-6989586621679073698"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073698"><span class="hs-identifier hs-var">dv</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight -&gt; Weight -&gt; ST s Weight
+</span><a href="#local-6989586621679073856"><span class="hs-identifier hs-var">ql</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073855"><span class="hs-identifier hs-var">qr</span></a></span><span>
+</span><span id="line-75"></span><span>            </span><span id="local-6989586621679073853"><span class="annot"><span class="annottext">f :: DHeap -&gt; (Weight, Weight) -&gt; ST s DHeap
+</span><a href="#local-6989586621679073853"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679073850"><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073850"><span class="hs-identifier hs-var">q</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679073849"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073849"><span class="hs-identifier hs-var">w</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073848"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073848"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-76"></span><span>                </span><span id="local-6989586621679073847"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073847"><span class="hs-identifier hs-var">dv</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight -&gt; Weight -&gt; ST s Weight
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; m e
 </span><span class="hs-identifier hs-var">readArray</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight
-</span><a href="#local-6989586621679073713"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073699"><span class="hs-identifier hs-var">v</span></a></span><span>
-</span><span id="line-77"></span><span>                </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073697"><span class="annot"><span class="annottext">dv' :: Weight
-</span><a href="#local-6989586621679073697"><span class="hs-identifier hs-var hs-var">dv'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073709"><span class="hs-identifier hs-var">du</span></a></span><span> </span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; Weight
+</span><a href="#local-6989586621679073862"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073848"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><span id="line-77"></span><span>                </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679073846"><span class="annot"><span class="annottext">dv' :: Weight
+</span><a href="#local-6989586621679073846"><span class="hs-identifier hs-var hs-var">dv'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073858"><span class="hs-identifier hs-var">du</span></a></span><span> </span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; Weight
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073700"><span class="hs-identifier hs-var">w</span></a></span><span>
+</span><a href="#local-6989586621679073849"><span class="hs-identifier hs-var">w</span></a></span><span>
 </span><span id="line-78"></span><span>                </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073698"><span class="hs-identifier hs-var">dv</span></a></span><span> </span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; Bool
+</span><a href="#local-6989586621679073847"><span class="hs-identifier hs-var">dv</span></a></span><span> </span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;=</span></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073697"><span class="hs-identifier hs-var">dv'</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">DHeap -&gt; ST s DHeap
+</span><a href="#local-6989586621679073846"><span class="hs-identifier hs-var">dv'</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">DHeap -&gt; ST s DHeap
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073701"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="#local-6989586621679073850"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-79"></span><span>                    </span><span class="annot"><span class="annottext">STUArray s Weight Weight -&gt; Weight -&gt; Weight -&gt; ST s ()
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; e -&gt; m ()
 </span><span class="hs-identifier hs-var">writeArray</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight
-</span><a href="#local-6989586621679073713"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073699"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073697"><span class="hs-identifier hs-var">dv'</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ST</span></span><span> </span><span class="annot"><a href="#local-6989586621679073714"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679073862"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073848"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073846"><span class="hs-identifier hs-var">dv'</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ST</span></span><span> </span><span class="annot"><a href="#local-6989586621679073863"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
 </span><span id="line-80"></span><span>                    </span><span class="annot"><span class="annottext">DHeap -&gt; ST s DHeap
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(DHeap -&gt; ST s DHeap) -&gt; DHeap -&gt; ST s DHeap
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">DHeap -&gt; DHeap -&gt; DHeap
 </span><a href="Dijkstra.html#unionH"><span class="hs-identifier hs-var">unionH</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073701"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; DHeap -&gt; DHeap -&gt; DHeap
+</span><a href="#local-6989586621679073850"><span class="hs-identifier hs-var">q</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; DHeap -&gt; DHeap -&gt; DHeap
 </span><a href="Dijkstra.html#Bin"><span class="hs-identifier hs-var">Bin</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073697"><span class="hs-identifier hs-var">dv'</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073699"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073846"><span class="hs-identifier hs-var">dv'</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073848"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
 </span><a href="Dijkstra.html#Tip"><span class="hs-identifier hs-var">Tip</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
 </span><a href="Dijkstra.html#Tip"><span class="hs-identifier hs-var">Tip</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-81"></span><span>    </span><span class="annot"><span class="annottext">[Weight] -&gt; (Weight -&gt; ST s ()) -&gt; ST s ()
@@ -326,19 +326,19 @@ forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
 (Foldable t, Monad m) =&gt;
 t a -&gt; (a -&gt; m b) -&gt; m ()
 </span><span class="hs-identifier hs-var">forM_</span></span><span> </span><span class="annot"><span class="annottext">[Weight]
-</span><a href="#local-6989586621679073716"><span class="hs-identifier hs-var">srcs</span></a></span><span> </span><span class="annot"><span class="annottext">((Weight -&gt; ST s ()) -&gt; ST s ()) -&gt; (Weight -&gt; ST s ()) -&gt; ST s ()
+</span><a href="#local-6989586621679073865"><span class="hs-identifier hs-var">srcs</span></a></span><span> </span><span class="annot"><span class="annottext">((Weight -&gt; ST s ()) -&gt; ST s ()) -&gt; (Weight -&gt; ST s ()) -&gt; ST s ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679073696"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073696"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight -&gt; Weight -&gt; Weight -&gt; ST s ()
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679073845"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073845"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight -&gt; Weight -&gt; Weight -&gt; ST s ()
 forall (a :: * -&gt; * -&gt; *) e (m :: * -&gt; *) i.
 (MArray a e m, Ix i) =&gt;
 a i e -&gt; i -&gt; e -&gt; m ()
 </span><span class="hs-identifier hs-var">writeArray</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight
-</span><a href="#local-6989586621679073713"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073696"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073862"><span class="hs-identifier hs-var">d</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073845"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
 </span><span class="hs-number">0</span></span><span>
 </span><span id="line-82"></span><span>    </span><span class="annot"><span class="annottext">DHeap -&gt; ST s ()
-</span><a href="#local-6989586621679073712"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(DHeap -&gt; DHeap -&gt; DHeap) -&gt; DHeap -&gt; [DHeap] -&gt; DHeap
+</span><a href="#local-6989586621679073861"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(DHeap -&gt; DHeap -&gt; DHeap) -&gt; DHeap -&gt; [DHeap] -&gt; DHeap
 forall (t :: * -&gt; *) b a.
 Foldable t =&gt;
 (b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b
@@ -347,58 +347,58 @@ Foldable t =&gt;
 </span><a href="Dijkstra.html#Tip"><span class="hs-identifier hs-var">Tip</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; DHeap -&gt; DHeap -&gt; DHeap
 </span><a href="Dijkstra.html#Bin"><span class="hs-identifier hs-var">Bin</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
 </span><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073694"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073843"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
 </span><a href="Dijkstra.html#Tip"><span class="hs-identifier hs-var">Tip</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="Dijkstra.html#Tip"><span class="hs-identifier hs-var">Tip</span></a></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="local-6989586621679073694"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073694"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[Weight]
-</span><a href="#local-6989586621679073716"><span class="hs-identifier hs-var">srcs</span></a></span><span class="hs-special">]</span><span class="hs-special">)</span><span>
+</span><a href="Dijkstra.html#Tip"><span class="hs-identifier hs-var">Tip</span></a></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="local-6989586621679073843"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073843"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[Weight]
+</span><a href="#local-6989586621679073865"><span class="hs-identifier hs-var">srcs</span></a></span><span class="hs-special">]</span><span class="hs-special">)</span><span>
 </span><span id="line-83"></span><span>    </span><span class="annot"><span class="annottext">STUArray s Weight Weight -&gt; ST s (STUArray s Weight Weight)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">STUArray s Weight Weight
-</span><a href="#local-6989586621679073713"><span class="hs-identifier hs-var">d</span></a></span><span>
+</span><a href="#local-6989586621679073862"><span class="hs-identifier hs-var">d</span></a></span><span>
 </span><span id="line-84"></span><span>
 </span><span id="line-85"></span><span class="hs-keyword">data</span><span> </span><span id="DHeap"><span class="annot"><a href="Dijkstra.html#DHeap"><span class="hs-identifier hs-var">DHeap</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Tip"><span class="annot"><a href="Dijkstra.html#Tip"><span class="hs-identifier hs-var">Tip</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span id="Bin"><span class="annot"><a href="Dijkstra.html#Bin"><span class="hs-identifier hs-var">Bin</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Dijkstra.html#Weight"><span class="hs-identifier hs-type">Weight</span></a></span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Vertex</span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Dijkstra.html#DHeap"><span class="hs-identifier hs-type">DHeap</span></a></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Dijkstra.html#DHeap"><span class="hs-identifier hs-type">DHeap</span></a></span><span>
 </span><span id="line-86"></span><span>
 </span><span id="line-87"></span><span class="annot"><a href="Dijkstra.html#unionH"><span class="hs-identifier hs-type">unionH</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Dijkstra.html#DHeap"><span class="hs-identifier hs-type">DHeap</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Dijkstra.html#DHeap"><span class="hs-identifier hs-type">DHeap</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Dijkstra.html#DHeap"><span class="hs-identifier hs-type">DHeap</span></a></span><span>
 </span><span id="line-88"></span><span id="unionH"><span class="annot"><span class="annottext">unionH :: DHeap -&gt; DHeap -&gt; DHeap
 </span><a href="Dijkstra.html#unionH"><span class="hs-identifier hs-var hs-var">unionH</span></a></span></span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="Dijkstra.html#Tip"><span class="hs-identifier hs-var">Tip</span></a></span><span> </span><span id="local-6989586621679073693"><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073693"><span class="hs-identifier hs-var">h2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073693"><span class="hs-identifier hs-var">h2</span></a></span><span>
-</span><span id="line-89"></span><span class="annot"><a href="Dijkstra.html#unionH"><span class="hs-identifier hs-var">unionH</span></a></span><span> </span><span id="local-6989586621679073692"><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073692"><span class="hs-identifier hs-var">h1</span></a></span></span><span> </span><span class="annot"><span class="annottext">DHeap
+</span><a href="Dijkstra.html#Tip"><span class="hs-identifier hs-var">Tip</span></a></span><span> </span><span id="local-6989586621679073842"><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073842"><span class="hs-identifier hs-var">h2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073842"><span class="hs-identifier hs-var">h2</span></a></span><span>
+</span><span id="line-89"></span><span class="annot"><a href="Dijkstra.html#unionH"><span class="hs-identifier hs-var">unionH</span></a></span><span> </span><span id="local-6989586621679073841"><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073841"><span class="hs-identifier hs-var">h1</span></a></span></span><span> </span><span class="annot"><span class="annottext">DHeap
 </span><a href="Dijkstra.html#Tip"><span class="hs-identifier hs-var">Tip</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073692"><span class="hs-identifier hs-var">h1</span></a></span><span>
-</span><span id="line-90"></span><span class="annot"><a href="Dijkstra.html#unionH"><span class="hs-identifier hs-var">unionH</span></a></span><span> </span><span id="local-6989586621679073691"><span class="annot"><span class="annottext">h1 :: DHeap
-</span><a href="#local-6989586621679073691"><span class="hs-identifier hs-var">h1</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Dijkstra.html#Bin"><span class="hs-identifier hs-type">Bin</span></a></span><span> </span><span id="local-6989586621679073690"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073690"><span class="hs-identifier hs-var">w1</span></a></span></span><span> </span><span id="local-6989586621679073689"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073689"><span class="hs-identifier hs-var">v1</span></a></span></span><span> </span><span id="local-6989586621679073688"><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073688"><span class="hs-identifier hs-var">l1</span></a></span></span><span> </span><span id="local-6989586621679073687"><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073687"><span class="hs-identifier hs-var">r1</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679073686"><span class="annot"><span class="annottext">h2 :: DHeap
-</span><a href="#local-6989586621679073686"><span class="hs-identifier hs-var">h2</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Dijkstra.html#Bin"><span class="hs-identifier hs-type">Bin</span></a></span><span> </span><span id="local-6989586621679073685"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073685"><span class="hs-identifier hs-var">w2</span></a></span></span><span> </span><span id="local-6989586621679073684"><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073684"><span class="hs-identifier hs-var">v2</span></a></span></span><span> </span><span id="local-6989586621679073683"><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073683"><span class="hs-identifier hs-var">l2</span></a></span></span><span> </span><span id="local-6989586621679073682"><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073682"><span class="hs-identifier hs-var">r2</span></a></span></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679073841"><span class="hs-identifier hs-var">h1</span></a></span><span>
+</span><span id="line-90"></span><span class="annot"><a href="Dijkstra.html#unionH"><span class="hs-identifier hs-var">unionH</span></a></span><span> </span><span id="local-6989586621679073840"><span class="annot"><span class="annottext">h1 :: DHeap
+</span><a href="#local-6989586621679073840"><span class="hs-identifier hs-var">h1</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Dijkstra.html#Bin"><span class="hs-identifier hs-type">Bin</span></a></span><span> </span><span id="local-6989586621679073839"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073839"><span class="hs-identifier hs-var">w1</span></a></span></span><span> </span><span id="local-6989586621679073838"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073838"><span class="hs-identifier hs-var">v1</span></a></span></span><span> </span><span id="local-6989586621679073837"><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073837"><span class="hs-identifier hs-var">l1</span></a></span></span><span> </span><span id="local-6989586621679073836"><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073836"><span class="hs-identifier hs-var">r1</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679073835"><span class="annot"><span class="annottext">h2 :: DHeap
+</span><a href="#local-6989586621679073835"><span class="hs-identifier hs-var">h2</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Dijkstra.html#Bin"><span class="hs-identifier hs-type">Bin</span></a></span><span> </span><span id="local-6989586621679073834"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073834"><span class="hs-identifier hs-var">w2</span></a></span></span><span> </span><span id="local-6989586621679073833"><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073833"><span class="hs-identifier hs-var">v2</span></a></span></span><span> </span><span id="local-6989586621679073832"><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073832"><span class="hs-identifier hs-var">l2</span></a></span></span><span> </span><span id="local-6989586621679073831"><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073831"><span class="hs-identifier hs-var">r2</span></a></span></span><span class="hs-special">)</span><span>
 </span><span id="line-91"></span><span>   </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073690"><span class="hs-identifier hs-var">w1</span></a></span><span> </span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; Bool
+</span><a href="#local-6989586621679073839"><span class="hs-identifier hs-var">w1</span></a></span><span> </span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; Bool
 forall a. Ord a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">&lt;=</span></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073685"><span class="hs-identifier hs-var">w2</span></a></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; DHeap -&gt; DHeap -&gt; DHeap
+</span><a href="#local-6989586621679073834"><span class="hs-identifier hs-var">w2</span></a></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; DHeap -&gt; DHeap -&gt; DHeap
 </span><a href="Dijkstra.html#Bin"><span class="hs-identifier hs-var">Bin</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073690"><span class="hs-identifier hs-var">w1</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073689"><span class="hs-identifier hs-var">v1</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">DHeap -&gt; DHeap -&gt; DHeap
+</span><a href="#local-6989586621679073839"><span class="hs-identifier hs-var">w1</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073838"><span class="hs-identifier hs-var">v1</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">DHeap -&gt; DHeap -&gt; DHeap
 </span><a href="Dijkstra.html#unionH"><span class="hs-identifier hs-var">unionH</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073687"><span class="hs-identifier hs-var">r1</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073686"><span class="hs-identifier hs-var">h2</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073688"><span class="hs-identifier hs-var">l1</span></a></span><span>
+</span><a href="#local-6989586621679073836"><span class="hs-identifier hs-var">r1</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073835"><span class="hs-identifier hs-var">h2</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073837"><span class="hs-identifier hs-var">l1</span></a></span><span>
 </span><span id="line-92"></span><span>   </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Weight -&gt; Weight -&gt; DHeap -&gt; DHeap -&gt; DHeap
 </span><a href="Dijkstra.html#Bin"><span class="hs-identifier hs-var">Bin</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073685"><span class="hs-identifier hs-var">w2</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
-</span><a href="#local-6989586621679073684"><span class="hs-identifier hs-var">v2</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">DHeap -&gt; DHeap -&gt; DHeap
+</span><a href="#local-6989586621679073834"><span class="hs-identifier hs-var">w2</span></a></span><span> </span><span class="annot"><span class="annottext">Weight
+</span><a href="#local-6989586621679073833"><span class="hs-identifier hs-var">v2</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">DHeap -&gt; DHeap -&gt; DHeap
 </span><a href="Dijkstra.html#unionH"><span class="hs-identifier hs-var">unionH</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073682"><span class="hs-identifier hs-var">r2</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073691"><span class="hs-identifier hs-var">h1</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">DHeap
-</span><a href="#local-6989586621679073683"><span class="hs-identifier hs-var">l2</span></a></span><span>
+</span><a href="#local-6989586621679073831"><span class="hs-identifier hs-var">r2</span></a></span><span> </span><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073840"><span class="hs-identifier hs-var">h1</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">DHeap
+</span><a href="#local-6989586621679073832"><span class="hs-identifier hs-var">l2</span></a></span><span>
 </span><span id="line-93"></span></pre></body></html>

@@ -35,21 +35,21 @@ Implementation notes:
 </span><span id="line-35"></span><span class="annot"><a href="ConvexHull.html#convexHull"><span class="hs-identifier hs-type">convexHull</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Geometry.html#V2"><span class="hs-identifier hs-type">V2</span></a></span><span class="hs-special">]</span><span>
 </span><span id="line-36"></span><span id="convexHull"><span class="annot"><span class="annottext">convexHull :: [V2] -&gt; [V2]
 </span><a href="ConvexHull.html#convexHull"><span class="hs-identifier hs-var hs-var">convexHull</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
-</span><span id="line-37"></span><span class="annot"><a href="ConvexHull.html#convexHull"><span class="hs-identifier hs-var">convexHull</span></a></span><span> </span><span class="hs-special">[</span><span id="local-6989586621679073393"><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679073393"><span class="hs-identifier hs-var">p</span></a></span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679073393"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">]</span><span>
-</span><span id="line-38"></span><span class="annot"><a href="ConvexHull.html#convexHull"><span class="hs-identifier hs-var">convexHull</span></a></span><span> </span><span id="local-6989586621679073392"><span class="annot"><span class="annottext">[V2]
-</span><a href="#local-6989586621679073392"><span class="hs-identifier hs-var">ps</span></a></span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[V2] -&gt; [V2]
+</span><span id="line-37"></span><span class="annot"><a href="ConvexHull.html#convexHull"><span class="hs-identifier hs-var">convexHull</span></a></span><span> </span><span class="hs-special">[</span><span id="local-6989586621679073542"><span class="annot"><span class="annottext">V2
+</span><a href="#local-6989586621679073542"><span class="hs-identifier hs-var">p</span></a></span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">V2
+</span><a href="#local-6989586621679073542"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-38"></span><span class="annot"><a href="ConvexHull.html#convexHull"><span class="hs-identifier hs-var">convexHull</span></a></span><span> </span><span id="local-6989586621679073541"><span class="annot"><span class="annottext">[V2]
+</span><a href="#local-6989586621679073541"><span class="hs-identifier hs-var">ps</span></a></span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[V2] -&gt; [V2]
 forall a. [a] -&gt; [a]
 </span><span class="hs-identifier hs-var">tail</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">([V2] -&gt; V2 -&gt; [V2]) -&gt; [V2] -&gt; [V2] -&gt; [V2]
 forall (t :: * -&gt; *) b a.
 Foldable t =&gt;
 (b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b
 </span><span class="hs-identifier hs-var">foldl'</span></span><span> </span><span class="annot"><span class="annottext">[V2] -&gt; V2 -&gt; [V2]
-</span><a href="#local-6989586621679073389"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[V2] -&gt; [V2]
+</span><a href="#local-6989586621679073538"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[V2] -&gt; [V2]
 forall a. [a] -&gt; [a]
 </span><span class="hs-identifier hs-var">reverse</span></span><span> </span><span class="annot"><span class="annottext">[V2]
-</span><a href="#local-6989586621679073387"><span class="hs-identifier hs-var">ps'</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[V2] -&gt; [V2] -&gt; [V2]
+</span><a href="#local-6989586621679073536"><span class="hs-identifier hs-var">ps'</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[V2] -&gt; [V2] -&gt; [V2]
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">[V2] -&gt; [V2]
 forall a. [a] -&gt; [a]
@@ -58,38 +58,38 @@ forall (t :: * -&gt; *) b a.
 Foldable t =&gt;
 (b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b
 </span><span class="hs-identifier hs-var">foldl'</span></span><span> </span><span class="annot"><span class="annottext">[V2] -&gt; V2 -&gt; [V2]
-</span><a href="#local-6989586621679073389"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">[V2]
-</span><a href="#local-6989586621679073387"><span class="hs-identifier hs-var">ps'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-39"></span><span>    </span><span id="local-6989586621679073387"><span class="annot"><span class="annottext">ps' :: [V2]
-</span><a href="#local-6989586621679073387"><span class="hs-identifier hs-var hs-var">ps'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[V2] -&gt; [V2]
+</span><a href="#local-6989586621679073538"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">[V2]
+</span><a href="#local-6989586621679073536"><span class="hs-identifier hs-var">ps'</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-39"></span><span>    </span><span id="local-6989586621679073536"><span class="annot"><span class="annottext">ps' :: [V2]
+</span><a href="#local-6989586621679073536"><span class="hs-identifier hs-var hs-var">ps'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[V2] -&gt; [V2]
 forall a. Ord a =&gt; [a] -&gt; [a]
 </span><span class="hs-identifier hs-var">sort</span></span><span> </span><span class="annot"><span class="annottext">[V2]
-</span><a href="#local-6989586621679073392"><span class="hs-identifier hs-var">ps</span></a></span><span>
-</span><span id="line-40"></span><span>    </span><span id="local-6989586621679073389"><span class="annot"><span class="annottext">f :: [V2] -&gt; V2 -&gt; [V2]
-</span><a href="#local-6989586621679073389"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679073385"><span class="annot"><span class="annottext">[V2]
-</span><a href="#local-6989586621679073385"><span class="hs-identifier hs-var">hull</span></a></span></span><span> </span><span id="local-6989586621679073384"><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679073384"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[V2] -&gt; [V2]
-</span><a href="#local-6989586621679073383"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[V2]
-</span><a href="#local-6989586621679073385"><span class="hs-identifier hs-var">hull</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-41"></span><span>        </span><span id="local-6989586621679073383"><span class="annot"><span class="annottext">go :: [V2] -&gt; [V2]
-</span><a href="#local-6989586621679073383"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679073382"><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679073382"><span class="hs-identifier hs-var">p1</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679073381"><span class="annot"><span class="annottext">h :: [V2]
-</span><a href="#local-6989586621679073381"><span class="hs-identifier hs-var">h</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span id="local-6989586621679073380"><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679073380"><span class="hs-identifier hs-var">p2</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span class="annot"><span class="annottext">[V2]
+</span><a href="#local-6989586621679073541"><span class="hs-identifier hs-var">ps</span></a></span><span>
+</span><span id="line-40"></span><span>    </span><span id="local-6989586621679073538"><span class="annot"><span class="annottext">f :: [V2] -&gt; V2 -&gt; [V2]
+</span><a href="#local-6989586621679073538"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679073534"><span class="annot"><span class="annottext">[V2]
+</span><a href="#local-6989586621679073534"><span class="hs-identifier hs-var">hull</span></a></span></span><span> </span><span id="local-6989586621679073533"><span class="annot"><span class="annottext">V2
+</span><a href="#local-6989586621679073533"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[V2] -&gt; [V2]
+</span><a href="#local-6989586621679073532"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[V2]
+</span><a href="#local-6989586621679073534"><span class="hs-identifier hs-var">hull</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-41"></span><span>        </span><span id="local-6989586621679073532"><span class="annot"><span class="annottext">go :: [V2] -&gt; [V2]
+</span><a href="#local-6989586621679073532"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679073531"><span class="annot"><span class="annottext">V2
+</span><a href="#local-6989586621679073531"><span class="hs-identifier hs-var">p1</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679073530"><span class="annot"><span class="annottext">h :: [V2]
+</span><a href="#local-6989586621679073530"><span class="hs-identifier hs-var">h</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span id="local-6989586621679073529"><span class="annot"><span class="annottext">V2
+</span><a href="#local-6989586621679073529"><span class="hs-identifier hs-var">p2</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span class="annot"><span class="annottext">[V2]
 </span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">V2 -&gt; V2 -&gt; V2 -&gt; Ordering
 </span><a href="Geometry.html#turn"><span class="hs-identifier hs-var">turn</span></a></span><span> </span><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679073380"><span class="hs-identifier hs-var">p2</span></a></span><span> </span><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679073382"><span class="hs-identifier hs-var">p1</span></a></span><span> </span><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679073384"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">Ordering -&gt; Ordering -&gt; Bool
+</span><a href="#local-6989586621679073529"><span class="hs-identifier hs-var">p2</span></a></span><span> </span><span class="annot"><span class="annottext">V2
+</span><a href="#local-6989586621679073531"><span class="hs-identifier hs-var">p1</span></a></span><span> </span><span class="annot"><span class="annottext">V2
+</span><a href="#local-6989586621679073533"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">Ordering -&gt; Ordering -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="annottext">Ordering
 </span><span class="hs-identifier hs-var">LT</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[V2] -&gt; [V2]
-</span><a href="#local-6989586621679073383"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[V2]
-</span><a href="#local-6989586621679073381"><span class="hs-identifier hs-var">h</span></a></span><span>
-</span><span id="line-42"></span><span>        </span><span class="annot"><a href="#local-6989586621679073383"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679073378"><span class="annot"><span class="annottext">[V2]
-</span><a href="#local-6989586621679073378"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">V2
-</span><a href="#local-6989586621679073384"><span class="hs-identifier hs-var">p</span></a></span><span class="annot"><span class="annottext">V2 -&gt; [V2] -&gt; [V2]
+</span><a href="#local-6989586621679073532"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">[V2]
+</span><a href="#local-6989586621679073530"><span class="hs-identifier hs-var">h</span></a></span><span>
+</span><span id="line-42"></span><span>        </span><span class="annot"><a href="#local-6989586621679073532"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span id="local-6989586621679073527"><span class="annot"><span class="annottext">[V2]
+</span><a href="#local-6989586621679073527"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">V2
+</span><a href="#local-6989586621679073533"><span class="hs-identifier hs-var">p</span></a></span><span class="annot"><span class="annottext">V2 -&gt; [V2] -&gt; [V2]
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span class="annot"><span class="annottext">[V2]
-</span><a href="#local-6989586621679073378"><span class="hs-identifier hs-var">h</span></a></span><span>
+</span><a href="#local-6989586621679073527"><span class="hs-identifier hs-var">h</span></a></span><span>
 </span><span id="line-43"></span></pre></body></html>
