@@ -890,6 +890,46 @@ module RerootFold
 foldReroot :: (a -> b -> c) -> (b -> c -> b) -> b -> Tree a -> Tree (a, c)
 
 
+-- | <h2>Fast input</h2>
+--   
+--   Reads space separated values from ASCII input, the typical format in
+--   competitive programming. This is overkill in most situations. For more
+--   information see
+--   https:/<i>github.com</i>meooow25<i>haccepted</i>wiki/Performance-tips#input-and-output.
+module Scanner
+type S = StateT ByteString IO
+
+-- | Runs the given action with standard input.
+runS :: S a -> IO a
+
+-- | Reads a Char.
+charS :: S Char
+
+-- | Reads a ByteString.
+byteStrS :: S ByteString
+
+-- | Reads an Int.
+intS :: S Int
+
+-- | Reads an array mutable in IO.
+ioArrS :: (MArray a e IO, Ix i) => (i, i) -> S e -> S (a i e)
+
+-- | Reads an array.
+arrS :: forall a a' e i. (MArray a e IO, IArray a' e, Ix i) => (i, i) -> S e -> S (a' i e)
+
+-- | Reads a UArray.
+uArrayS :: (MArray IOUArray e IO, IArray UArray e, Ix i) => (i, i) -> S e -> S (UArray i e)
+
+-- | Reads an Array.
+arrayS :: Ix i => (i, i) -> S e -> S (Array i e)
+
+-- | Reads an undirected graph from an edge list.
+graphS :: Bounds -> Int -> S Graph
+
+-- | Reads a directed graph from an edge list.
+graphDirS :: Bounds -> Int -> S Graph
+
+
 -- | <h2>Segment tree</h2>
 --   
 --   A data structure supporting point updates and range queries on a
