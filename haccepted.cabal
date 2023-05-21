@@ -41,6 +41,7 @@ library
       PQTree
       Prufer
       RerootFold
+      Scanner
       SegTree
       SegTreeLazy
       SegTreeLazyMut
