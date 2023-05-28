@@ -1,5 +1,5 @@
 {-# LANGUAGE BangPatterns, ScopedTypeVariables #-}
-{-
+{-|
 Heavy-light decomposition
 
 Decomposition of a tree of size n into multiple paths, such that there are O(log n) paths between
@@ -13,8 +13,9 @@ integers, possibly simplifying the problem.
 
 Sources:
 * https://en.wikipedia.org/wiki/Heavy_path_decomposition
+* https://cp-algorithms.com/graph/hld.html
 
-Implementation note:
+Implementation notes:
 * The size array need not be stored if subtree queries are not required
 
 buildHLD
