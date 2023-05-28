@@ -471,12 +471,64 @@ anyM :: (Monad m, Foldable f) => (a -> m Bool) -> f a -> m Bool
 
 -- | Monadic version of all.
 allM :: (Monad m, Foldable f) => (a -> m Bool) -> f a -> m Bool
+minimumByMaybe :: Foldable f => (a -> a -> Ordering) -> f a -> Maybe a
+maximumByMaybe :: Foldable f => (a -> a -> Ordering) -> f a -> Maybe a
 instance GHC.Classes.Ord a => Misc.Idempotent (Data.Semigroup.Max a)
 instance GHC.Classes.Ord a => Misc.Idempotent (Data.Semigroup.Min a)
 instance Misc.Idempotent (Data.Semigroup.First a)
 instance Misc.Idempotent (Data.Semigroup.Last a)
 instance GHC.Num.Num a => Misc.Group (Data.Semigroup.Internal.Sum a)
 instance GHC.Num.Num a => Misc.Commutative (Data.Semigroup.Internal.Sum a)
+
+
+-- | <h2>Heavy-light decomposition</h2>
+--   
+--   Decomposition of a tree of size n into multiple paths, such that there
+--   are O(log n) paths between any pair of vertices.
+--   
+--   HLD is useful for problems that have queries or updates on the path
+--   between two vertices.
+--   
+--   This implementation maps each node to an integer position in [1..n]
+--   such that nodes in a path have consecutive positions. A path between
+--   two vertices decomposes into O(log n) ranges of consecutive integers,
+--   possibly simplifying the problem.
+--   
+--   Sources:
+--   
+--   <ul>
+--   <li><a>https://en.wikipedia.org/wiki/Heavy_path_decomposition</a></li>
+--   <li><a>https://cp-algorithms.com/graph/hld.html</a></li>
+--   </ul>
+module HLD
+data HLD
+HLD :: !UArray Vertex Vertex -> !UArray Vertex Int -> !UArray Vertex Vertex -> !UArray Vertex Int -> !UArray Vertex Int -> HLD
+[par_] :: HLD -> !UArray Vertex Vertex
+[dep_] :: HLD -> !UArray Vertex Int
+[hed_] :: HLD -> !UArray Vertex Vertex
+[pos_] :: HLD -> !UArray Vertex Int
+[siz_] :: HLD -> !UArray Vertex Int
+
+-- | Builds the HLD structure from a tree. O(n).
+buildHLD :: Bounds -> Tree Vertex -> HLD
+
+-- | The position for the given vertex. O(1).
+posHLD :: HLD -> Vertex -> Int
+
+-- | A list of position ranges which make up the path from u to v. O(log
+--   n).
+pathHLD :: HLD -> Vertex -> Vertex -> [(Int, Int)]
+
+-- | pathsHLD but excludes the LCA. Useful when working with edges, each
+--   edge can be mapped to the node it leads down into. O(log n).
+edgePathHLD :: HLD -> Vertex -> Vertex -> [(Int, Int)]
+
+-- | A position range covering the subtree of the given node. O(1).
+subtreeHLD :: HLD -> Vertex -> (Int, Int)
+
+-- | The lowest common ancestor of two vertices. O(log n).
+lcaHLD :: HLD -> Vertex -> Vertex -> Vertex
+instance Control.DeepSeq.NFData HLD.HLD
 
 
 -- | <h2>Floyd-Warshall algorithm</h2>
