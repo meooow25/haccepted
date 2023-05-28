@@ -115,6 +115,8 @@ module Misc
     , andM
     , anyM
     , allM
+    , minimumByMaybe
+    , maximumByMaybe
     ) where
 
 import Control.Monad
@@ -232,3 +234,11 @@ anyM f = foldr (orM . f) (pure False)
 
 allM :: (Monad m, Foldable f) => (a -> m Bool) -> f a -> m Bool
 allM f = foldr (andM . f) (pure True)
+
+maximumByMaybe :: Foldable f => (a -> a -> Ordering) -> f a -> Maybe a
+maximumByMaybe cmp xs = if null xs then Nothing else Just (maximumBy cmp xs)
+{-# INLINE maximumByMaybe #-}
+
+minimumByMaybe :: Foldable f => (a -> a -> Ordering) -> f a -> Maybe a
+minimumByMaybe cmp xs = if null xs then Nothing else Just (minimumBy cmp xs)
+{-# INLINE minimumByMaybe #-}

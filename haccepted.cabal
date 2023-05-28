@@ -29,6 +29,7 @@ library
       FenwickMut
       FloydWarshall
       Geometry
+      HLD
       KMP
       Kruskal
       LabelledGraph
@@ -119,6 +120,7 @@ test-suite test-all
       FenwickMutSpec
       FenwickSpec
       FloydWarshallSpec
+      HLDSpec
       KMPSpec
       KruskalSpec
       LCASpec
@@ -174,6 +176,7 @@ benchmark bench-all
       FenwickBench
       FenwickMutBench
       FloydWarshallBench
+      HLDBench
       KMPBench
       KruskalBench
       LCABench
