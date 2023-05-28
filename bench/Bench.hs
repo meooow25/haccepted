@@ -12,6 +12,7 @@ import qualified DijkstraBench
 import qualified FenwickBench
 import qualified FenwickMutBench
 import qualified FloydWarshallBench
+import qualified HLDBench
 import qualified KMPBench
 import qualified KruskalBench
 import qualified LCABench
@@ -47,6 +48,7 @@ main = defaultMain
     , FenwickBench.benchmark
     , FenwickMutBench.benchmark
     , FloydWarshallBench.benchmark
+    , HLDBench.benchmark
     , KMPBench.benchmark
     , KruskalBench.benchmark
     , LCABench.benchmark

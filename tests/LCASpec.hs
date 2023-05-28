@@ -29,5 +29,4 @@ spec = do
 naiveLCA :: Vertex -> Vertex -> [Tree Vertex] -> Maybe Vertex
 naiveLCA u v ts = asum $ map go ts where
     go t@(Node x ts) = asum (map go ts) <|> me where
-        nodes = toList t
-        me = if u `elem` nodes && v `elem` nodes then Just x else Nothing
+        me = if u `elem` t && v `elem` t then Just x else Nothing
