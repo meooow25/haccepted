@@ -19,14 +19,14 @@ benchmark = bgroup "AhoCorasick"
 
       -- Build the Aho-Corasick automaton from n/20 a-z strings of length 20.
     , bgroup "build from many short" $ map (benchBuild genMany) sizes
-    
+
       -- Match an Aho-Corasick automaton built from n/20 a-z strings of length 20 on a string of
       -- length n.
     , bgroup "match many short" $ map (benchMatch genMany) sizes
     ]
 
 sizes :: [Int]
-sizes = [100, 10000, 1000000]
+sizes = [100, 10000, 500000]
 
 benchBuild :: (Int -> RandStd [(C.ByteString, Int)]) -> Int -> Benchmark
 benchBuild genps n = sizedBench n gen $ nf (fromTrieAC . fromListTAC) where
