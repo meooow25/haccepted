@@ -1,3 +1,5 @@
+{-# LANGUAGE BangPatterns #-}
+
 {-|
 Aho-Corasick algorithm
 
@@ -5,7 +7,7 @@ The Aho-Corasick algorithm builds an automaton from a set of pattern strings, an
 find positions in a search string where each of the pattern strings occur.
 
 This implementation only works on ByteStrings, to keep things fast. If required it can be adapted
-to work on Strings, or even more generally (Ord a, Foldable f) => f a.
+to work on other sequence types.
 
 A TrieAC a can be constructed from pattern strings with associated values a, which can be then be
 turned into an ACRoot a. An ACRoot a can then be run on a search string to find matches.
@@ -18,18 +20,22 @@ Sources:
 * Stanford CS166 Aho-Corasick lecture slides
   https://web.stanford.edu/class/archive/cs/cs166/cs166.1166/lectures/04/Slides04.pdf
 
-Let k be the alphabet size. Let the complexity of IntMap operations be f(n), where n is the size of
-the map. f(n) is O(min(n, word size)), see IntMap documentation for details.
+Implementation notes:
+* We have to be lazy in the (Maybe (ACNode a)) and the [a] in fromTrieAC because we build the tree
+  depth-first and strictly (due to IntMap.Strict). If we could build it breadth-first, then we
+  could be strict in these, but I don't see an easy way to do that.
+
+For complexities below, k is the alphabet range (max 256).
 
 emptyTAC
 An empty trie.
 
 insertTAC
-Inserts a string with an associated value into a trie. O(n * f(k)) where n is the length of the
+Inserts a string with an associated value into a trie. O(n log k) where n is the length of the
 string.
 
 fromListTAC
-Builds a trie from a list of strings and associated values. O(n * f(k)) where n is total length of
+Builds a trie from a list of strings and associated values. O(n log k) where n is total length of
 the strings.
 
 fromTrieAC
@@ -41,7 +47,7 @@ Returns a list of length (m + 1) where m is the length of the search string. Thi
 list of pattern matches for every position in the string, including before the first character. A
 match at a position is present as the associated value of the pattern string found to be ending at
 that position.
-O(m * f(k) + z), where m is the length of the string and z is the total number of matches.
+O(m log k + z), where m is the length of the string and z is the total number of matches.
 -}
 
 module AhoCorasick
@@ -54,61 +60,61 @@ module AhoCorasick
     , matchAC
     ) where
 
+import Control.Applicative
 import Control.DeepSeq
 import Data.List
 import Data.Maybe
-import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString as B
 import qualified Data.IntMap.Strict as IM
 
-data ACRoot a = ACRoot (IM.IntMap (ACNode a)) [a]
-data ACNode a = ACNode (IM.IntMap (ACNode a)) [a] (ACLink a)
-data ACLink a = RootL | NodeL !(ACNode a)
+data ACRoot a = ACRoot !(IM.IntMap (ACNode a)) [a]
+data ACNode a = ACNode !(IM.IntMap (ACNode a)) (Maybe (ACNode a)) [a]
 
 fromTrieAC :: TrieAC a -> ACRoot a
-fromTrieAC (TrieAC tm tvs) = ACRoot rmp tvs where
+fromTrieAC (TrieAC tm routs) = ACRoot rmp routs where
     rmp = IM.map go1 tm
-    go1 (TrieAC m vs) = ACNode (IM.mapWithKey (go RootL) m) (vs ++ tvs) RootL
-    go psuf c (TrieAC m vs) = ACNode (IM.mapWithKey (go suf) m) outs suf where
+    go1 (TrieAC m vs) = ACNode (IM.mapWithKey (go Nothing) m) Nothing (vs ++ routs)
+    go psuf !c (TrieAC m vs) = ACNode (IM.mapWithKey (go suf) m) suf outs where
         suf = getSuf psuf
-        getSuf RootL                       = maybe RootL NodeL (IM.lookup c rmp)
-        getSuf (NodeL (ACNode mp' _ suf')) = maybe (getSuf suf') NodeL (IM.lookup c mp')
-        outs = vs ++ case suf of
-            RootL                    -> tvs
-            NodeL (ACNode _ outs' _) -> outs'
+        getSuf Nothing                    = IM.lookup c rmp
+        getSuf (Just (ACNode mp' suf' _)) = IM.lookup c mp' <|> getSuf suf'
+        outs = vs ++ maybe routs (\(ACNode _ _ outs') -> outs') suf
 
-matchAC :: ACRoot a -> C.ByteString -> [[a]]
-matchAC (ACRoot rmp routs) = (routs:) . go1 where
-    go1 = go rmp $ const ((routs:) . go1)
-    go2 (ACNode mp _ suf) = go mp $ const . case suf of
-        RootL   -> go1
-        NodeL x -> go2 x
-    go mp miss s = case C.uncons s of
+matchAC :: ACRoot a -> B.ByteString -> [[a]]
+matchAC (ACRoot rmp routs) !s0 = routs : gor s0 where
+    gor s = case B.uncons s of
+        Nothing -> []
+        Just (c,s') -> case IM.lookup (fromEnum c) rmp of
+            Nothing -> routs : gor s'
+            Just (ACNode mp suf outs) -> outs : go mp suf s'
+    go mp suf s = case B.uncons s of
         Nothing -> []
         Just (c, s') -> case IM.lookup (fromEnum c) mp of
-            Nothing                  -> miss s s'
-            Just x@(ACNode _ outs _) -> outs : go2 x s'
+            Nothing -> maybe gor (\(ACNode mp' suf' _) -> go mp' suf') suf s
+            Just (ACNode mp' suf' outs) -> outs : go mp' suf' s'
 
-data TrieAC a = TrieAC (IM.IntMap (TrieAC a)) [a] deriving Show
+data TrieAC a = TrieAC !(IM.IntMap (TrieAC a)) ![a] deriving Show
 
 emptyTAC :: TrieAC a
 emptyTAC = TrieAC IM.empty []
 
-insertTAC :: C.ByteString -> a -> TrieAC a -> TrieAC a
+insertTAC :: B.ByteString -> a -> TrieAC a -> TrieAC a
 insertTAC s v = go s where
-    go cs (TrieAC m vs) = case C.uncons cs of
+    go cs (TrieAC m vs) = case B.uncons cs of
         Nothing       -> TrieAC m (v:vs)
         Just (c, cs') -> TrieAC m' vs where
-            m' = IM.alter (Just . go cs' . fromMaybe emptyTAC) (fromEnum c) m
+            m' = IM.alter ((Just $!) . go cs' . fromMaybe emptyTAC) (fromIntegral c) m
 
-fromListTAC :: [(C.ByteString, a)] -> TrieAC a
+fromListTAC :: [(B.ByteString, a)] -> TrieAC a
 fromListTAC = foldl' (\t (s, v) -> insertTAC s v t) emptyTAC
 
 --------------------------------------------------------------------------------
 -- For tests
 
--- outs of nodes share structure, so rnf is O(n^2)
 instance NFData a => NFData (ACNode a) where
-    rnf (ACNode mp outs suf) = rnf outs `seq` suf `seq` rnf mp
+    rnf (ACNode mp _outs suf) = suf `seq` rnf mp
+-- outs of nodes share structure, so it is not forced
+-- the suf link is forced only to WHNF, otherwise it would be reevaluating various parts of the tree
 
 instance NFData a => NFData (ACRoot a) where
-    rnf (ACRoot mp outs) = rnf outs `seq` rnf mp
+    rnf (ACRoot mp _outs) = rnf mp
