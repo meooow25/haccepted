@@ -16,8 +16,7 @@
 --   each of the pattern strings occur.
 --   
 --   This implementation only works on ByteStrings, to keep things fast. If
---   required it can be adapted to work on Strings, or even more generally
---   (Ord a, Foldable f) =&gt; f a.
+--   required it can be adapted to work on other sequence types.
 --   
 --   A TrieAC a can be constructed from pattern strings with associated
 --   values a, which can be then be turned into an ACRoot a. An ACRoot a
@@ -34,21 +33,19 @@
 --   <a>https://web.stanford.edu/class/archive/cs/cs166/cs166.1166/lectures/04/Slides04.pdf</a></li>
 --   </ul>
 --   
---   Let k be the alphabet size. Let the complexity of IntMap operations be
---   f(n), where n is the size of the map. f(n) is O(min(n, word size)),
---   see IntMap documentation for details.
+--   For complexities below, k is the alphabet range (max 256).
 module AhoCorasick
 data TrieAC a
 
 -- | An empty trie.
 emptyTAC :: TrieAC a
 
--- | Inserts a string with an associated value into a trie. O(n * f(k))
+-- | Inserts a string with an associated value into a trie. O(n log k)
 --   where n is the length of the string.
 insertTAC :: ByteString -> a -> TrieAC a -> TrieAC a
 
--- | Builds a trie from a list of strings and associated values. O(n *
---   f(k)) where n is total length of the strings.
+-- | Builds a trie from a list of strings and associated values. O(n log k)
+--   where n is total length of the strings.
 fromListTAC :: [(ByteString, a)] -> TrieAC a
 data ACRoot a
 
@@ -61,7 +58,7 @@ fromTrieAC :: TrieAC a -> ACRoot a
 --   string. This list contains a list of pattern matches for every
 --   position in the string, including before the first character. A match
 --   at a position is present as the associated value of the pattern string
---   found to be ending at that position. O(m * f(k) + z), where m is the
+--   found to be ending at that position. O(m log k + z), where m is the
 --   length of the string and z is the total number of matches.
 matchAC :: ACRoot a -> ByteString -> [[a]]
 instance GHC.Show.Show a => GHC.Show.Show (AhoCorasick.TrieAC a)
