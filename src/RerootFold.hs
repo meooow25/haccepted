@@ -12,15 +12,16 @@ g :: b -> c -> b must be commutative, in the sense that
 (b `g` c1) `g` c2 = (b `g` c2) `g` c1
 
 Sources:
-* Informal discussions. I am unable to find a good published source for this technique :(
+* pajenegod, "The Ultimate Reroot Template"
+  https://codeforces.com/blog/entry/124286
 
 Implementation notes:
 * Thanks to Haskell's laziness it is possible to write a more concise implementation with a single
   dfs, but this seems to be slower in practice. Here is a possible implementation:
   https://gist.github.com/meooow25/6460e45327355106cedbcf3bd5166cd6
-* Reroot problems can often be solved in O(n) time, if there is a way to *take way* the contribution
-  of a node from an accumulated value. Avoiding this requirement, it takes O(n log n) but is far
-  simpler.
+* Reroot problems can often be solved in O(n) time, if there is a way to *take away* the
+  contribution of a node from an accumulated value. Avoiding this requirement, it takes O(n log n)
+  but is far simpler.
 
 foldReroot
 Returns the same tree with each vertex accompanied by the fold of the tree if that vertex is made
