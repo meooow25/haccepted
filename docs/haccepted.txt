@@ -928,8 +928,8 @@ seqToGraph :: Bounds -> [Vertex] -> Graph
 --   Sources:
 --   
 --   <ul>
---   <li>Informal discussions. I am unable to find a good published source
---   for this technique :(</li>
+--   <li>pajenegod, "The Ultimate Reroot Template"
+--   <a>https://codeforces.com/blog/entry/124286</a></li>
 --   </ul>
 module RerootFold
 
